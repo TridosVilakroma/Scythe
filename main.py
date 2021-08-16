@@ -18,9 +18,9 @@ if joysticks >0:
     if joysticks >1:
         P2 = pygame.joystick.Joystick(1)
         P2.init()
-walking=sa.ScymanWalk(500,250)
-sg=pygame.sprite.Group()
-sg.add(walking)
+scyman_walking=sa.ScymanWalk(500,250)
+scyman_walking_animation=pygame.sprite.Group()
+scyman_walking_animation.add(scyman_walking)
 class GameElements():
     def __init__(self):
         self.focus= 'start'
@@ -33,15 +33,12 @@ class GameElements():
             comfunc.quit(event)
             if event.type == pygame.JOYBUTTONDOWN:
                 if event.joy == 0:
-                   self.focus='main'
+                   self.focus='play'
                 elif event.joy == 1:
                     print('test')
-            if event.type == pygame.JOYAXISMOTION:
-                walking.animate()
+            
         screen.fill((0, 95, 65))
         screen.blit(corner_flair,(0,467))
-        sg.draw(screen)
-        sg.update(.2)
         screen.blit(title_text,((screen_width/2 -title_text.get_rect().width/2,screen_height/4 -title_text.get_rect().height/2)))
         pygame.display.flip()
 
@@ -53,15 +50,26 @@ class GameElements():
         pygame.display.flip()
         print()
 
-    def game_play():
-        pass
-
+    def game_play(self):
+        for event in pygame.event.get():
+            pos = pygame.mouse.get_pos()
+            comfunc.quit(event)
+            if event.type == pygame.JOYAXISMOTION:
+                if not comfunc.dead_zone(P1):
+                    scyman_walking.animate()
+                    scyman_walking.move(P1,event)
+        screen.fill((0, 95, 65))
+        scyman_walking_animation.draw(screen)
+        scyman_walking_animation.update(.09)
+        pygame.display.flip()
 
     def focus_switch(self):
         if self.focus == 'start':
             self.start_screen()
         elif self.focus == 'main':
             self.main_menu()
+        elif self.focus == 'play':
+            self.game_play()
 game = GameElements()
 
 
