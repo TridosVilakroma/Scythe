@@ -1,4 +1,4 @@
-import pygame, time, random, sys
+import pygame, time, random, sys,text
 import common_functions as comfunc
 import sprite_animation as sa
 from color_palette import *
@@ -9,8 +9,12 @@ pygame.init()
 clock = pygame.time.Clock()
 screen = pygame.display.set_mode((screen_width,screen_height))
 pygame.display.set_caption('Scythe')
+
+#image loading
 corner_flair=pygame.image.load("media\Corner_flair.png")
 scyman=pygame.image.load('media\scyman.png')
+
+#joystick handling
 joysticks = (pygame.joystick.get_count())
 if joysticks >0:
     P1 = pygame.joystick.Joystick(0)
@@ -18,16 +22,23 @@ if joysticks >0:
     if joysticks >1:
         P2 = pygame.joystick.Joystick(1)
         P2.init()
+
+#sprite loading
 scyman_walking=sa.ScymanWalk(500,250)
 scyman_walking_animation=pygame.sprite.Group()
 scyman_walking_animation.add(scyman_walking)
+
+#text loading
+title_text =text.TextHandler("media\VecnaBold.ttf",LIGHT_LEATHER,'Welcome',150)
+press_start_text =text.TextHandler('media\VecnaBold.ttf',LEATHER,'Press Start',50)
+
+# press_start_text= comfunc.scale_bounce(press_start_text)
+
 class GameElements():
     def __init__(self):
         self.focus= 'start'
 
     def start_screen(self):
-        vecna=pygame.font.Font("media\VecnaBold.ttf",150)
-        title_text = vecna.render("Welcome",True,(222, 151, 81)) 
         for event in pygame.event.get():
             pos = pygame.mouse.get_pos()
             comfunc.quit(event)
@@ -39,7 +50,9 @@ class GameElements():
             
         screen.fill((0, 95, 65))
         screen.blit(corner_flair,(0,467))
-        screen.blit(title_text,((screen_width/2 -title_text.get_rect().width/2,screen_height/4 -title_text.get_rect().height/2)))
+        screen.blit(title_text.text_obj,((screen_width/2 -title_text.text_obj.get_width()/2,screen_height/4 -title_text.text_obj.get_height()/2)))
+        screen.blit(press_start_text.text_obj,(screen_width/2 -press_start_text.text_obj.get_width()/2,screen_height/2 -press_start_text.text_obj.get_height()/2))
+        press_start_text.shrink_pop(50)
         pygame.display.flip()
 
     def main_menu(self):
@@ -70,9 +83,9 @@ class GameElements():
             self.main_menu()
         elif self.focus == 'play':
             self.game_play()
+
+
 game = GameElements()
-
-
 while True:
     clock.tick(60)
     game.focus_switch()
