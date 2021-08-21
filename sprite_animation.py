@@ -1,51 +1,45 @@
 import pygame
-import operator
+import random
 
-from pygame.constants import JOYAXISMOTION
-class ScymanWalk(pygame.sprite.Sprite):
-    def __init__(self,pos_x, pos_y):
-        super().__init__()
-        self.animating=False
-        self.sprites =[]
-        self.sprites.append(pygame.image.load('media\scyman_walk\scymanwalk0.png'))
-        self.sprites.append(pygame.image.load('media\scyman_walk\scymanwalk1.png'))
-        self.sprites.append(pygame.image.load('media\scyman_walk\scymanwalk2.png'))
-        self.sprites.append(pygame.image.load('media\scyman_walk\scymanwalk3.png'))
-        self.current_sprite=0
-        self.image=self.sprites[self.current_sprite]
-        self.rect=self.image.get_rect()
-        self.rect.center=[pos_x,pos_y]
-        self.x_velocity=0
-        self.y_velocity=0
-        # self.left=[pos_x]
-        # self.top=[pos_y]
-        self.speed=4
-        
-    def animate(self):
-        self.animating=True
+class Spritesheet():
+    def __init__(self,file,position=[0,0],rng=False,speed=6):
+        self.file=file
+        self.image=pygame.image.load(file)
+        self.position=[0,0]
+        self.frame=[0,0,32,32]
+        self.limit=self.image.get_rect()[2]
+        self.speed=speed
+        self.timer=0
+        self.position=position
+        self.rng=rng
+        self.rng_range_lower=-.5
+        self.rng_range_upper=.5
+    
+    def advance_frame(self):
+        if self.frame[0]>=self.limit-32:
+            self.frame[0]=0
+        self.frame[0]+=32
+    
+    def movex(self):
+        self.position[0]+=.4
+        if self.position[0]>1030:
+            self.position[0]=-30
+    
+    def movey(self):
+        if self.rng:
+            if self.timer>=10:
+                if self.position[1]>=0:
+                    self.position[1]+=random.uniform(self.rng_range_lower,self.rng_range_upper)
+                else:
+                    self.position[1]+=random.uniform(0,self.rng_range_upper)
+    
+    def update(self):
+        self.timer +=self.speed
+        if self.timer>=60:
+            self.advance_frame()
+            self.timer=0
+        self.movex()
+        self.movey()
 
-    def move(self,controller,event):    
-        x_axis = controller.get_axis(0)
-        y_axis = controller.get_axis(1)
-        if x_axis>0:
-            if self.x_velocity<3:
-                self.x_velocity+=1
-        elif x_axis<0:
-            if self.x_velocity>3:
-                self.x_velocity-=1
-        self.rect.left+=self.x_velocity*x_axis
-        if y_axis>0:
-            if self.y_velocity<3:
-                self.y_velocity+=1
-        elif y_axis<0:
-            if self.y_velocity>3:
-                self.y_velocity-=1
-        self.rect.top+=self.y_velocity*y_axis
 
-    def update(self,speed):
-        if self.animating==True:
-            self.current_sprite+=speed
-            if int(self.current_sprite)>=len(self.sprites):
-                self.current_sprite=0
-                self.animating=False
-        self.image=self.sprites[int(self.current_sprite)]
+
