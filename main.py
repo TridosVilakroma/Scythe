@@ -72,8 +72,7 @@ class GameElements():
         screen.fill((0, 95, 65))
         for event in pygame.event.get():
             comfunc.quit(event)
-            scyman.move(delta,event)
-        scyman.update(delta)
+        scyman.update(P1,delta)
         screen.blit(scyman.image,(scyman.positionx,scyman.positiony))
         pygame.display.flip()
 

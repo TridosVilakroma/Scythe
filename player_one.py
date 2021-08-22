@@ -1,7 +1,6 @@
 import pygame,common_functions
 import operator
-
-from pygame.constants import JOYAXISMOTION, JOYHATMOTION, MOUSEBUTTONDOWN, K_a, K_d
+from pygame import*
 class PlayerOne(pygame.sprite.Sprite):
     def __init__(self,pos_x, pos_y):
         super().__init__()
@@ -15,46 +14,44 @@ class PlayerOne(pygame.sprite.Sprite):
         self.image=self.sprites[self.current_sprite]
         self.positionx=pos_x
         self.positiony=pos_y
-        self.friction =.25
-        self.x_velocity,self.y_velocity=0,0
-        self.acceleration=75
-        self.speed=.09
-        self.gravity =.35     
+        self.animate_speed=.09
+        self.speed=72
+    
         
     def animate_switch(self):
         self.animating=True   
     def animate(self):
         if self.animating==True:
-            self.current_sprite+=self.speed
+            self.current_sprite+=self.animate_speed
             if int(self.current_sprite)>=len(self.sprites):
                 self.current_sprite=0
                 self.animating=False
         self.image=self.sprites[int(self.current_sprite)]
 
-    def move(self,delta,event):
-        if event.type==JOYAXISMOTION:
-            if event.axis==1 and event.value<-.2:
-                if self.x_velocity>-225:
-                    self.x_velocity-=self.acceleration
-            if event.axis ==1 and event.value>.2:
-                if self.x_velocity<225:
-                    self.x_velocity+=self.acceleration
-            if event.axis==0 and event.value<-.2:
-                if self.y_velocity>225:
-                    self.y_velocity+=self.acceleration
-            if event.axis ==0 and event.value>.2:
-                if self.y_velocity<-225:
-                    self.y_velocity-=self.acceleration
-            
-    def update(self,delta):
+
+    def traverse(self,P1,delta):
+        motionx=P1.get_axis(0)
+        motiony=P1.get_axis(1)
+        if motionx>.5:
+            if self.positionx>0:
+                self.positionx+=self.speed*delta
+                self.animate_switch()
+        if motionx<-.5:
+            if self.positionx<1000:
+                self.positionx-=self.speed*delta
+                self.animate_switch()
+        if motiony>.5:
+            if self.positiony>0:
+                self.positiony+=self.speed*delta
+                self.animate_switch()
+        if motiony<-.5:
+            if self.positiony<500:
+                self.positiony-=self.speed*delta
+                self.animate_switch()
+
+
+
+        
+    def update(self,P1,delta):
         self.animate()
-        if 0<=self.positionx<=1000:
-            self.positionx+=int(self.x_velocity*delta)
-        else:
-            self.positionx=500
-        self.x_velocity+=self.friction
-        if 0<=self.positiony<=500:
-            self.positiony+=int(self.y_velocity*delta)
-        else:
-            self.positiony=250
-        self.y_velocity+=self.friction
+        self.traverse(P1,delta)
