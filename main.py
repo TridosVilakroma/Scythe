@@ -13,7 +13,7 @@ pygame.init()
 clock = pygame.time.Clock()
 screen = pygame.display.set_mode((screen_width,screen_height))
 pygame.display.set_caption('Scythe')
-
+player.screen = screen
 #image loading
 corner_flair=pygame.image.load("media\Corner_flair.png")
 botright_corner_bush=pygame.transform.rotate(corner_flair,90)
@@ -94,7 +94,7 @@ class GameElements():
             comfunc.quit(event)
         if P1.get_button(4):
             scyman.hp=0
-       # collision=pygame.sprite.collide_rect(scyman.image)
+
         scyman.update(P1,delta)
         screen.blit(grass_clump,(randx,randy))
         screen.blit(scyman.image,(scyman.positionx,scyman.positiony))

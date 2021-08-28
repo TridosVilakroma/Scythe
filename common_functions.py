@@ -18,3 +18,7 @@ def dead_zone(controller):
         return False
     else:
         return True
+
+def attack_collide(attack,sprite2):
+    if attack.self.rect.colliderect(sprite2.rect):
+        sprite2.hp-=attack.power-sprite2.defense
