@@ -1,10 +1,11 @@
-import pygame, time, random, sys,text
+import pygame, time, random, sys,text,enemies
 
 from sprite_animation import Spritesheet
 from pygame.constants import JOYAXISMOTION, JOYBUTTONDOWN, JOYHATMOTION, MOUSEBUTTONDOWN
 import common_functions as comfunc
 import player_one as player
 from color_palette import *
+from random import randint
 
 screen_width = 1000
 screen_height = 500
@@ -18,8 +19,14 @@ corner_flair=pygame.image.load("media\Corner_flair.png")
 botright_corner_bush=pygame.transform.rotate(corner_flair,90)
 scyman=pygame.image.load('media\scyman.png')
 windy_cloud=Spritesheet('media\windy_cloud\wc.png',[0,30],True)
-
-
+grass_clump=pygame.image.load('media\deco\grass_clump.png')
+randx=randint(0,1000)
+randy=randint(0,500)
+#enemy loading
+scarecrows=pygame.sprite.Group()
+for i in range(10):
+    i=enemies.Scarecrow()
+    scarecrows.add(i)
 
 #joystick handling
 joysticks = (pygame.joystick.get_count())
@@ -34,32 +41,43 @@ if joysticks >0:
 scyman=player.PlayerOne(500,250)
 
 #text loading
+plug_in_text=text.TextHandler('media\VecnaBold.ttf',LEATHER,'Plug In Controller',50)
 title_text =text.TextHandler("media\VecnaBold.ttf",LIGHT_LEATHER,'Welcome',150)
 press_start_text =text.TextHandler('media\VecnaBold.ttf',LEATHER,'Press Start',50)
-
+game_over_text =text.TextHandler("media\VecnaBold.ttf",DARK_RED,'Game Over',150)
 
 class GameElements():
     def __init__(self):
         self.focus= 'start'
+        self.switch = False
 
     def start_screen(self):
         for event in pygame.event.get():
             comfunc.quit(event)
             if event.type == MOUSEBUTTONDOWN:
-                self.focus='play'
+                if joysticks:
+                    self.switch = False
+                    self.focus='play'
+                else:
+                    self.switch = True
             if event.type == JOYBUTTONDOWN:
-                self.focus='play'
-            if event.type == JOYAXISMOTION:
-                print(event.value)
-                print(event.axis)
+                if joysticks:
+                    self.switch = False
+                    self.focus='play'
+                else:
+                    self.switch = True
         screen.fill((0, 95, 65))
         screen.blit(windy_cloud.image,windy_cloud.position,windy_cloud.frame)
         windy_cloud.update()
         screen.blit(corner_flair,(0,467))
         screen.blit(botright_corner_bush,(967,467))
         screen.blit(title_text.text_obj,((screen_width/2 -title_text.text_obj.get_width()/2,screen_height/4 -title_text.text_obj.get_height()/2)))
-        screen.blit(press_start_text.text_obj,(screen_width/2 -press_start_text.text_obj.get_width()/2,screen_height/2 -press_start_text.text_obj.get_height()/2))
-        press_start_text.shrink_pop(50)
+        if self.switch == False:
+            screen.blit(press_start_text.text_obj,(screen_width/2 -press_start_text.text_obj.get_width()/2,screen_height/2 -press_start_text.text_obj.get_height()/2))
+            press_start_text.shrink_pop(50)
+        else:
+            screen.blit(plug_in_text.text_obj,(screen_width/2 -plug_in_text.text_obj.get_width()/2,screen_height/2 -plug_in_text.text_obj.get_height()/2))
+            plug_in_text.shrink_pop(50)
         pygame.display.flip()
 
     def main_menu(self):
@@ -70,12 +88,33 @@ class GameElements():
 
     def game_play(self):
         screen.fill((0, 95, 65))
+        if scyman.hp ==0:
+            self.focus='gameover'
         for event in pygame.event.get():
             comfunc.quit(event)
+        if P1.get_button(4):
+            scyman.hp=0
+       # collision=pygame.sprite.collide_rect(scyman.image)
         scyman.update(P1,delta)
+        screen.blit(grass_clump,(randx,randy))
         screen.blit(scyman.image,(scyman.positionx,scyman.positiony))
+        for i in scarecrows:
+            screen.blit(i.image,(i.x,i.y))
         pygame.display.flip()
 
+    def game_over(self):
+        screen.fill(DEEP_RED)
+        for event in pygame.event.get():
+            comfunc.quit(event)
+            if event.type==JOYBUTTONDOWN:
+                self.focus='start'
+                scyman.hp=10
+            if event.type==MOUSEBUTTONDOWN:
+                self.focus='start'
+                scyman.hp=10
+        screen.blit(game_over_text.text_obj,((screen_width/2 -game_over_text.text_obj.get_width()/2,screen_height/4 -game_over_text.text_obj.get_height()/2)))
+        pygame.display.flip()
+            
     def focus_switch(self):
         if self.focus == 'start':
             self.start_screen()
@@ -83,6 +122,8 @@ class GameElements():
             self.main_menu()
         elif self.focus == 'play':
             self.game_play()
+        elif self.focus=='gameover':
+            self.game_over()
 
 game = GameElements()
 delta_ref=time.time()
