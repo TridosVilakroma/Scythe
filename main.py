@@ -27,6 +27,7 @@ scarecrows=pygame.sprite.Group()
 for i in range(10):
     i=enemies.Scarecrow()
     scarecrows.add(i)
+player.scarecrows=scarecrows
 
 #joystick handling
 joysticks = (pygame.joystick.get_count())
