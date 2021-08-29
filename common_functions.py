@@ -22,3 +22,10 @@ def dead_zone(controller):
 def attack_collide(attack,sprite2):
     if attack.self.rect.colliderect(sprite2.rect):
         sprite2.hp-=attack.power-sprite2.defense
+
+def clean_list(list,element):
+    while True:
+        try:
+            list.remove(element)
+        except ValueError:
+            break
