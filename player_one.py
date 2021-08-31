@@ -264,7 +264,7 @@ class PlayerOne(pygame.sprite.Sprite):
         scythe=self.scythe.copy()
         scytheright=pygame.transform.rotozoom(scythe,-90,1)
         scytherightup=pygame.transform.rotozoom(scythe,-45,1)
-        scytheown=pygame.transform.rotozoom(scythe,-135,1)
+        scytherightdown=pygame.transform.rotozoom(scythe,-135,1)
         scytheleft=pygame.transform.rotozoom(scythe,90,1)
         scytheleftup=pygame.transform.rotozoom(scythe,45,1)
         scytheleftdown=pygame.transform.rotozoom(scythe,135,1)
@@ -279,11 +279,29 @@ class PlayerOne(pygame.sprite.Sprite):
                 comfunc.clean_list(self.aux_state,'scythe')
                 self.scythe_time_ref=time_stamp
         elif self.direction=='left':
-            pass
+            if time_stamp<self.scythe_time_ref+.2:
+                screen.blit(scytheleft,(self.rect.left-scythe.get_width()+5,self.rect.center[1]-(scythe.get_height()/1.75)))
+            elif time_stamp<self.scythe_time_ref+.5:
+                screen.blit(scytheleftdown,(self.rect.left-scythe.get_width(),self.rect.center[1]-(scythe.get_height()*.4)))
+            else:
+                comfunc.clean_list(self.aux_state,'scythe')
+                self.scythe_time_ref=time_stamp
         elif self.direction=='down':
-            pass
+            if time_stamp<self.scythe_time_ref+.2:
+                screen.blit(scythedown,(self.rect.center[0]-(scythe.get_width()*.6),self.rect.bottom-6))
+            elif time_stamp<self.scythe_time_ref+.5:
+                screen.blit(scytherightdown,(self.rect.center[0]-(scythe.get_width()*.45),self.rect.bottom-15))
+            else:
+                comfunc.clean_list(self.aux_state,'scythe')
+                self.scythe_time_ref=time_stamp
         elif self.direction=='up':
-            pass
+            if time_stamp<self.scythe_time_ref+.2:
+                screen.blit(scytheup,(self.rect.center[0]-(scythe.get_width()*.35),self.rect.top-scythe.get_height()+4))
+            elif time_stamp<self.scythe_time_ref+.5:
+                screen.blit(scytheleftup,(self.rect.center[0]-(scythe.get_width()*.9),self.rect.top-scythe.get_height()+2))
+            else:
+                comfunc.clean_list(self.aux_state,'scythe')
+                self.scythe_time_ref=time_stamp
 
     def action(self,P1):
         time_stamp=time.time()
