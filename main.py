@@ -14,6 +14,7 @@ clock = pygame.time.Clock()
 screen = pygame.display.set_mode((screen_width,screen_height))
 pygame.display.set_caption('Scythe')
 player.screen = screen
+enemies.screen=screen
 #image loading
 corner_flair=pygame.image.load("media\Corner_flair.png")
 botright_corner_bush=pygame.transform.rotate(corner_flair,90)
@@ -27,6 +28,7 @@ scarecrows=pygame.sprite.Group()
 for i in range(10):
     i=enemies.Scarecrow()
     scarecrows.add(i)
+    enemies.enemies.append(i)
 player.scarecrows=scarecrows
 
 #joystick handling
@@ -97,6 +99,8 @@ class GameElements():
             scyman.hp=0
 
         scyman.update(P1,delta)
+        for i in enemies.enemies:
+            i.update()
         screen.blit(grass_clump,(randx,randy))
         screen.blit(scyman.image,(scyman.positionx,scyman.positiony))
         for i in scarecrows:

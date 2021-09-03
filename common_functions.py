@@ -29,3 +29,4 @@ def clean_list(list,element):
             list.remove(element)
         except ValueError:
             break
+
