@@ -3,7 +3,7 @@ import pygame,time
 import common_functions as comfunc
 import enemies
 screen=None#variable overwritten in main to allow blit access from this module
-scarecrows=None
+scarecrows=None#variable overwritten in main to add enemy access here
 class PlayerOne(pygame.sprite.Sprite):
     def __init__(self,pos_x, pos_y):
         super().__init__()

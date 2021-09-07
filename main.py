@@ -137,3 +137,4 @@ while True:
     delta=time.time()-delta_ref
     delta_ref=time.time()
     game.focus_switch()
+    
