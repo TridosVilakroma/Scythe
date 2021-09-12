@@ -29,6 +29,9 @@ for i in range(10):
     i=enemies.Scarecrow()
     scarecrows.add(i)
     enemies.enemies.append(i)
+for i in range(5):
+    i=enemies.Omnivine()
+    scarecrows.add(i)
 player.scarecrows=scarecrows
 
 #joystick handling
@@ -45,7 +48,7 @@ scyman=player.PlayerOne(500,250)
 
 #text loading
 plug_in_text=text.TextHandler('media\VecnaBold.ttf',LEATHER,'Plug In Controller',50)
-title_text =text.TextHandler("media\VecnaBold.ttf",LIGHT_LEATHER,'Welcome',150)
+title_text =text.TextHandler("media\VecnaBold.ttf",LIGHT_LEATHER,'Scythe',150)
 press_start_text =text.TextHandler('media\VecnaBold.ttf',LEATHER,'Press Start',50)
 game_over_text =text.TextHandler("media\VecnaBold.ttf",DARK_RED,'Game Over',150)
 
@@ -104,8 +107,6 @@ class GameElements():
             i.update()
         screen.blit(grass_clump,(randx,randy))
         screen.blit(scyman.image,(scyman.positionx,scyman.positiony))
-        # for i in scarecrows:
-        #     screen.blit(i.image,(i.x,i.y))
         pygame.display.flip()
 
     def game_over(self):
@@ -114,10 +115,10 @@ class GameElements():
             comfunc.quit(event)
             if event.type==JOYBUTTONDOWN:
                 self.focus='start'
-                scyman.hp=10
+                scyman.hp=100
             if event.type==MOUSEBUTTONDOWN:
                 self.focus='start'
-                scyman.hp=10
+                scyman.hp=100
         screen.blit(game_over_text.text_obj,((screen_width/2 -game_over_text.text_obj.get_width()/2,screen_height/4 -game_over_text.text_obj.get_height()/2)))
         pygame.display.flip()
             

@@ -166,8 +166,6 @@ class PlayerOne(pygame.sprite.Sprite):
         pygame.draw.rect(screen,RED,missing_health,0,1)
         pygame.draw.rect(screen,GREEN,health,0,1)
 
-
-
     def damage(self):
         for i in attacks:
             print(i)
@@ -414,4 +412,3 @@ class PlayerOne(pygame.sprite.Sprite):
         self.focus_switch(P1,delta)
         self.action(P1)
         self.auxillary()
-        print(self.hp)
