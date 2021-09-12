@@ -6,6 +6,7 @@ import common_functions as comfunc
 screen=None
 enemies=[]
 player1pos=None
+attacks=[]
 
 class Scarecrow(pygame.sprite.Sprite):
     def __init__(self):
@@ -97,6 +98,8 @@ class Scarecrow(pygame.sprite.Sprite):
             screen.blit(self.small_straw,self.dust_pos)
         elif self.dust_start>=time.time()-1.2:
             screen.blit(self.straw_stalk,self.dust_pos)
+            dust_rect=pygame.Rect((self.dust_pos),(32,32))
+            attacks.append((.75,dust_rect))
         elif self.dust_start>=time.time()-1.3:
             screen.blit(self.small_straw,self.dust_pos)
         else:

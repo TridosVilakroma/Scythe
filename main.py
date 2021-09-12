@@ -91,7 +91,7 @@ class GameElements():
 
     def game_play(self):
         screen.fill((0, 95, 65))
-        if scyman.hp ==0:
+        if scyman.hp <=0:
             self.focus='gameover'
         for event in pygame.event.get():
             comfunc.quit(event)

@@ -2,12 +2,17 @@ from pygame.constants import JOYBUTTONDOWN
 import pygame,time
 import common_functions as comfunc
 import enemies
+from color_palette import GREEN, RED, WHITE
 screen=None#variable overwritten in main to allow blit access from this module
 scarecrows=None#variable overwritten in main to add enemy access here
+attacks=[]
+enemies.attacks=attacks
 class PlayerOne(pygame.sprite.Sprite):
     def __init__(self,pos_x, pos_y):
         super().__init__()
-        self.hp=10
+        self.hp=100
+        self.hp_ratio=960/self.hp
+        self.defense=0
         self.focus = 'traverse'
         self.animating=False
         self.direction='right'
@@ -39,6 +44,7 @@ class PlayerOne(pygame.sprite.Sprite):
         self.aux_state=[]
         self.enemies_hit=[]
         self.scythe_attack_flag=[0,0]
+  
     def image_loader(self):
         self.walkrightsprites.append(pygame.image.load('media\scyman_walk\scymanwalk0.png'))
         self.walkrightsprites.append(pygame.image.load('media\scyman_walk\scymanwalk1.png'))
@@ -61,6 +67,7 @@ class PlayerOne(pygame.sprite.Sprite):
         self.walkdownsprites.append(pygame.image.load(r'media\scyman_walk\down_walk\walkdown2.png'))
         self.walkdownsprites.append(pygame.image.load(r'media\scyman_walk\down_walk\walkdown3.png'))
         self.scythe=pygame.image.load(r'media\player_equip\wooden_scythe.png')
+  
     def collide(self):
         collision_tolerence=5
         self.rect=pygame.Rect(self.positionx,self.positiony,self.image.get_width(),self.image.get_height())
@@ -74,8 +81,10 @@ class PlayerOne(pygame.sprite.Sprite):
                     self.bottom_blocked=True
                 if abs(i.rect.bottom-self.rect.top)<collision_tolerence:
                     self.top_blocked=True
+  
     def animate_switch(self):
         self.animating=True   
+  
     def traverse_animate(self):
         if self.direction=='right':
             if self.animating==True:
@@ -105,6 +114,7 @@ class PlayerOne(pygame.sprite.Sprite):
                     self.current_sprite=0
                 self.animating=False
             self.image=self.walkdownsprites[int(self.current_sprite)]
+  
     def blink_ghost(self):
         if self.blink_start>time.time()-.25:
             self.ghost.set_alpha(50)
@@ -114,6 +124,7 @@ class PlayerOne(pygame.sprite.Sprite):
             screen.blit(self.ghost_trail,(((self.blink_startposx+self.positionx)/2),((self.blink_startposy+self.positiony)/2)))
         else:
             self.aux_state.remove('blink')
+  
     def blink_animate(self,direction):
         self.ghostpos=(self.positionx,self.positiony)
         self.ghost=self.image.copy()
@@ -146,8 +157,24 @@ class PlayerOne(pygame.sprite.Sprite):
         else:
             self.image=self.walkrightsprites[int(self.current_sprite)]
         self.blink_ghost()
-    def vitality(self):
-        pass    
+
+    def health_bar(self):
+        outline=pygame.Rect(19,479,962,5)
+        health=pygame.Rect(20,480,self.hp*self.hp_ratio,3)
+        missing_health=pygame.Rect(20,480,960,3)
+        pygame.draw.rect(screen,WHITE,outline,0,1)
+        pygame.draw.rect(screen,RED,missing_health,0,1)
+        pygame.draw.rect(screen,GREEN,health,0,1)
+
+
+
+    def damage(self):
+        for i in attacks:
+            print(i)
+            if i[1].colliderect(self.rect):
+                self.hp-=(i[0]-self.defense)
+            comfunc.clean_list(attacks,i)
+  
     def traverse(self,P1,delta):
         motionx=P1.get_axis(0)
         motiony=P1.get_axis(1)
@@ -210,6 +237,7 @@ class PlayerOne(pygame.sprite.Sprite):
             self.direction='up'
         self.traverse_animate()
         self.right_blocked,self.left_blocked,self.bottom_blocked,self.top_blocked=False,False,False,False
+  
     def blink_step(self,P1):
         self.blink_startposx=self.positionx
         self.blink_startposy=self.positiony
@@ -261,10 +289,12 @@ class PlayerOne(pygame.sprite.Sprite):
                 self.positiony-=self.blink_distance/2
             else:
                 self.positiony-=self.blink_distance
+  
     def scythe_slash(self,):
         self.aux_state.append('scythe')
         self.focus='traverse'
         self.scythe_time_ref=time.time()
+  
     def scythe_animate(self):
         time_stamp=time.time()
         scythe=self.scythe.copy()
@@ -352,6 +382,7 @@ class PlayerOne(pygame.sprite.Sprite):
                 comfunc.clean_list(self.aux_state,'scythe')
                 self.scythe_time_ref=time_stamp
                 self.scythe_attack_flag=[0,0]
+   
     def action(self,P1):
         time_stamp=time.time()
         if P1.get_button(0):
@@ -362,19 +393,25 @@ class PlayerOne(pygame.sprite.Sprite):
             if time_stamp>self.slash_time_ref:
                 self.slash_time_ref=time_stamp+self.slash_cooldown
                 self.focus='slash'  
+   
     def focus_switch(self,P1,delta):
         self.traverse(P1,delta)
         if self.focus =='blink':
             self.blink_step(P1)
         elif self.focus=='slash':
             self.scythe_slash()
+  
     def auxillary(self):
         if 'blink' in self.aux_state:
             self.blink_ghost()
         if 'scythe' in self.aux_state:
             self.scythe_animate()
         self.collide()
+        self.damage()
+        self.health_bar()
+   
     def update(self,P1,delta):
         self.focus_switch(P1,delta)
         self.action(P1)
         self.auxillary()
+        print(self.hp)
