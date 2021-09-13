@@ -149,6 +149,7 @@ class Omnivine(pygame.sprite.Sprite):
         self.image_loader()
         self.current_sprite=0
         self.animate_speed=.09
+        self.bullet_speed=1
    
     def image_loader(self):
         self.neutral_stance= pygame.image.load('media\enemies\omnivine_walk\sprite_0.png').convert_alpha()
@@ -195,6 +196,7 @@ class Omnivine(pygame.sprite.Sprite):
         self.shoot0=pygame.image.load(r'media\enemies\ominvine_shoot\sprite_0.png')
         self.shoot1=pygame.image.load(r'media\enemies\ominvine_shoot\sprite_1.png')
         self.shoot2=pygame.image.load(r'media\enemies\ominvine_shoot\sprite_2.png')
+        self.bullet=pygame.image.load(r'media\enemies\ominvine_shoot\outlined_bullet.png')
    
     def collision_check(self):
         pass
@@ -239,10 +241,46 @@ class Omnivine(pygame.sprite.Sprite):
             self.image=self.shoot1
         elif self.shoot_start>=time.time()-2:
             self.image=self.shoot2
+            self.aux_state.append('bullet')
         else:
             self.image=self.neutral_stance
             comfunc.clean_list(self.aux_state,'shoot') 
    
+    def bullet_trajectory(self):
+        if 'switch' not in self.aux_state:
+            self.bullet_time_stamp=time.time()+3
+            self.aux_state.append('switch')
+            self.bullet_origin=self.rect.center
+            self.bullet_dest=player1pos
+            self.bullet_vector=[self.bullet_dest[0]-self.bullet_origin[0],self.bullet_dest[1]-self.bullet_origin[1]]
+            if self.bullet_vector[0]<0:
+                self.xdir= -1
+            else:
+                self.xdir= +1
+            if self.bullet_vector[1]<0:
+                self.ydir= -1
+            else:
+                self.ydir= +1
+            self.bullet_distance=[abs(self.bullet_dest[0]-self.bullet_origin[0]),abs(self.bullet_dest[1]-self.bullet_origin[1])]
+            self.bullet_ratio=[self.bullet_distance[0]*self.bullet_speed,self.bullet_distance[1]*self.bullet_speed]
+            self.bullet_pos=[self.rect.center[0]-self.bullet.get_width()/2,self.rect.center[1]-self.bullet.get_width()/2]
+        if 'switch' in self.aux_state:
+            bullet_rect=pygame.Rect((self.bullet_pos),(32,32))
+            player1_rect=pygame.Rect((player1pos),(32,32))
+            attacks.append((20,bullet_rect))
+            if bullet_rect.colliderect(player1_rect):
+                comfunc.clean_list(self.aux_state,'switch')
+                return
+            if self.bullet_time_stamp<time.time():
+                comfunc.clean_list(self.aux_state,'switch')
+        if 'switch' in self.aux_state:
+            if self.bullet_pos[0]!=self.bullet_dest[0]:
+                self.bullet_pos[0]+=self.bullet_speed*self.xdir
+            if self.bullet_pos[1]!=self.bullet_dest[1]:
+                self.bullet_pos[1]+=self.bullet_speed*self.ydir
+            screen.blit(self.bullet,self.bullet_pos)
+
+
     def traverse(self):
         prox=(abs(player1pos[0]-self.rect.center[0]),abs(player1pos[1]-self.rect.center[1]))
         aggro_prox=200
@@ -293,6 +331,8 @@ class Omnivine(pygame.sprite.Sprite):
             self.shoot_start=time.time()
             self.shoot_pos=player1pos
             self.timer_wheel_step=0
+        if 'bullet' in self.aux_state:
+            self.bullet_trajectory()
    
     def blit(self):
         screen.blit(self.image,(self.x,self.y))

@@ -168,7 +168,6 @@ class PlayerOne(pygame.sprite.Sprite):
 
     def damage(self):
         for i in attacks:
-            print(i)
             if i[1].colliderect(self.rect):
                 self.hp-=(i[0]-self.defense)
             comfunc.clean_list(attacks,i)
