@@ -1,5 +1,5 @@
 from color_palette import GREEN, RED, WHITE
-import pygame,time
+import pygame,time, math
 from random import randint
 import common_functions as comfunc
 
@@ -149,7 +149,9 @@ class Omnivine(pygame.sprite.Sprite):
         self.image_loader()
         self.current_sprite=0
         self.animate_speed=.09
-        self.bullet_speed=1
+        self.bullet_speed=2.5
+        self.chance_to_shoot=1,750 #chance is one in the second int
+        self.bullet_air_time=3.25
    
     def image_loader(self):
         self.neutral_stance= pygame.image.load('media\enemies\omnivine_walk\sprite_0.png').convert_alpha()
@@ -244,42 +246,32 @@ class Omnivine(pygame.sprite.Sprite):
             self.aux_state.append('bullet')
         else:
             self.image=self.neutral_stance
-            comfunc.clean_list(self.aux_state,'shoot') 
+            comfunc.clean_list(self.aux_state,'shoot')
    
     def bullet_trajectory(self):
         if 'switch' not in self.aux_state:
-            self.bullet_time_stamp=time.time()+3
+            self.bullet_time_stamp=time.time()+self.bullet_air_time
             self.aux_state.append('switch')
             self.bullet_origin=self.rect.center
             self.bullet_dest=player1pos
-            self.bullet_vector=[self.bullet_dest[0]-self.bullet_origin[0],self.bullet_dest[1]-self.bullet_origin[1]]
-            if self.bullet_vector[0]<0:
-                self.xdir= -1
-            else:
-                self.xdir= +1
-            if self.bullet_vector[1]<0:
-                self.ydir= -1
-            else:
-                self.ydir= +1
-            self.bullet_distance=[abs(self.bullet_dest[0]-self.bullet_origin[0]),abs(self.bullet_dest[1]-self.bullet_origin[1])]
-            self.bullet_ratio=[self.bullet_distance[0]*self.bullet_speed,self.bullet_distance[1]*self.bullet_speed]
-            self.bullet_pos=[self.rect.center[0]-self.bullet.get_width()/2,self.rect.center[1]-self.bullet.get_width()/2]
+            self.bullet_pos=[self.bullet_origin[0]-self.bullet.get_width()/2,self.bullet_origin[1]-self.bullet.get_height()/2]
+            self.bullet_radians=math.atan2(self.bullet_dest[1]-self.bullet_origin[1],self.bullet_dest[0]-self.bullet_origin[0])
+            self.bullet_vector=(math.cos(self.bullet_radians) * self.bullet_speed,math.sin(self.bullet_radians) * self.bullet_speed)
         if 'switch' in self.aux_state:
             bullet_rect=pygame.Rect((self.bullet_pos),(32,32))
             player1_rect=pygame.Rect((player1pos),(32,32))
             attacks.append((20,bullet_rect))
             if bullet_rect.colliderect(player1_rect):
                 comfunc.clean_list(self.aux_state,'switch')
-                return
+                comfunc.clean_list(self.aux_state,'bullet')
+                
             if self.bullet_time_stamp<time.time():
                 comfunc.clean_list(self.aux_state,'switch')
+                comfunc.clean_list(self.aux_state,'bullet')
         if 'switch' in self.aux_state:
-            if self.bullet_pos[0]!=self.bullet_dest[0]:
-                self.bullet_pos[0]+=self.bullet_speed*self.xdir
-            if self.bullet_pos[1]!=self.bullet_dest[1]:
-                self.bullet_pos[1]+=self.bullet_speed*self.ydir
+            self.bullet_pos[0]+=self.bullet_vector[0]
+            self.bullet_pos[1]+=self.bullet_vector[1]
             screen.blit(self.bullet,self.bullet_pos)
-
 
     def traverse(self):
         prox=(abs(player1pos[0]-self.rect.center[0]),abs(player1pos[1]-self.rect.center[1]))
@@ -325,7 +317,7 @@ class Omnivine(pygame.sprite.Sprite):
             self.shoot()
         else:
             self.traverse()
-        chance=randint(1,500)
+        chance=randint(self.chance_to_shoot[0],self.chance_to_shoot[1])
         if chance ==1 and 'shoot' not in self.aux_state:
             self.aux_state.append('shoot')
             self.shoot_start=time.time()
