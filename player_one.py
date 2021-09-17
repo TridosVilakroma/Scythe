@@ -1,7 +1,7 @@
 from pygame.constants import JOYBUTTONDOWN
 import pygame,time
 import common_functions as comfunc
-import enemies
+import enemies,equip
 from color_palette import GREEN, RED, WHITE
 screen=None#variable overwritten in main to allow blit access from this module
 scarecrows=None#variable overwritten in main to add enemy access here
