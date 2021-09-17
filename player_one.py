@@ -44,6 +44,7 @@ class PlayerOne(pygame.sprite.Sprite):
         self.aux_state=[]
         self.enemies_hit=[]
         self.scythe_attack_flag=[0,0]
+        self.mask=pygame.mask.from_surface(self.image)
   
     def image_loader(self):
         self.walkrightsprites.append(pygame.image.load('media\scyman_walk\scymanwalk0.png'))
@@ -67,6 +68,22 @@ class PlayerOne(pygame.sprite.Sprite):
         self.walkdownsprites.append(pygame.image.load(r'media\scyman_walk\down_walk\walkdown2.png'))
         self.walkdownsprites.append(pygame.image.load(r'media\scyman_walk\down_walk\walkdown3.png'))
         self.scythe=pygame.image.load(r'media\player_equip\wooden_scythe.png')
+        self.scytheright=pygame.transform.rotozoom(self.scythe,-90,1)
+        self.scytherightup=pygame.transform.rotozoom(self.scythe,-45,1)
+        self.scytherightdown=pygame.transform.rotozoom(self.scythe,-135,1)
+        self.scytheleft=pygame.transform.rotozoom(self.scythe,90,1)
+        self.scytheleftup=pygame.transform.rotozoom(self.scythe,45,1)
+        self.scytheleftdown=pygame.transform.rotozoom(self.scythe,135,1)
+        self.scythedown=pygame.transform.rotozoom(self.scythe,180,1)
+        self.scytheup=self.scythe.copy()
+        self.mask_scytheright=pygame.mask.from_surface(self.scytheright)
+        self.mask_scytherightup=pygame.mask.from_surface(self.scytherightup)
+        self.mask_scytherightdown=pygame.mask.from_surface(self.scytherightdown)
+        self.mask_scytheleft=pygame.mask.from_surface(self.scytheleft)
+        self.mask_scytheleftup=pygame.mask.from_surface(self.scytheleftup)
+        self.mask_scytheleftdown=pygame.mask.from_surface(self.scytheleftdown)
+        self.mask_scythedown=pygame.mask.from_surface(self.scythedown)
+        self.mask_scytheup=pygame.mask.from_surface(self.scytheup)
   
     def collide(self):
         collision_tolerence=5
@@ -294,25 +311,16 @@ class PlayerOne(pygame.sprite.Sprite):
   
     def scythe_animate(self):
         time_stamp=time.time()
-        scythe=self.scythe.copy()
-        scytheright=pygame.transform.rotozoom(scythe,-90,1)
-        scytherightup=pygame.transform.rotozoom(scythe,-45,1)
-        scytherightdown=pygame.transform.rotozoom(scythe,-135,1)
-        scytheleft=pygame.transform.rotozoom(scythe,90,1)
-        scytheleftup=pygame.transform.rotozoom(scythe,45,1)
-        scytheleftdown=pygame.transform.rotozoom(scythe,135,1)
-        scythedown=pygame.transform.rotozoom(scythe,180,1)
-        scytheup=scythe.copy()
         if self.direction=='right':
             if time_stamp<self.scythe_time_ref+.2:
-                screen.blit(scytheright,(self.rect.right-10,self.rect.center[1]-(scythe.get_height()/3)))
+                screen.blit(self.scytheright,(self.rect.right-10,self.rect.center[1]-(self.scythe.get_height()/3)))
                 hit_list=pygame.sprite.spritecollide(self,scarecrows,False)
                 if self.scythe_attack_flag[0]==0:
                     self.scythe_attack_flag[0]=1
                     for i in hit_list:
                         i.damage(self.scythe_attack)
             elif time_stamp<self.scythe_time_ref+.5:
-                screen.blit(scytherightup,(self.rect.right-15,self.rect.center[1]-(scythe.get_height()*.90)))
+                screen.blit(self.scytherightup,(self.rect.right-15,self.rect.center[1]-(self.scythe.get_height()*.90)))
                 hit_list=pygame.sprite.spritecollide(self,scarecrows,False)
                 if self.scythe_attack_flag[1]==0:
                     self.scythe_attack_flag[1]=1
@@ -324,14 +332,14 @@ class PlayerOne(pygame.sprite.Sprite):
                 self.scythe_attack_flag=[0,0]
         elif self.direction=='left':
             if time_stamp<self.scythe_time_ref+.2:
-                screen.blit(scytheleft,(self.rect.left-scythe.get_width()+5,self.rect.center[1]-(scythe.get_height()/1.75)))
+                screen.blit(self.scytheleft,(self.rect.left-self.scythe.get_width()+5,self.rect.center[1]-(self.scythe.get_height()/1.75)))
                 hit_list=pygame.sprite.spritecollide(self,scarecrows,False)
                 if self.scythe_attack_flag[0]==0:
                     self.scythe_attack_flag[0]=1
                     for i in hit_list:
                         i.damage(self.scythe_attack)
             elif time_stamp<self.scythe_time_ref+.5:
-                screen.blit(scytheleftdown,(self.rect.left-scythe.get_width(),self.rect.center[1]-(scythe.get_height()*.4)))
+                screen.blit(self.scytheleftdown,(self.rect.left-self.scythe.get_width(),self.rect.center[1]-(self.scythe.get_height()*.4)))
                 hit_list=pygame.sprite.spritecollide(self,scarecrows,False)
                 if self.scythe_attack_flag[1]==0:
                     self.scythe_attack_flag[1]=1
@@ -343,14 +351,14 @@ class PlayerOne(pygame.sprite.Sprite):
                 self.scythe_attack_flag=[0,0]
         elif self.direction=='down':
             if time_stamp<self.scythe_time_ref+.2:
-                screen.blit(scythedown,(self.rect.center[0]-(scythe.get_width()*.6),self.rect.bottom-6))
+                screen.blit(self.scythedown,(self.rect.center[0]-(self.scythe.get_width()*.6),self.rect.bottom-6))
                 hit_list=pygame.sprite.spritecollide(self,scarecrows,False)
                 if self.scythe_attack_flag[0]==0:
                     self.scythe_attack_flag[0]=1
                     for i in hit_list:
                         i.damage(self.scythe_attack)
             elif time_stamp<self.scythe_time_ref+.5:
-                screen.blit(scytherightdown,(self.rect.center[0]-(scythe.get_width()*.45),self.rect.bottom-15))
+                screen.blit(self.scytherightdown,(self.rect.center[0]-(self.scythe.get_width()*.45),self.rect.bottom-15))
                 hit_list=pygame.sprite.spritecollide(self,scarecrows,False)
                 if self.scythe_attack_flag[1]==0:
                     self.scythe_attack_flag[1]=1
@@ -362,14 +370,15 @@ class PlayerOne(pygame.sprite.Sprite):
                 self.scythe_attack_flag=[0,0]
         elif self.direction=='up':
             if time_stamp<self.scythe_time_ref+.2:
-                screen.blit(scytheup,(self.rect.center[0]-(scythe.get_width()*.35),self.rect.top-scythe.get_height()+4))
+                screen.blit(self.scytheup,(self.rect.center[0]-(self.scythe.get_width()*.35),self.rect.top-self.scythe.get_height()+4))
                 hit_list=pygame.sprite.spritecollide(self,scarecrows,False)
                 if self.scythe_attack_flag[0]==0:
                     self.scythe_attack_flag[0]=1
                     for i in hit_list:
                         i.damage(self.scythe_attack)
             elif time_stamp<self.scythe_time_ref+.5:
-                screen.blit(scytheleftup,(self.rect.center[0]-(scythe.get_width()*.9),self.rect.top-scythe.get_height()+2))
+                screen.blit(self.scytheleftup,(self.rect.center[0]-(self.
+                scythe.get_width()*.9),self.rect.top-self.scythe.get_height()+2))
                 hit_list=pygame.sprite.spritecollide(self,scarecrows,False)
                 if self.scythe_attack_flag[1]==0:
                     self.scythe_attack_flag[1]=1

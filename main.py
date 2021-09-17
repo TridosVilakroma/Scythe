@@ -1,5 +1,4 @@
 import pygame, time, random, sys,text,enemies
-
 from sprite_animation import Spritesheet
 from pygame.constants import JOYAXISMOTION, JOYBUTTONDOWN, JOYHATMOTION, MOUSEBUTTONDOWN
 import common_functions as comfunc
@@ -131,7 +130,7 @@ class GameElements():
             self.game_play()
         elif self.focus=='gameover':
             self.game_over()
-
+   
 game = GameElements()
 delta_ref=time.time()
 while True:

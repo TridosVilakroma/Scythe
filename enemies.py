@@ -23,6 +23,7 @@ class Scarecrow(pygame.sprite.Sprite):
         self.aux_state=[]
         self.timer_wheel_step=0
         self.image_loader()
+        self.mask=pygame.mask.from_surface(self.image)
    
     def image_loader(self):
         self.timer_wheel_img=[]
@@ -136,6 +137,7 @@ class Omnivine(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
         self.image = pygame.image.load('media\enemies\omnivine_walk\sprite_0.png').convert_alpha()
+        self.mask=pygame.mask.from_surface(self.image)
         self.x=randint(0,968)
         self.y=randint(0,468)
         self.rect=pygame.Rect(self.x,self.y,self.image.get_width(),self.image.get_height())
@@ -243,10 +245,13 @@ class Omnivine(pygame.sprite.Sprite):
             self.image=self.shoot1
         elif self.shoot_start>=time.time()-2:
             self.image=self.shoot2
-            self.aux_state.append('bullet')
+            if not 'singleton' in self.aux_state:
+                self.aux_state.append('bullet')
+                self.aux_state.append('singleton')
         else:
             self.image=self.neutral_stance
             comfunc.clean_list(self.aux_state,'shoot')
+            comfunc.clean_list(self.aux_state,'singleton')
    
     def bullet_trajectory(self):
         if 'switch' not in self.aux_state:
