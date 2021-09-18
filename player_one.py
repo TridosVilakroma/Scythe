@@ -2,7 +2,7 @@ from pygame.constants import JOYBUTTONDOWN
 import pygame,time
 import common_functions as comfunc
 import enemies,equip
-from color_palette import GREEN, RED, WHITE
+from color_palette import *
 screen=None#variable overwritten in main to allow blit access from this module
 scarecrows=None#variable overwritten in main to add enemy access here
 attacks=[]
@@ -12,6 +12,11 @@ class PlayerOne(pygame.sprite.Sprite):
         super().__init__()
         self.hp=100
         self.hp_ratio=960/self.hp
+        self.hp_drain_length=100
+        self.drain_ratio=960/self.hp_drain_length
+        self.recieved_damage=False
+        self.mp=100
+        self.mp_ratio=960/self.mp
         self.defense=0
         self.focus = 'traverse'
         self.animating=False
@@ -176,17 +181,38 @@ class PlayerOne(pygame.sprite.Sprite):
         self.blink_ghost()
 
     def health_bar(self):
+        if self.recieved_damage:
+            self.hp_drain_length=self.hp_before_damage
+            self.recieved_damage=False
+        if self.hp_drain_length>self.hp:
+            self.hp_drain_length-=.15
+        drain=pygame.Rect(20,480,self.hp_drain_length*self.drain_ratio,3)
         outline=pygame.Rect(19,479,962,5)
         health=pygame.Rect(20,480,self.hp*self.hp_ratio,3)
         missing_health=pygame.Rect(20,480,960,3)
         pygame.draw.rect(screen,WHITE,outline,0,1)
-        pygame.draw.rect(screen,RED,missing_health,0,1)
+        pygame.draw.rect(screen,DARK_RED,missing_health,0,1)
+        pygame.draw.rect(screen,RED,drain,0,1)
         pygame.draw.rect(screen,GREEN,health,0,1)
+
+    def mana_bar(self):
+        mana_regen=.1
+        if self.mp < 100:
+            self.mp+=mana_regen
+        outline=pygame.Rect(19,473,962,5)
+        mana=pygame.Rect(20,474,self.mp*self.mp_ratio,3)
+        missing_mana=pygame.Rect(20,474,960,3)
+        pygame.draw.rect(screen,WHITE,outline,0,1)
+        pygame.draw.rect(screen,PURPLE,missing_mana,0,1)
+        pygame.draw.rect(screen,BABY_BLUE,mana,0,1)
 
     def damage(self):
         for i in attacks:
             if i[1].colliderect(self.rect):
+                self.hp_before_damage=self.hp
                 self.hp-=(i[0]-self.defense)
+                self.hp_lost=abs(self.hp_before_damage-self.hp)
+                self.recieved_damage=True
             comfunc.clean_list(attacks,i)
   
     def traverse(self,P1,delta):
@@ -388,17 +414,22 @@ class PlayerOne(pygame.sprite.Sprite):
                 comfunc.clean_list(self.aux_state,'scythe')
                 self.scythe_time_ref=time_stamp
                 self.scythe_attack_flag=[0,0]
-   
+
+    def relic_select(self,P1):
+        self.mp -=.13
+
     def action(self,P1):
         time_stamp=time.time()
         if P1.get_button(0):
             if time_stamp>self.blink_time_ref:
                 self.blink_time_ref=time_stamp+self.blink_step_cooldown
                 self.focus ='blink'
-        elif P1.get_button(2):
+        if P1.get_button(2):
             if time_stamp>self.slash_time_ref:
                 self.slash_time_ref=time_stamp+self.slash_cooldown
-                self.focus='slash'  
+                self.focus='slash'
+        if P1.get_button(4):
+            self.relic_select(P1)
    
     def focus_switch(self,P1,delta):
         self.traverse(P1,delta)
@@ -415,6 +446,8 @@ class PlayerOne(pygame.sprite.Sprite):
         self.collide()
         self.damage()
         self.health_bar()
+        self.mana_bar()
+
    
     def update(self,P1,delta):
         self.focus_switch(P1,delta)

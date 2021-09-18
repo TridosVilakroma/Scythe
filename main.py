@@ -97,8 +97,6 @@ class GameElements():
             self.focus='gameover'
         for event in pygame.event.get():
             comfunc.quit(event)
-        if P1.get_button(4):
-            scyman.hp=0
 
         scyman.update(P1,delta)
         enemies.player1pos=(scyman.positionx,scyman.positiony)
