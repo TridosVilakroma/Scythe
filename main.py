@@ -100,13 +100,14 @@ class GameElements():
         for event in pygame.event.get():
             comfunc.quit(event)
 
-        scyman.update(P1,delta)
+        
         enemies.player1pos=(scyman.positionx,scyman.positiony)
         for i in scarecrows:
             i.update()
         screen.blit(grass_clump,(randx,randy))
         enemies.spawned_loot.draw(screen)
         screen.blit(scyman.image,(scyman.positionx,scyman.positiony))
+        scyman.update(P1,delta)
         pygame.display.flip()
 
     def game_over(self):

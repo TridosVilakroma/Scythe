@@ -10,6 +10,7 @@ enemies.attacks=attacks
 class PlayerOne(pygame.sprite.Sprite):
     def __init__(self,pos_x, pos_y):
         super().__init__()
+        self.list_init()
         self.hp=100
         self.hp_ratio=960/self.hp
         self.hp_drain_length=100
@@ -23,14 +24,6 @@ class PlayerOne(pygame.sprite.Sprite):
         self.direction='right'
         self.right_blocked,self.left_blocked=False,False
         self.down_blocked,self.up_blocked=False,False
-        self.walkrightsprites =[]
-        self.walkleftsprites =[]
-        self.walkdownsprites =[]
-        self.walkupsprites =[]
-        self.blinkrightsprites =[]
-        self.blinkleftsprites =[]
-        self.blinkdownsprites=[]
-        self.blinkupsprites=[]
         self.image_loader()
         self.current_sprite=0
         self.image=self.walkrightsprites[self.current_sprite]
@@ -46,14 +39,13 @@ class PlayerOne(pygame.sprite.Sprite):
         self.slash_time_ref=time.time()
         self.slash_cooldown=.8
         self.scythe_attack=2
-        self.aux_state=[]
-        self.enemies_hit=[]
         self.scythe_attack_flag=[0,0]
         self.mask=pygame.mask.from_surface(self.image)
-        self.interactables=[]
-        self.equipment=[]
+        
+        
   
     def image_loader(self):
+        self.d_pad=pygame.image.load(r'media\gui\d-pad.png')
         self.walkrightsprites.append(pygame.image.load('media\scyman_walk\scymanwalk0.png'))
         self.walkrightsprites.append(pygame.image.load('media\scyman_walk\scymanwalk1.png'))
         self.walkrightsprites.append(pygame.image.load('media\scyman_walk\scymanwalk2.png'))
@@ -91,12 +83,45 @@ class PlayerOne(pygame.sprite.Sprite):
         self.mask_scytheleftdown=pygame.mask.from_surface(self.scytheleftdown)
         self.mask_scythedown=pygame.mask.from_surface(self.scythedown)
         self.mask_scytheup=pygame.mask.from_surface(self.scytheup)
-  
+
+    def list_init(self):
+        self.interactables=[]
+        self.picked_up_items=[]
+        self.relics=[]
+        self.armor=[]
+        self.weapons=[]
+        self.tools=[]
+        self.aux_state=[]
+        self.enemies_hit=[]
+        self.walkrightsprites =[]
+        self.walkleftsprites =[]
+        self.walkdownsprites =[]
+        self.walkupsprites =[]
+        self.blinkrightsprites =[]
+        self.blinkleftsprites =[]
+        self.blinkdownsprites=[]
+        self.blinkupsprites=[]
+
     def interact(self):
         for i in self.interactables:
-            self.equipment.append(i)
+            self.picked_up_items.append(i)
         pygame.sprite.spritecollide(self,enemies.spawned_loot,True)
-        print(self.equipment)
+        self.item_sorter()
+
+    def item_sorter(self):
+        for i in self.picked_up_items:
+            if isinstance(i,equip.Relic):
+                self.relics.append(i)
+                self.picked_up_items.remove(i)
+            if isinstance(i,equip.Armor):
+                self.armor.append(i)
+                self.picked_up_items.remove(i)
+            if isinstance(i,equip.Weapon):
+                self.weapons.append(i)
+                self.picked_up_items.remove(i)
+            if isinstance(i,equip.Tool):
+                self.tools.append(i)
+                self.picked_up_items.remove(i)
 
     def collide(self):
         collision_tolerence=5
@@ -429,7 +454,12 @@ class PlayerOne(pygame.sprite.Sprite):
                 self.scythe_attack_flag=[0,0]
 
     def relic_select(self,P1):
-        self.mp -=.25
+        screen.blit(self.d_pad,self.rect.topleft)
+        try:
+            screen.blit(self.relics[0].image,(self.positionx-self.relics[0].rect[2],
+            self.positiony-self.relics[0].rect[3]))
+        except IndexError:
+            pass
 
     def action(self,P1):
         time_stamp=time.time()
