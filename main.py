@@ -1,4 +1,4 @@
-import pygame, time, random, sys,text,enemies
+import pygame, time, random, sys,text,enemies,equip
 from sprite_animation import Spritesheet
 from pygame.constants import JOYAXISMOTION, JOYBUTTONDOWN, JOYHATMOTION, MOUSEBUTTONDOWN
 import common_functions as comfunc
@@ -20,6 +20,7 @@ botright_corner_bush=pygame.transform.rotate(corner_flair,90)
 scyman=pygame.image.load('media\scyman.png')
 windy_cloud=Spritesheet('media\windy_cloud\wc.png',[0,30],True)
 grass_clump=pygame.image.load('media\deco\grass_clump.png')
+skunk=pygame.transform.scale(equip.equip_matrix[1][1].image.convert_alpha(),(16,16))
 randx=randint(0,1000)
 randy=randint(0,500)
 #enemy loading
@@ -72,6 +73,7 @@ class GameElements():
                 else:
                     self.switch = True
         screen.fill((0, 95, 65))
+        screen.blit(skunk,(randx,randy))
         screen.blit(windy_cloud.image,windy_cloud.position,windy_cloud.frame)
         windy_cloud.update()
         screen.blit(corner_flair,(0,467))
@@ -103,6 +105,7 @@ class GameElements():
         for i in scarecrows:
             i.update()
         screen.blit(grass_clump,(randx,randy))
+        enemies.spawned_loot.draw(screen)
         screen.blit(scyman.image,(scyman.positionx,scyman.positiony))
         pygame.display.flip()
 

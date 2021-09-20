@@ -1,5 +1,5 @@
 from color_palette import GREEN, RED, WHITE
-import pygame,time, math
+import pygame,time,math,equip
 from random import randint
 import common_functions as comfunc
 
@@ -7,7 +7,7 @@ screen=None
 enemies=[]
 player1pos=None
 attacks=[]
-
+spawned_loot=pygame.sprite.Group()
 class Scarecrow(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
@@ -64,6 +64,12 @@ class Scarecrow(pygame.sprite.Sprite):
         self.small_straw=pygame.image.load(r'media\deco\small_straw.png')
         self.straw_stalk=pygame.image.load(r'media\deco\straw_stalk.png')
    
+    def loot_dropper(self):
+        random_loot=randint(1,4)
+        equip.equip_matrix[random_loot][1].rect[0]=self.x
+        equip.equip_matrix[random_loot][1].rect[1]=self.y
+        spawned_loot.add(equip.equip_matrix[random_loot][1])
+
     def collision_check(self):
         pass
    
@@ -114,6 +120,7 @@ class Scarecrow(pygame.sprite.Sprite):
    
     def vitality(self):
         if self.hp <= 0:
+            self.loot_dropper()
             self.kill()
   
     def auxillary(self):

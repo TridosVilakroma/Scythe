@@ -50,6 +50,8 @@ class PlayerOne(pygame.sprite.Sprite):
         self.enemies_hit=[]
         self.scythe_attack_flag=[0,0]
         self.mask=pygame.mask.from_surface(self.image)
+        self.interactables=[]
+        self.equipment=[]
   
     def image_loader(self):
         self.walkrightsprites.append(pygame.image.load('media\scyman_walk\scymanwalk0.png'))
@@ -90,9 +92,16 @@ class PlayerOne(pygame.sprite.Sprite):
         self.mask_scythedown=pygame.mask.from_surface(self.scythedown)
         self.mask_scytheup=pygame.mask.from_surface(self.scytheup)
   
+    def interact(self):
+        for i in self.interactables:
+            self.equipment.append(i)
+        pygame.sprite.spritecollide(self,enemies.spawned_loot,True)
+        print(self.equipment)
+
     def collide(self):
         collision_tolerence=5
         self.rect=pygame.Rect(self.positionx,self.positiony,self.image.get_width(),self.image.get_height())
+       #collision between player and enemies
         for i in scarecrows:
             if self.rect.colliderect(i):
                 if abs(i.rect.left-self.rect.right)<collision_tolerence:
@@ -103,6 +112,10 @@ class PlayerOne(pygame.sprite.Sprite):
                     self.bottom_blocked=True
                 if abs(i.rect.bottom-self.rect.top)<collision_tolerence:
                     self.top_blocked=True
+        #collision between player and equipment
+        self.interactables.clear()
+        for i in pygame.sprite.spritecollide(self,enemies.spawned_loot,False):
+            self.interactables.append(i)
   
     def animate_switch(self):
         self.animating=True   
@@ -416,7 +429,7 @@ class PlayerOne(pygame.sprite.Sprite):
                 self.scythe_attack_flag=[0,0]
 
     def relic_select(self,P1):
-        self.mp -=.13
+        self.mp -=.25
 
     def action(self,P1):
         time_stamp=time.time()
@@ -430,6 +443,8 @@ class PlayerOne(pygame.sprite.Sprite):
                 self.focus='slash'
         if P1.get_button(4):
             self.relic_select(P1)
+        if P1.get_button(3):
+            self.interact()
    
     def focus_switch(self,P1,delta):
         self.traverse(P1,delta)
