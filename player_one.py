@@ -13,6 +13,7 @@ class PlayerOne(pygame.sprite.Sprite):
         self.list_init()
         self.hp=100
         self.hp_ratio=960/self.hp
+        self.hp_regen=0
         self.hp_drain_length=100
         self.drain_ratio=960/self.hp_drain_length
         self.recieved_damage=False
@@ -41,11 +42,20 @@ class PlayerOne(pygame.sprite.Sprite):
         self.scythe_attack=2
         self.scythe_attack_flag=[0,0]
         self.mask=pygame.mask.from_surface(self.image)
+        self.relic_cool_down=time.time()
         
         
   
     def image_loader(self):
-        self.d_pad=pygame.image.load(r'media\gui\d-pad.png')
+        self.d_pad=pygame.image.load(r'media\gui\dpad\dpad_neutral.png')
+        self.d_pad_up=pygame.image.load(r'media\gui\dpad\dpad_up.png')
+        self.d_pad_up_right=pygame.image.load(r'media\gui\dpad\dpad_upright.png')
+        self.d_pad_right=pygame.image.load(r'media\gui\dpad\dpad_right.png')
+        self.d_pad_down_right=pygame.image.load(r'media\gui\dpad\dpad_downright.png')
+        self.d_pad_down=pygame.image.load(r'media\gui\dpad\dpad_down.png')
+        self.d_pad_down_left=pygame.image.load(r'media\gui\dpad\dpad_downleft.png')
+        self.d_pad_left=pygame.image.load(r'media\gui\dpad\dpad_left.png')
+        self.d_pad_up_left=pygame.image.load(r'media\gui\dpad\dpad_upleft.png')
         self.walkrightsprites.append(pygame.image.load('media\scyman_walk\scymanwalk0.png'))
         self.walkrightsprites.append(pygame.image.load('media\scyman_walk\scymanwalk1.png'))
         self.walkrightsprites.append(pygame.image.load('media\scyman_walk\scymanwalk2.png'))
@@ -219,6 +229,8 @@ class PlayerOne(pygame.sprite.Sprite):
         self.blink_ghost()
 
     def health_bar(self):
+        if self.hp<100:
+            self.hp+=self.hp_regen
         if self.recieved_damage:
             self.hp_drain_length=self.hp_before_damage
             self.recieved_damage=False
@@ -454,12 +466,175 @@ class PlayerOne(pygame.sprite.Sprite):
                 self.scythe_attack_flag=[0,0]
 
     def relic_select(self,P1):
-        screen.blit(self.d_pad,self.rect.topleft)
+        relic=self.relics
         try:
-            screen.blit(self.relics[0].image,(self.positionx-self.relics[0].rect[2],
-            self.positiony-self.relics[0].rect[3]))
+            screen.blit(relic[0].transparent,(self.positionx-self.relics[0].rect[2],
+            self.positiony))#left
         except IndexError:
             pass
+        try:
+            screen.blit(relic[1].transparent,(self.positionx,
+            self.positiony-self.relics[0].rect[3]))#up
+        except IndexError:
+            pass
+        try:
+            screen.blit(relic[2].transparent,(self.positionx+32,
+            self.positiony))#right
+        except IndexError:
+            pass
+        try:
+            screen.blit(relic[3].transparent,(self.positionx,
+            self.positiony+32))#down
+        except IndexError:
+            pass
+        try:
+            screen.blit(relic[4].transparent,(self.positionx-self.relics[0].rect[2],
+            self.positiony-self.relics[0].rect[3]))#upleft
+        except IndexError:
+            pass
+        try:
+            screen.blit(relic[5].transparent,(self.positionx+32,
+            self.positiony-self.relics[5].rect[3]))#upright
+        except IndexError:
+            pass
+        try:
+            screen.blit(relic[7].transparent,(self.positionx-self.relics[0].rect[2],
+            self.positiony+32))#downleft
+        except IndexError:
+            pass
+        try:
+            screen.blit(relic[6].transparent,(self.positionx+32,
+            self.positiony+32))#downright
+        except IndexError:
+            pass
+    ##########controls##########
+        cool_down=.75
+        if P1.get_hat(0) == (0,0):
+            screen.blit(self.d_pad,self.rect.topleft)#neutral dpad
+        elif P1.get_hat(0) == (0,1):
+            screen.blit(self.d_pad_up,self.rect.topleft)
+            try:
+                screen.blit(relic[1].image,(self.positionx,
+                self.positiony-self.relics[0].rect[3]))#up
+                if P1.get_button(5):
+                    self.aux_state.append('relic')
+                    self.relic_activation_cool_down=time.time()+cool_down
+                    self.stat_archive()
+                    self.activate_relic(1)
+            except IndexError:
+                pass
+        elif P1.get_hat(0) == (1,1):
+            screen.blit(self.d_pad_up_right,self.rect.topleft)
+            try:
+                screen.blit(relic[5].image,(self.positionx+32,
+                self.positiony-self.relics[5].rect[3]))#upright
+                if P1.get_button(5):
+                    self.aux_state.append('relic')
+                    self.relic_activation_cool_down=time.time()+cool_down
+                    self.stat_archive()
+                    self.activate_relic(5)
+            except IndexError:
+                pass
+        elif P1.get_hat(0) == (1,0):
+            screen.blit(self.d_pad_right,self.rect.topleft)
+            try:
+                screen.blit(relic[2].image,(self.positionx+32,
+                self.positiony))#right
+                if P1.get_button(5):
+                    self.aux_state.append('relic')
+                    self.relic_activation_cool_down=time.time()+cool_down
+                    self.stat_archive()
+                    self.activate_relic(2)
+            except IndexError:
+                pass
+        elif P1.get_hat(0) == (1,-1):
+            screen.blit(self.d_pad_down_right,self.rect.topleft)
+            try:
+                screen.blit(relic[6].image,(self.positionx+32,
+                self.positiony+32))#downright
+                if P1.get_button(5):
+                    self.aux_state.append('relic')
+                    self.relic_activation_cool_down=time.time()+cool_down
+                    self.stat_archive()
+                    self.activate_relic(6)
+            except IndexError:
+                pass
+        elif P1.get_hat(0) == (0,-1):
+            screen.blit(self.d_pad_down,self.rect.topleft)
+            try:
+                screen.blit(relic[3].image,(self.positionx,
+                self.positiony+32))#down
+                if P1.get_button(5):
+                    self.aux_state.append('relic')
+                    self.relic_activation_cool_down=time.time()+cool_down
+                    self.stat_archive()
+                    self.activate_relic(3)
+            except IndexError:
+                pass
+        elif P1.get_hat(0) == (-1,-1):
+            screen.blit(self.d_pad_down_left,self.rect.topleft)
+            try:
+                screen.blit(relic[7].image,(self.positionx-self.relics[0].rect[2],
+                self.positiony+32))#downleft
+                if P1.get_button(5):
+                    self.aux_state.append('relic')
+                    self.relic_activation_cool_down=time.time()+cool_down
+                    self.stat_archive()
+                    self.activate_relic(7)
+            except IndexError:
+                pass
+        elif P1.get_hat(0) == (-1,0):
+            screen.blit(self.d_pad_left,self.rect.topleft)
+            try:
+                screen.blit(relic[0].image,(self.positionx-self.relics[0].rect[2],
+                self.positiony))
+                if P1.get_button(5):
+                    self.aux_state.append('relic')
+                    self.relic_activation_cool_down=time.time()+cool_down
+                    self.stat_archive()
+                    self.activate_relic(0)
+            except IndexError:
+                pass
+        elif P1.get_hat(0) == (-1,1):
+            screen.blit(self.d_pad_up_left,self.rect.topleft)
+            try:
+                screen.blit(relic[4].image,(self.positionx-self.relics[0].rect[2],
+                self.positiony-self.relics[0].rect[3]))#upleft
+                if P1.get_button(5):
+                    self.aux_state.append('relic')
+                    self.relic_activation_cool_down=time.time()+cool_down
+                    self.stat_archive()
+                    self.activate_relic(4)
+            except IndexError:
+                pass
+
+    def activate_relic(self,relic_index):
+        relic=self.relics[relic_index]
+        self.activated_relic=relic_index
+        self.defense=relic.defense
+        self.speed=relic.speed
+        self.scythe_attack=relic.scythe_attack
+        self.hp_regen=relic.hp_regen
+        
+    def relic_effects(self,relic_index):
+        relic=self.relics[relic_index]
+        self.mp-=relic.mana_drain
+        if self.mp<-3:
+            self.mp=0
+            self.deactivate_relic()
+        self.image=relic.shape_shifted
+    def stat_archive(self):
+        self.defense_archive=self.defense
+        self.speed_archive=self.speed
+        self.scythe_attack_archive=self.scythe_attack
+        self.hp_regen_archive=self.hp_regen
+
+    def deactivate_relic(self):
+        self.defense=self.defense_archive
+        self.speed=self.speed_archive
+        self.scythe_attack=self.scythe_attack_archive
+        self.hp_regen=self.hp_regen_archive
+        comfunc.clean_list(self.aux_state,'relic')
 
     def action(self,P1):
         time_stamp=time.time()
@@ -468,11 +643,20 @@ class PlayerOne(pygame.sprite.Sprite):
                 self.blink_time_ref=time_stamp+self.blink_step_cooldown
                 self.focus ='blink'
         if P1.get_button(2):
-            if time_stamp>self.slash_time_ref:
-                self.slash_time_ref=time_stamp+self.slash_cooldown
-                self.focus='slash'
+            if 'relic' in self.aux_state:
+                self.relics[self.activated_relic].attack()
+            else:
+                if time_stamp>self.slash_time_ref:
+                    self.slash_time_ref=time_stamp+self.slash_cooldown
+                    self.focus='slash'
         if P1.get_button(4):
-            self.relic_select(P1)
+            if 'relic' in self.aux_state:
+                if time_stamp>self.relic_activation_cool_down:
+                    self.deactivate_relic()
+                    self.relic_cool_down=time.time()+.5
+            else:
+                if time_stamp>self.relic_cool_down:
+                    self.relic_select(P1)
         if P1.get_button(3):
             self.interact()
    
@@ -488,12 +672,13 @@ class PlayerOne(pygame.sprite.Sprite):
             self.blink_ghost()
         if 'scythe' in self.aux_state:
             self.scythe_animate()
+        if 'relic' in self.aux_state:
+            self.relic_effects(self.activated_relic)
         self.collide()
         self.damage()
         self.health_bar()
         self.mana_bar()
 
-   
     def update(self,P1,delta):
         self.focus_switch(P1,delta)
         self.action(P1)

@@ -41,9 +41,21 @@ class Skunk(Relic):
     def __init__(self):
         mana_drain=.25
         self.image=pygame.image.load(r'media\relics\mephitidae_relic.png')
-        self.skunk_image=pygame.image.load(r'media\relics\skunk\skunk.png')
+        self.transparent=self.image.copy()
+        self.transparent.fill((255, 255, 255, 128), None, pygame.BLEND_RGBA_MULT)
+        self.shape_shifted=pygame.image.load(r'media\relics\skunk\skunk.png')
+        self.shape_shifted=pygame.transform.rotozoom(self.shape_shifted,0,.4)
         super().__init__(mana_drain,self.image)
-Mephitidae_relic0=Skunk()
+        self.defense=0
+        self.speed=220
+        self.scythe_attack=0
+        self.hp_regen=.005
+    def attack(self):
+        print('cloud')
+
+Mephitidae_relic=Skunk()
+
+
 egg=Skunk()
 blue=Skunk()
 pink=Skunk()
@@ -53,7 +65,7 @@ blue.image=pygame.image.load(r'media\relics\3_relic.png')
 pink.image=pygame.image.load(r'media\relics\2_relic.png')
 diamond.image=pygame.image.load(r'media\relics\5_relic.png')
 relics={
-    1:Mephitidae_relic0
+    1:Mephitidae_relic
     }
 ###############ARMOR###############
 

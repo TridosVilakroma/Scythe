@@ -17,7 +17,7 @@ class Scarecrow(pygame.sprite.Sprite):
         self.rect=pygame.Rect(self.x,self.y,self.image.get_width(),self.image.get_height())
         self.hp = randint(10,25)
         self.hp_ratio=self.rect.width/self.hp
-        self.defense = randint(0,3)
+        self.defense = 0#randint(0,3)
         self.damage_ref_timer=time.time()
         self.hpbar_ref_timer=time.time()
         self.aux_state=[]
