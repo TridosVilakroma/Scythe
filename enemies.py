@@ -65,10 +65,10 @@ class Scarecrow(pygame.sprite.Sprite):
         self.straw_stalk=pygame.image.load(r'media\deco\straw_stalk.png')
    
     def loot_dropper(self):
-        random_loot=randint(1,4)
-        equip.equip_matrix[random_loot][1].rect[0]=self.x
-        equip.equip_matrix[random_loot][1].rect[1]=self.y
-        spawned_loot.add(equip.equip_matrix[random_loot][1])
+        random_loot=randint(1,3)
+        equip.equip_matrix[1][random_loot].rect[0]=self.x
+        equip.equip_matrix[1][random_loot].rect[1]=self.y
+        spawned_loot.add(equip.equip_matrix[1][random_loot])
 
     def collision_check(self):
         pass
