@@ -14,6 +14,7 @@ class Scarecrow(pygame.sprite.Sprite):
         self.image = pygame.image.load('media\deco\scarecrow.png').convert_alpha()
         self.x=randint(0,968)
         self.y=randint(0,468)
+        self.pos=pygame.Vector2
         self.rect=pygame.Rect(self.x,self.y,self.image.get_width(),self.image.get_height())
         self.hp = randint(10,25)
         self.hp_ratio=self.rect.width/self.hp
@@ -82,6 +83,21 @@ class Scarecrow(pygame.sprite.Sprite):
         self.hpbar_ref_timer=time.time()+3
         self.health_bar()
    
+    def bleed(self):
+        if 'bleed' not in self.aux_state:
+            self.bleed_start=time.time()
+        self.aux_state.append('bleed')
+        if self.bleed_start>time.time()-5:
+            self.hp-=.05
+            self.hpbar_ref_timer=time.time()+3
+            self.health_bar()
+        else:
+            comfunc.clean_list(self.aux_state,'bleed')
+
+    def health_bar_pop_up(self):
+        self.hpbar_ref_timer=time.time()+3
+        self.health_bar()
+
     def health_bar(self):
         time_stamp=time.time()
         if time_stamp<self.hpbar_ref_timer:
@@ -130,11 +146,14 @@ class Scarecrow(pygame.sprite.Sprite):
             self.timer_wheel()
         if 'dust' in self.aux_state:
             self.dust()
+        if 'bleed' in self.aux_state:
+            self.bleed()
    
     def blit(self):
         screen.blit(self.image,(self.x,self.y))
 
     def update(self):
+        self.pos=pygame.Vector2((self.rect.center))
         self.blit()
         self.vitality()
         self.auxillary()

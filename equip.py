@@ -1,4 +1,5 @@
-import pygame
+import pygame,time
+from color_palette import *
 #Base equipment class
 class Equipment(pygame.sprite.Sprite):
     def __init__(self,image):
@@ -39,22 +40,62 @@ nested dict]
 
 class Skunk(Relic):
     def __init__(self):
-        mana_drain=.25
+        mana_drain=.00025
         self.image=pygame.image.load(r'media\relics\mephitidae_relic.png')
         self.transparent=self.image.copy()
         self.transparent.fill((255, 255, 255, 128), None, pygame.BLEND_RGBA_MULT)
-        self.shape_shifted=pygame.image.load(r'media\relics\mephitidae_relic.png')
+        self.shape_shifted=pygame.image.load(r'media\relics\skunk\skunk_neutral.png')
         super().__init__(mana_drain,self.image)
         self.defense=0
-        self.speed=220
+        self.speed=200
         self.scythe_attack=0
-        self.hp_regen=.005
-    def attack(self):
-        print('bite')
-    def special_attack(self):
-        print('cloud')
-    def passives(self):
-        pass
+        self.hp_regen=0
+        self.attack_count=0
+        self.last_hit=time.time()
+        self.cloud=False
+        self.cloud_start=time.time()
+
+    def attack(self,screen,hits,player):
+        time_stamp=time.time()
+        if time_stamp>self.last_hit+.3:
+            self.attack_count+=1
+            for i in hits:
+                i.damage(.75)
+                player.hp+=.75
+                self.last_hit=time.time()
+            if self.attack_count>=4:
+                for i in hits:
+                    i.bleed()
+                self.attack_count=0
+
+    def special_attack(self,screen):
+        if not self.cloud_cooldown:
+            self.cloud=True
+            self.cloud_start=time.time()
+            self.cloud_pos=pygame.Vector2
+            self.cloud_pos=self.rect.center
+            self.cloud_cooldown=True
+
+    def passives(self,screen,scarecrows):
+        if self.cloud and self.cloud_start>time.time()-3:
+            pygame.draw.circle(screen,PURPLE,self.cloud_pos,85,1)
+            for i in scarecrows:
+                if i.pos.distance_to(self.cloud_pos)<85:
+                    i.hp-=.05
+                    i.health_bar_pop_up()
+        else:
+            self.cloud_cooldown=False
+        
+
+
+    def walk_right_load(self):
+        return (r'media\relics\skunk\skunk_right.png')
+    def walk_left_load(self):
+        return (r'media\relics\skunk\skunk_left.png')
+    def walk_up_load(self):
+        return (r'media\relics\skunk\skunk_up.png')
+    def walk_down_load(self):
+        return (r'media\relics\skunk\skunk_down.png')
 
 Mephitidae_relic=Skunk()
 
@@ -124,9 +165,9 @@ relics={
     3:aeetus_relic
     }
 ###############ARMOR###############
-
+nacht_falcata=.5
 armor={
-    
+    1:nacht_falcata
 }
 ###############WEAPONS###############
 

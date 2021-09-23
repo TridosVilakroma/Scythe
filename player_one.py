@@ -97,7 +97,7 @@ class PlayerOne(pygame.sprite.Sprite):
     def list_init(self):
         self.interactables=[]
         self.picked_up_items=[]
-        self.relics=[]
+        self.relics=[equip.Mephitidae_relic]
         self.armor=[]
         self.weapons=[]
         self.tools=[]
@@ -615,6 +615,7 @@ class PlayerOne(pygame.sprite.Sprite):
         self.speed=relic.speed
         self.scythe_attack=relic.scythe_attack
         self.hp_regen=relic.hp_regen
+        self.attack=relic.attack
 
         self.walkrightsprites.clear()
         self.walkleftsprites.clear()
@@ -633,12 +634,15 @@ class PlayerOne(pygame.sprite.Sprite):
 
     def relic_effects(self,relic_index,P1):
         relic=self.relics[relic_index]
+        relic.rect.center=self.rect.center
         self.mp-=relic.mana_drain
-        relic.passives()
+        relic.passives(screen,scarecrows)
         if P1.get_button(2):
-                self.relics[self.activated_relic].attack()
+            hits=pygame.sprite.spritecollide(self,scarecrows,False)
+            relic.attack(screen,hits,self)
         if P1.get_button(1):
-            self.relics[self.activated_relic].special_attack()
+            relic.special_attack(screen)
+
         
         if self.mp<-5:
             self.mp=0

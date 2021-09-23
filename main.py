@@ -29,9 +29,9 @@ for i in range(10):
     i=enemies.Scarecrow()
     scarecrows.add(i)
     enemies.enemies.append(i)
-for i in range(5):
-    i=enemies.Omnivine()
-    scarecrows.add(i)
+# for i in range(5):
+#     i=enemies.Omnivine()
+#     scarecrows.add(i)
 player.scarecrows=scarecrows
 
 #joystick handling
