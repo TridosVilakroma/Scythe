@@ -8,14 +8,15 @@ enemies=[]
 player1pos=None
 attacks=[]
 spawned_loot=pygame.sprite.Group()
+
 class Scarecrow(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
         self.image = pygame.image.load('media\deco\scarecrow.png').convert_alpha()
         self.x=randint(0,968)
         self.y=randint(0,468)
-        self.pos=pygame.Vector2
         self.rect=pygame.Rect(self.x,self.y,self.image.get_width(),self.image.get_height())
+        self.pos=pygame.math.Vector2((self.rect.center))
         self.hp = randint(10,25)
         self.hp_ratio=self.rect.width/self.hp
         self.defense = 0#randint(0,3)
@@ -67,9 +68,16 @@ class Scarecrow(pygame.sprite.Sprite):
    
     def loot_dropper(self):
         random_loot=randint(1,3)
-        equip.equip_matrix[1][random_loot].rect[0]=self.x
-        equip.equip_matrix[1][random_loot].rect[1]=self.y
-        spawned_loot.add(equip.equip_matrix[1][random_loot])
+        try:
+            equip.equip_matrix[1][random_loot].rect[0]=self.x
+            equip.equip_matrix[1][random_loot].rect[1]=self.y
+            spawned_loot.add(equip.equip_matrix[1][random_loot])
+            popped=equip.equip_matrix[1].pop(random_loot)
+            print(popped)
+        except KeyError:
+            print('loot_dropper_error')
+            pass
+            
 
     def collision_check(self):
         pass
@@ -96,6 +104,7 @@ class Scarecrow(pygame.sprite.Sprite):
 
     def health_bar_pop_up(self):
         self.hpbar_ref_timer=time.time()+3
+        self.aux_state.append('health')
         self.health_bar()
 
     def health_bar(self):
@@ -153,7 +162,7 @@ class Scarecrow(pygame.sprite.Sprite):
         screen.blit(self.image,(self.x,self.y))
 
     def update(self):
-        self.pos=pygame.Vector2((self.rect.center))
+        self.pos=pygame.math.Vector2((self.rect.center))
         self.blit()
         self.vitality()
         self.auxillary()
@@ -167,6 +176,7 @@ class Omnivine(pygame.sprite.Sprite):
         self.x=randint(0,968)
         self.y=randint(0,468)
         self.rect=pygame.Rect(self.x,self.y,self.image.get_width(),self.image.get_height())
+        self.pos=pygame.math.Vector2((self.rect.center))
         self.hp = randint(10,25)
         self.hp_ratio=self.rect.width/self.hp
         self.defense = randint(0,3)
@@ -178,7 +188,7 @@ class Omnivine(pygame.sprite.Sprite):
         self.current_sprite=0
         self.animate_speed=.09
         self.bullet_speed=2.5
-        self.chance_to_shoot=1,750 #chance is one in the second int
+        self.chance_to_shoot=2,750 #chance is one in the second int
         self.bullet_air_time=3.25
    
     def image_loader(self):
@@ -240,6 +250,22 @@ class Omnivine(pygame.sprite.Sprite):
         self.hpbar_ref_timer=time.time()+3
         self.health_bar()
    
+    def bleed(self):
+        if 'bleed' not in self.aux_state:
+            self.bleed_start=time.time()
+        self.aux_state.append('bleed')
+        if self.bleed_start>time.time()-5:
+            self.hp-=.05
+            self.hpbar_ref_timer=time.time()+3
+            self.health_bar()
+        else:
+            comfunc.clean_list(self.aux_state,'bleed')
+
+    def health_bar_pop_up(self):
+        self.hpbar_ref_timer=time.time()+3
+        self.aux_state.append('health')
+        self.health_bar()
+
     def health_bar(self):
         time_stamp=time.time()
         if time_stamp<self.hpbar_ref_timer:
@@ -356,11 +382,14 @@ class Omnivine(pygame.sprite.Sprite):
             self.timer_wheel_step=0
         if 'bullet' in self.aux_state:
             self.bullet_trajectory()
+        if 'bleed' in self.aux_state:
+            self.bleed()
    
     def blit(self):
         screen.blit(self.image,(self.x,self.y))
 
     def update(self):
+        self.pos=pygame.Vector2((self.rect.center))
         self.blit()
         self.vitality()
         self.auxillary()

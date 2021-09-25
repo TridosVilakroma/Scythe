@@ -1,4 +1,7 @@
 import pygame,time
+import common_functions as comfunc
+
+from pygame.sprite import collide_mask, collide_rect, spritecollide
 from color_palette import *
 #Base equipment class
 class Equipment(pygame.sprite.Sprite):
@@ -40,7 +43,7 @@ nested dict]
 
 class Skunk(Relic):
     def __init__(self):
-        mana_drain=.00025
+        mana_drain=.25
         self.image=pygame.image.load(r'media\relics\mephitidae_relic.png')
         self.transparent=self.image.copy()
         self.transparent.fill((255, 255, 255, 128), None, pygame.BLEND_RGBA_MULT)
@@ -57,13 +60,13 @@ class Skunk(Relic):
 
     def attack(self,screen,hits,player):
         time_stamp=time.time()
-        if time_stamp>self.last_hit+.3:
+        if time_stamp>self.last_hit+.15:
             self.attack_count+=1
             for i in hits:
                 i.damage(.75)
                 player.hp+=.75
                 self.last_hit=time.time()
-            if self.attack_count>=4:
+            if self.attack_count>=2:
                 for i in hits:
                     i.bleed()
                 self.attack_count=0
@@ -72,8 +75,7 @@ class Skunk(Relic):
         if not self.cloud_cooldown:
             self.cloud=True
             self.cloud_start=time.time()
-            self.cloud_pos=pygame.Vector2
-            self.cloud_pos=self.rect.center
+            self.cloud_pos=pygame.Vector2(self.rect.center)
             self.cloud_cooldown=True
 
     def passives(self,screen,scarecrows):
@@ -101,23 +103,53 @@ Mephitidae_relic=Skunk()
 
 class Fox(Relic):
     def __init__(self):
-        mana_drain=.35
+        mana_drain=.00035
         self.image=pygame.image.load(r'media\relics\vulpes_relic.png')
         self.transparent=self.image.copy()
         self.transparent.fill((255, 255, 255, 128), None, pygame.BLEND_RGBA_MULT)
         self.shape_shifted=pygame.image.load(r'media\relics\vulpes_relic.png')
+        self.fox_mine=comfunc.ItemSprite(pygame.image.load(r'media\relics\fox\fox_mine.png'))
         super().__init__(mana_drain,self.image)
         self.defense=0
         self.speed=235
         self.scythe_attack=0
         self.hp_regen=0
+        self.mine_cooldown=time.time()
+        self.mine=False
         
-    def attack(self):
+    def attack(self,screen,hits,player):
         print('arrow')
-    def special_attack(self):
-        print('mine')
-    def passives(self):
-        pass
+
+    def special_attack(self,screen):
+        if not self.mine_cooldown:
+            self.mine=True
+            self.mine_start=time.time()
+            self.mine_pos=pygame.Vector2(self.rect.center)
+            self.mine_cooldown=True
+            self.fox_mine.rect[0]=(self.mine_pos[0]-self.fox_mine.image.get_width()/2)
+            self.fox_mine.rect[1]=(self.mine_pos[1]-self.fox_mine.image.get_height()/2)
+
+    def passives(self,screen,scarecrows):
+        if self.mine and self.mine_start>time.time()-10:
+            self.nuked=True
+            screen.blit(self.fox_mine.image,(self.mine_pos[0]-self.fox_mine.image.get_width()/2,
+            self.mine_pos[1]-self.fox_mine.image.get_height()/2))
+            for i in pygame.sprite.spritecollide(self.fox_mine,scarecrows,False,collide_mask):
+                self.mine_start=time.time()-10
+                
+        elif self.mine and self.mine_start>time.time()-10.5:
+            pygame.draw.circle(screen,RED,self.mine_pos,45,1)
+            if self.nuked==True:
+                self.nuked=False
+                for i in scarecrows:
+                        if i.pos.distance_to(self.mine_pos)<45:
+                            i.hp-=5
+                            i.health_bar_pop_up()
+        else:
+            self.mine_cooldown=False
+            self.nuked=False
+            self.mine=False
+
     def walk_right_load(self):
         return (r'media\relics\fox\fox_right.png')
     def walk_left_load(self):

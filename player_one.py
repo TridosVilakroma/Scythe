@@ -97,7 +97,7 @@ class PlayerOne(pygame.sprite.Sprite):
     def list_init(self):
         self.interactables=[]
         self.picked_up_items=[]
-        self.relics=[equip.Mephitidae_relic]
+        self.relics=[equip.vulpes_relic,equip.Mephitidae_relic]
         self.armor=[]
         self.weapons=[]
         self.tools=[]
@@ -622,10 +622,6 @@ class PlayerOne(pygame.sprite.Sprite):
         self.walkupsprites.clear()
         self.walkdownsprites.clear()
         self.current_sprite=0
-        print(self.walkrightsprites,
-        self.walkleftsprites,
-        self.walkupsprites,
-        self.walkdownsprites,)
         self.image=relic.shape_shifted
         self.walkrightsprites.append(pygame.image.load(relic.walk_right_load()))
         self.walkleftsprites.append(pygame.image.load(relic.walk_left_load()))

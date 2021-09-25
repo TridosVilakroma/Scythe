@@ -30,3 +30,9 @@ def clean_list(list,element):
         except ValueError:
             break
 
+class ItemSprite(pygame.sprite.Sprite):
+    def __init__(self,image):
+        super().__init__()
+        self.image=image
+        self.mask=pygame.mask.from_surface(image)
+        self.rect=image.get_rect()

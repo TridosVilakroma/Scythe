@@ -5,6 +5,7 @@ import common_functions as comfunc
 import player_one as player
 from color_palette import *
 from random import randint
+import controller as con
 
 screen_width = 1000
 screen_height = 500
@@ -20,7 +21,7 @@ botright_corner_bush=pygame.transform.rotate(corner_flair,90)
 scyman=pygame.image.load('media\scyman.png')
 windy_cloud=Spritesheet('media\windy_cloud\wc.png',[0,30],True)
 grass_clump=pygame.image.load('media\deco\grass_clump.png')
-skunk=pygame.transform.scale(equip.equip_matrix[1][1].image.convert_alpha(),(16,16))
+relic=equip.equip_matrix[1][randint(1,3)].image
 randx=randint(0,1000)
 randy=randint(0,500)
 #enemy loading
@@ -29,19 +30,10 @@ for i in range(10):
     i=enemies.Scarecrow()
     scarecrows.add(i)
     enemies.enemies.append(i)
-# for i in range(5):
-#     i=enemies.Omnivine()
-#     scarecrows.add(i)
+for i in range(5):
+    i=enemies.Omnivine()
+    scarecrows.add(i)
 player.scarecrows=scarecrows
-
-#joystick handling
-joysticks = (pygame.joystick.get_count())
-if joysticks >0:
-    P1 = pygame.joystick.Joystick(0)
-    P1.init()
-    if joysticks >1:
-        P2 = pygame.joystick.Joystick(1)
-        P2.init()
 
 #player binding
 scyman=player.PlayerOne(500,250)
@@ -58,33 +50,41 @@ class GameElements():
         self.switch = False
 
     def start_screen(self):
+        global P1
+        P1=con.joy_init()
+        
         for event in pygame.event.get():
             comfunc.quit(event)
             if event.type == MOUSEBUTTONDOWN:
-                if joysticks:
+                if P1:
                     self.switch = False
                     self.focus='play'
                 else:
                     self.switch = True
             if event.type == JOYBUTTONDOWN:
-                if joysticks:
+                if P1:
                     self.switch = False
                     self.focus='play'
                 else:
                     self.switch = True
         screen.fill((0, 95, 65))
-        screen.blit(skunk,(randx,randy))
+        screen.blit(relic,(randx,randy))
         screen.blit(windy_cloud.image,windy_cloud.position,windy_cloud.frame)
         windy_cloud.update()
         screen.blit(corner_flair,(0,467))
         screen.blit(botright_corner_bush,(967,467))
-        screen.blit(title_text.text_obj,((screen_width/2 -title_text.text_obj.get_width()/2,screen_height/4 -title_text.text_obj.get_height()/2)))
+        screen.blit(title_text.text_obj,((screen_width/2 -title_text.
+        text_obj.get_width()/2,screen_height/4 -title_text.text_obj.get_height()/2)))
         if self.switch == False:
-            screen.blit(press_start_text.text_obj,(screen_width/2 -press_start_text.text_obj.get_width()/2,screen_height/2 -press_start_text.text_obj.get_height()/2))
+            screen.blit(press_start_text.text_obj,(screen_width/2 -press_start_text.
+            text_obj.get_width()/2,screen_height/2 -press_start_text.text_obj.get_height()/2))
             press_start_text.shrink_pop(50)
         else:
-            screen.blit(plug_in_text.text_obj,(screen_width/2 -plug_in_text.text_obj.get_width()/2,screen_height/2 -plug_in_text.text_obj.get_height()/2))
+            screen.blit(plug_in_text.text_obj,(screen_width/2 -plug_in_text.
+            text_obj.get_width()/2,screen_height/2 -plug_in_text.text_obj.get_height()/2))
             plug_in_text.shrink_pop(50)
+            if P1:
+                self.switch=False
         pygame.display.flip()
 
     def main_menu(self):
@@ -140,4 +140,3 @@ while True:
     delta=time.time()-delta_ref
     delta_ref=time.time()
     game.focus_switch()
-    
