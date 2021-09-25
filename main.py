@@ -136,6 +136,9 @@ class GameElements():
 game = GameElements()
 delta_ref=time.time()
 while True:
+    if pygame.joystick.get_count()==0:
+        game.focus='start'
+        game.switch=True
     clock.tick(60)
     delta=time.time()-delta_ref
     delta_ref=time.time()
