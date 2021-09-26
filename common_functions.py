@@ -50,7 +50,17 @@ def item_decay(nested_list):
     '''
     filtered_list=[]
     for i in nested_list:
-        if i[0].life_time >=time.time():
+        if i[0].life_time >= time.time():
             filtered_list.append(i)
     return filtered_list
+
+def sprite_decay(group):
+    '''This function will kill sprites based on
+    self.life_time attributes
+    '''
+    filtered_group=pygame.sprite.Group()
+    for i in group:
+        if i.life_time >= time.time():
+            filtered_group.add(i)
+    return filtered_group
 

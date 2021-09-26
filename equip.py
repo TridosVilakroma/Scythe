@@ -119,13 +119,19 @@ class Fox(Relic):
         self.speed=235
         self.scythe_attack=0
         self.hp_regen=0
+        self.last_hit=time.time()
         self.mine_cooldown=time.time()
         self.mine=False
-        self.arrows=[]
+        self.arrows=pygame.sprite.Group()
         self.arrow_delay=time.time()
         
     def attack(self,screen,hits,player):
-        print('arrow')
+        time_stamp=time.time()
+        if time_stamp>self.last_hit+.3:
+            for i in hits:
+                i.trap(3)
+                player.mp+=.75
+                self.last_hit=time.time()
 
     def special_attack(self,screen):
         if not self.mine_cooldown:
@@ -139,12 +145,11 @@ class Fox(Relic):
     def right_stick(self,delta,player,P1):
         origin=pygame.math.Vector2(player.rect.center)
         arrow=self.Arrow(self.fox_arrow,origin,P1)
-        arrow.rect.center=(origin[0]-arrow.rotated_image.get_width()/2,
-        origin[1]-arrow.rotated_image.get_height()/2)
-        velocity_x,velocity_y=pygame.math.Vector2((arrow.speed*delta)*(P1.get_axis(3)*8),
+        arrow.rect.center=origin
+        arrow.velocity_x,arrow.velocity_y=pygame.math.Vector2((arrow.speed*delta)*(P1.get_axis(3)*8),
         (arrow.speed*delta)*(P1.get_axis(4)*8))
         if len(self.arrows)<30 and self.arrow_delay<time.time():
-            self.arrows.append([arrow,velocity_x,velocity_y])
+            self.arrows.add(arrow)
             self.arrow_delay=time.time()+.2
 
     def passives(self,screen,scarecrows):
@@ -168,13 +173,15 @@ class Fox(Relic):
             self.nuked=False
             self.mine=False
 
-        self.arrows=comfunc.item_decay(self.arrows)
+        self.arrows=comfunc.sprite_decay(self.arrows)
         if self.arrows:
-            #i==list [arrow obj,x vel,y vel]
+            hit_list=pygame.sprite.groupcollide(scarecrows,self.arrows,False,True,collide_mask)
+            for i in hit_list:
+                i.damage(.75)
             for i in self.arrows:
-                screen.blit(i[0].rotated_image,(i[0].rect.center))
-                i[0].rect.x+=i[1]
-                i[0].rect.y+=i[2]
+                screen.blit(i.rotated_image,(i.rect.topleft))
+                i.rect.x+=i.velocity_x
+                i.rect.y+=i.velocity_y
    
     class Arrow(Equipment):
             def __init__(self, image,origin,P1):
@@ -184,6 +191,8 @@ class Fox(Relic):
                 self.image=image
                 self.life_time=time.time()+2
                 self.rotated_image=pygame.transform.rotozoom(self.image,con.joy_angle(P1,(3,4))*-1,1)
+                self.velocity_x=0
+                self.velocity_y=0
 
     
     

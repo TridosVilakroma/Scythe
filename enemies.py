@@ -28,6 +28,7 @@ class Scarecrow(pygame.sprite.Sprite):
         self.mask=pygame.mask.from_surface(self.image)
    
     def image_loader(self):
+        self.trap_net=pygame.image.load(r'media\relics\fox\fox_net.png').convert_alpha()
         self.timer_wheel_img=[]
         self.timer_wheel_img.append(pygame.image.load(r'media\twirl\twirl00.png'))
         self.timer_wheel_img.append(pygame.image.load(r'media\twirl\twirl01.png'))
@@ -91,6 +92,16 @@ class Scarecrow(pygame.sprite.Sprite):
         self.hpbar_ref_timer=time.time()+3
         self.health_bar()
    
+    def trap(self,duration):
+        if 'trap' not in self.aux_state:
+            self.trap_start=time.time()+duration
+            self.aux_state.append('trap')
+            self.trap_duration=duration
+        if self.trap_start>time.time():
+            screen.blit(self.trap_net,self.rect.topleft)
+        else:
+            comfunc.clean_list(self.aux_state,'trap')
+
     def bleed(self):
         if 'bleed' not in self.aux_state:
             self.bleed_start=time.time()
@@ -157,6 +168,8 @@ class Scarecrow(pygame.sprite.Sprite):
             self.dust()
         if 'bleed' in self.aux_state:
             self.bleed()
+        if 'trap' in self.aux_state:
+            self.trap(self.trap_duration)
    
     def blit(self):
         screen.blit(self.image,(self.x,self.y))
@@ -192,6 +205,7 @@ class Omnivine(pygame.sprite.Sprite):
         self.bullet_air_time=3.25
    
     def image_loader(self):
+        self.trap_net=pygame.image.load(r'media\relics\fox\fox_net.png').convert_alpha()
         self.neutral_stance= pygame.image.load('media\enemies\omnivine_walk\sprite_0.png').convert_alpha()
         self.timer_wheel_img=[]
         self.traverse_sprites=[]
@@ -249,11 +263,21 @@ class Omnivine(pygame.sprite.Sprite):
         self.aux_state.append('timerwheel')
         self.hpbar_ref_timer=time.time()+3
         self.health_bar()
-   
+    
+    def trap(self,duration):
+        if 'trap' not in self.aux_state:
+            self.trap_start=time.time()+duration
+            self.aux_state.append('trap')
+            self.trap_duration=duration
+        if self.trap_start>time.time():
+            screen.blit(self.trap_net,self.rect.topleft)
+        else:
+            comfunc.clean_list(self.aux_state,'trap')
+
     def bleed(self):
         if 'bleed' not in self.aux_state:
             self.bleed_start=time.time()
-        self.aux_state.append('bleed')
+            self.aux_state.append('bleed')
         if self.bleed_start>time.time()-5:
             self.hp-=.05
             self.hpbar_ref_timer=time.time()+3
@@ -335,31 +359,32 @@ class Omnivine(pygame.sprite.Sprite):
         aggro_prox=200
         max_prox=50
         if prox[0]<=aggro_prox and prox[1]<=aggro_prox:
-            self.current_sprite+=self.animate_speed
-            if int(self.current_sprite)>=len(self.traverse_sprites):
-                self.current_sprite=0
-            self.image=self.traverse_sprites[int(self.current_sprite)]
-            if player1pos[1]==self.y:
-                if player1pos[0]-max_prox>self.x:
-                    self.x+=.5
-                elif player1pos[0]+max_prox<self.x:
-                    self.x-=.5
-            if player1pos[1]!=self.y:
-                if player1pos[0]-max_prox>self.x:
-                    self.x+=.375
-                elif player1pos[0]+max_prox<self.x:
-                    self.x-=.375
-            if player1pos[0]==self.x:
-                if player1pos[1]-max_prox>self.y:
-                    self.y+=.5
-                elif player1pos[1]+max_prox<self.y:
-                    self.y-=.5
-            if player1pos[0]!=self.x:
-                if player1pos[1]-max_prox>self.y:
-                    self.y+=.375
-                elif player1pos[1]+max_prox<self.y:
-                    self.y-=.375
-            self.rect=pygame.Rect(self.x,self.y,self.image.get_width(),self.image.get_height())
+                self.current_sprite+=self.animate_speed
+                if int(self.current_sprite)>=len(self.traverse_sprites):
+                    self.current_sprite=0
+                self.image=self.traverse_sprites[int(self.current_sprite)]
+                if 'trap' not in self.aux_state:
+                    if player1pos[1]==self.y:
+                        if player1pos[0]-max_prox>self.x:
+                            self.x+=.5
+                        elif player1pos[0]+max_prox<self.x:
+                            self.x-=.5
+                    if player1pos[1]!=self.y:
+                        if player1pos[0]-max_prox>self.x:
+                            self.x+=.375
+                        elif player1pos[0]+max_prox<self.x:
+                            self.x-=.375
+                    if player1pos[0]==self.x:
+                        if player1pos[1]-max_prox>self.y:
+                            self.y+=.5
+                        elif player1pos[1]+max_prox<self.y:
+                            self.y-=.5
+                    if player1pos[0]!=self.x:
+                        if player1pos[1]-max_prox>self.y:
+                            self.y+=.375
+                        elif player1pos[1]+max_prox<self.y:
+                            self.y-=.375
+                self.rect=pygame.Rect(self.x,self.y,self.image.get_width(),self.image.get_height())
 
     def vitality(self):
         if self.hp <= 0:
@@ -384,6 +409,8 @@ class Omnivine(pygame.sprite.Sprite):
             self.bullet_trajectory()
         if 'bleed' in self.aux_state:
             self.bleed()
+        if 'trap' in self.aux_state:
+            self.trap(self.trap_duration)
    
     def blit(self):
         screen.blit(self.image,(self.x,self.y))
