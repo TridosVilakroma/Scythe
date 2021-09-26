@@ -44,7 +44,7 @@ nested dict]
 
 class Skunk(Relic):
     def __init__(self):
-        mana_drain=.25
+        mana_drain=.15
         self.image=pygame.image.load(r'media\relics\mephitidae_relic.png')
         self.transparent=self.image.copy()
         self.transparent.fill((255, 255, 255, 128), None, pygame.BLEND_RGBA_MULT)
@@ -107,7 +107,7 @@ Mephitidae_relic=Skunk()
 
 class Fox(Relic):
     def __init__(self):
-        mana_drain=.00035
+        mana_drain=.2
         self.image=pygame.image.load(r'media\relics\vulpes_relic.png')
         self.transparent=self.image.copy()
         self.transparent.fill((255, 255, 255, 128), None, pygame.BLEND_RGBA_MULT)
@@ -130,7 +130,8 @@ class Fox(Relic):
         if time_stamp>self.last_hit+.3:
             for i in hits:
                 i.trap(3)
-                player.mp+=.75
+                i.damage(0)
+                player.mp+=5
                 self.last_hit=time.time()
 
     def special_attack(self,screen):
