@@ -18,7 +18,7 @@ enemies.screen=screen
 #image loading
 corner_flair=pygame.image.load("media\Corner_flair.png")
 botright_corner_bush=pygame.transform.rotate(corner_flair,90)
-scyman=pygame.image.load('media\scyman.png')
+#scyman=pygame.image.load('media\scyman.png')
 windy_cloud=Spritesheet('media\windy_cloud\wc.png',[0,30],True)
 grass_clump=pygame.image.load('media\deco\grass_clump.png')
 relic=equip.equip_matrix[1][randint(1,3)].image
@@ -106,7 +106,7 @@ class GameElements():
             i.update()
         screen.blit(grass_clump,(randx,randy))
         enemies.spawned_loot.draw(screen)
-        screen.blit(scyman.image,(scyman.positionx,scyman.positiony))
+       # screen.blit(scyman.image,(scyman.positionx,scyman.positiony))
         scyman.update(P1,delta)
         pygame.display.flip()
 

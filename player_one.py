@@ -1,8 +1,9 @@
 from pygame.constants import JOYBUTTONDOWN
-import pygame,time
+import pygame,time,math
 import common_functions as comfunc
 import enemies,equip
 from color_palette import *
+import controller as con
 screen=None#variable overwritten in main to allow blit access from this module
 scarecrows=None#variable overwritten in main to add enemy access here
 attacks=[]
@@ -136,6 +137,15 @@ class PlayerOne(pygame.sprite.Sprite):
     def collide(self):
         collision_tolerence=5
         self.rect=pygame.Rect(self.positionx,self.positiony,self.image.get_width(),self.image.get_height())
+        #screen boundaries
+        if self.positionx<0:
+            self.positionx=0
+        if self.positionx>968:
+            self.positionx=968
+        if self.positiony<0:
+            self.positiony=0
+        if self.positiony>468:
+            self.positiony=468
        #collision between player and enemies
         for i in scarecrows:
             if self.rect.colliderect(i):
@@ -264,68 +274,93 @@ class PlayerOne(pygame.sprite.Sprite):
                 self.hp_lost=abs(self.hp_before_damage-self.hp)
                 self.recieved_damage=True
             comfunc.clean_list(attacks,i)
-  
+
     def traverse(self,P1,delta):
         motionx=P1.get_axis(0)
         motiony=P1.get_axis(1)
-
-        if motionx>.5:
-            if motiony>.5:#moving right down
-                if self.positionx<968:
-                    if self.positiony<468:
-                        if not self.right_blocked:
-                            self.positionx+=(self.speed*delta)*.75
-                        if not self.bottom_blocked:
-                            self.positiony+=(self.speed*delta)*.75
-                        self.animate_switch()
-            elif motiony<-.5:#moving right up
-                if self.positionx<968:
-                    if self.positiony>0:
-                        if not self.right_blocked:
-                            self.positionx+=(self.speed*delta)*.75
-                        if not self.top_blocked:
-                            self.positiony-=(self.speed*delta)*.75
-                        self.animate_switch()            
-            elif self.positionx<968:#moving right
-                if not self.right_blocked:
-                    self.positionx+=self.speed*delta
-                self.animate_switch()
-            self.direction='right'
-        elif motionx<-.5:
-            if motiony>.5:#moving left down
-                if self.positionx>0:
-                    if self.positiony<468:
-                        if not self.left_blocked:
-                            self.positionx-=(self.speed*delta)*.75
-                        if not self.bottom_blocked:
-                            self.positiony+=(self.speed*delta)*.75
-                        self.animate_switch()
-            elif motiony<-.5:#moving left up
-                if self.positionx>0:
-                    if self.positiony>0:
-                        if not self.left_blocked:
-                            self.positionx-=(self.speed*delta)*.75
-                        if not self.top_blocked:
-                            self.positiony-=(self.speed*delta)*.75
-                        self.animate_switch()
-            elif self.positionx>0:#moving left
-                if not self.left_blocked:
-                    self.positionx-=self.speed*delta
-                self.animate_switch()
-            self.direction='left'
-        elif motiony>.5:#moving down
-            if self.positiony<468:
-                if not self.bottom_blocked:
-                    self.positiony+=self.speed*delta
-                self.animate_switch()
-            self.direction='down'
-        elif motiony<-.5:#moving up
-            if self.positiony>0:
-                if not self.top_blocked:
-                    self.positiony-=self.speed*delta
-                self.animate_switch()           
+        directions=['up','right','down','left']
+        angle=con.joy_angle(P1,(0,1))% 360
+        up=0
+        right=90
+        down=180
+        left=270
+        if math.isclose(up, angle, abs_tol = 45):
             self.direction='up'
-        self.traverse_animate()
+        if math.isclose(right, angle, abs_tol = 45):
+            self.direction='right'
+        if math.isclose(down, angle, abs_tol = 45):
+            self.direction='down'
+        if math.isclose(left, angle, abs_tol = 45):
+            self.direction='left'
+        if not comfunc.dead_zone(P1,(0,1)):
+            self.animate_switch()
+            self.traverse_animate()
+            if motionx>0 and not self.right_blocked:
+                self.positionx+=(self.speed*delta)*P1.get_axis(0)
+            if motionx<0 and not self.left_blocked:
+                self.positionx+=(self.speed*delta)*P1.get_axis(0)
+            if motiony>0 and not self.bottom_blocked:
+                self.positiony+=(self.speed*delta)*P1.get_axis(1)
+            if motiony<0 and not self.top_blocked:
+                self.positiony+=(self.speed*delta)*P1.get_axis(1)
+
+        # if motionx>.5:
+        #     if motiony>.5:#moving right down
+               # if self.positionx<968:
+                   # if self.positiony<468:
+                      #  if not self.right_blocked:
+                       #     self.positionx+=(self.speed*delta)*.75
+                       # if not self.bottom_blocked:
+                       #     self.positiony+=(self.speed*delta)*.75
+                       # self.animate_switch()
+           # elif motiony<-.5:#moving right up
+                # if self.positionx<968:
+                #     if self.positiony>0:
+                #         if not self.right_blocked:
+                #             self.positionx+=(self.speed*delta)*.75
+                #         if not self.top_blocked:
+                #             self.positiony-=(self.speed*delta)*.75
+                      #  self.animate_switch()            
+           # elif self.positionx<968:#moving right
+               # if not self.right_blocked:
+                   # self.positionx+=self.speed*delta
+               # self.animate_switch()
+        #     self.direction='right'
+        # elif motionx<-.5:
+        #     if motiony>.5:#moving left down
+        #         if self.positionx>0:
+        #             if self.positiony<468:
+        #                 if not self.left_blocked:
+        #                     self.positionx-=(self.speed*delta)*.75
+        #                 if not self.bottom_blocked:
+        #                     self.positiony+=(self.speed*delta)*.75
+        #                 self.animate_switch()
+        #     elif motiony<-.5:#moving left up
+        #         if self.positionx>0:
+        #             if self.positiony>0:
+        #                 if not self.left_blocked:
+        #                     self.positionx-=(self.speed*delta)*.75
+        #                 if not self.top_blocked:
+        #                     self.positiony-=(self.speed*delta)*.75
+        #                 self.animate_switch()
+        #     elif self.positionx>0:#moving left
+        #         if not self.left_blocked:
+        #             self.positionx-=self.speed*delta
+        #         self.animate_switch()
+        #     self.direction='left'
+        # elif motiony>.5:#moving down
+        #     if self.positiony<468:
+        #         if not self.bottom_blocked:
+        #             self.positiony+=self.speed*delta
+        #         self.animate_switch()
+        #     self.direction='down'
+        # elif motiony<-.5:#moving up
+        #     if self.positiony>0:
+        #         if not self.top_blocked:
+        #             self.positiony-=self.speed*delta
+        #         self.animate_switch()           
+        #     self.direction='up'
+        # self.traverse_animate()
         self.right_blocked,self.left_blocked,self.bottom_blocked,self.top_blocked=False,False,False,False
   
     def blink_step(self,P1):
@@ -628,7 +663,7 @@ class PlayerOne(pygame.sprite.Sprite):
         self.walkupsprites.append(pygame.image.load(relic.walk_up_load()))
         self.walkdownsprites.append(pygame.image.load(relic.walk_down_load()))
 
-    def relic_effects(self,relic_index,P1):
+    def relic_effects(self,delta,relic_index,P1):
         relic=self.relics[relic_index]
         relic.rect.center=self.rect.center
         self.mp-=relic.mana_drain
@@ -638,6 +673,9 @@ class PlayerOne(pygame.sprite.Sprite):
             relic.attack(screen,hits,self)
         if P1.get_button(1):
             relic.special_attack(screen)
+
+        if not comfunc.dead_zone(P1,(3,4)):
+            relic.right_stick(delta,self,P1)
 
         
         if self.mp<-5:
@@ -703,20 +741,24 @@ class PlayerOne(pygame.sprite.Sprite):
         if P1.get_button(3):
             self.interact()
    
+    def draw(self):
+        screen.blit(self.image,(self.positionx,self.positiony))
+
     def focus_switch(self,P1,delta):
         self.traverse(P1,delta)
+        self.draw()
         if self.focus =='blink':
             self.blink_step(P1)
         elif self.focus=='slash':
             self.scythe_slash()
   
-    def auxillary(self,P1):
+    def auxillary(self,P1,delta):
         if 'blink' in self.aux_state:
             self.blink_ghost()
         if 'scythe' in self.aux_state:
             self.scythe_animate()
         if 'relic' in self.aux_state:
-            self.relic_effects(self.activated_relic,P1)
+            self.relic_effects(delta,self.activated_relic,P1)
         self.collide()
         self.damage()
         self.health_bar()
@@ -725,4 +767,5 @@ class PlayerOne(pygame.sprite.Sprite):
     def update(self,P1,delta):
         self.focus_switch(P1,delta)
         self.action(P1)
-        self.auxillary(P1)
+        self.auxillary(P1,delta)
+        

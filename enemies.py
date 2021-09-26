@@ -188,7 +188,7 @@ class Omnivine(pygame.sprite.Sprite):
         self.current_sprite=0
         self.animate_speed=.09
         self.bullet_speed=2.5
-        self.chance_to_shoot=2,750 #chance is one in the second int
+        self.chance_to_shoot=1,750 #chance is one in the second int
         self.bullet_air_time=3.25
    
     def image_loader(self):

@@ -1,8 +1,9 @@
 import pygame,time
 import common_functions as comfunc
-
+import controller as con
 from pygame.sprite import collide_mask, collide_rect, spritecollide
 from color_palette import *
+
 #Base equipment class
 class Equipment(pygame.sprite.Sprite):
     def __init__(self,image):
@@ -78,6 +79,9 @@ class Skunk(Relic):
             self.cloud_pos=pygame.Vector2(self.rect.center)
             self.cloud_cooldown=True
 
+    def right_stick(self,axes):
+        pass
+
     def passives(self,screen,scarecrows):
         if self.cloud and self.cloud_start>time.time()-3:
             pygame.draw.circle(screen,PURPLE,self.cloud_pos,85,1)
@@ -107,8 +111,9 @@ class Fox(Relic):
         self.image=pygame.image.load(r'media\relics\vulpes_relic.png')
         self.transparent=self.image.copy()
         self.transparent.fill((255, 255, 255, 128), None, pygame.BLEND_RGBA_MULT)
-        self.shape_shifted=pygame.image.load(r'media\relics\vulpes_relic.png')
+        self.shape_shifted=pygame.image.load(r'media\relics\fox\fox_neutral.png')
         self.fox_mine=comfunc.ItemSprite(pygame.image.load(r'media\relics\fox\fox_mine.png'))
+        self.fox_arrow=pygame.image.load(r'media\relics\fox\fox_arrow.png')
         super().__init__(mana_drain,self.image)
         self.defense=0
         self.speed=235
@@ -116,6 +121,8 @@ class Fox(Relic):
         self.hp_regen=0
         self.mine_cooldown=time.time()
         self.mine=False
+        self.arrows=[]
+        self.arrow_delay=time.time()
         
     def attack(self,screen,hits,player):
         print('arrow')
@@ -128,6 +135,17 @@ class Fox(Relic):
             self.mine_cooldown=True
             self.fox_mine.rect[0]=(self.mine_pos[0]-self.fox_mine.image.get_width()/2)
             self.fox_mine.rect[1]=(self.mine_pos[1]-self.fox_mine.image.get_height()/2)
+
+    def right_stick(self,delta,player,P1):
+        origin=pygame.math.Vector2(player.rect.center)
+        arrow=self.Arrow(self.fox_arrow,origin,P1)
+        arrow.rect.center=(origin[0]-arrow.rotated_image.get_width()/2,
+        origin[1]-arrow.rotated_image.get_height()/2)
+        velocity_x,velocity_y=pygame.math.Vector2((arrow.speed*delta)*(P1.get_axis(3)*8),
+        (arrow.speed*delta)*(P1.get_axis(4)*8))
+        if len(self.arrows)<30 and self.arrow_delay<time.time():
+            self.arrows.append([arrow,velocity_x,velocity_y])
+            self.arrow_delay=time.time()+.2
 
     def passives(self,screen,scarecrows):
         if self.mine and self.mine_start>time.time()-10:
@@ -149,6 +167,27 @@ class Fox(Relic):
             self.mine_cooldown=False
             self.nuked=False
             self.mine=False
+
+        self.arrows=comfunc.item_decay(self.arrows)
+        if self.arrows:
+            #i==list [arrow obj,x vel,y vel]
+            for i in self.arrows:
+                screen.blit(i[0].rotated_image,(i[0].rect.center))
+                i[0].rect.x+=i[1]
+                i[0].rect.y+=i[2]
+   
+    class Arrow(Equipment):
+            def __init__(self, image,origin,P1):
+                super().__init__(image)
+                self.speed=150
+                self.origin=origin
+                self.image=image
+                self.life_time=time.time()+2
+                self.rotated_image=pygame.transform.rotozoom(self.image,con.joy_angle(P1,(3,4))*-1,1)
+
+    
+    
+
 
     def walk_right_load(self):
         return (r'media\relics\fox\fox_right.png')
@@ -177,6 +216,8 @@ class Eagle(Relic):
         print('arrow')
     def special_attack(self):
         print('mine')
+    def right_stick(self,axes):
+        pass
     def passives(self):
         pass
         #prox=(abs(player1pos[0]-self.rect.center[0]),abs(player1pos[1]-self.rect.center[1]))
