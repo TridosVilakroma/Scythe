@@ -513,148 +513,162 @@ class PlayerOne(pygame.sprite.Sprite):
                 self.scythe_attack_flag=[0,0]
 
     def relic_select(self,P1):
-        relic=self.relics
-        try:
-            screen.blit(relic[0].transparent,(self.positionx-self.relics[0].rect[2],
-            self.positiony))#left
-        except IndexError:
-            pass
-        try:
-            screen.blit(relic[1].transparent,(self.positionx,
-            self.positiony-self.relics[0].rect[3]))#up
-        except IndexError:
-            pass
-        try:
-            screen.blit(relic[2].transparent,(self.positionx+32,
-            self.positiony))#right
-        except IndexError:
-            pass
-        try:
-            screen.blit(relic[3].transparent,(self.positionx,
-            self.positiony+32))#down
-        except IndexError:
-            pass
-        try:
-            screen.blit(relic[4].transparent,(self.positionx-self.relics[0].rect[2],
-            self.positiony-self.relics[0].rect[3]))#upleft
-        except IndexError:
-            pass
-        try:
-            screen.blit(relic[5].transparent,(self.positionx+32,
-            self.positiony-self.relics[5].rect[3]))#upright
-        except IndexError:
-            pass
-        try:
-            screen.blit(relic[7].transparent,(self.positionx-self.relics[0].rect[2],
-            self.positiony+32))#downleft
-        except IndexError:
-            pass
-        try:
-            screen.blit(relic[6].transparent,(self.positionx+32,
-            self.positiony+32))#downright
-        except IndexError:
-            pass
-    ##########controls##########
-        cool_down=.75
-        if P1.get_hat(0) == (0,0):
-            screen.blit(self.d_pad,self.rect.topleft)#neutral dpad
-        elif P1.get_hat(0) == (0,1):
-            screen.blit(self.d_pad_up,self.rect.topleft)
+        if 'dpad' not in self.aux_state:
+            self.aux_state.append('dpad')
+            self.dpad_timestamp=time.time()+.5
+        elif self.dpad_timestamp>time.time():
+            relic=self.relics
             try:
-                screen.blit(relic[1].image,(self.positionx,
+                screen.blit(relic[0].transparent,(self.positionx-self.relics[0].rect[2],
+                self.positiony))#left
+            except IndexError:
+                pass
+            try:
+                screen.blit(relic[1].transparent,(self.positionx,
                 self.positiony-self.relics[0].rect[3]))#up
-                if P1.get_button(5):
-                    self.aux_state.append('relic')
-                    self.relic_activation_cool_down=time.time()+cool_down
-                    self.stat_archive()
-                    self.activate_relic(1)
             except IndexError:
                 pass
-        elif P1.get_hat(0) == (1,1):
-            screen.blit(self.d_pad_up_right,self.rect.topleft)
             try:
-                screen.blit(relic[5].image,(self.positionx+32,
-                self.positiony-self.relics[5].rect[3]))#upright
-                if P1.get_button(5):
-                    self.aux_state.append('relic')
-                    self.relic_activation_cool_down=time.time()+cool_down
-                    self.stat_archive()
-                    self.activate_relic(5)
-            except IndexError:
-                pass
-        elif P1.get_hat(0) == (1,0):
-            screen.blit(self.d_pad_right,self.rect.topleft)
-            try:
-                screen.blit(relic[2].image,(self.positionx+32,
+                screen.blit(relic[2].transparent,(self.positionx+32,
                 self.positiony))#right
-                if P1.get_button(5):
-                    self.aux_state.append('relic')
-                    self.relic_activation_cool_down=time.time()+cool_down
-                    self.stat_archive()
-                    self.activate_relic(2)
             except IndexError:
                 pass
-        elif P1.get_hat(0) == (1,-1):
-            screen.blit(self.d_pad_down_right,self.rect.topleft)
             try:
-                screen.blit(relic[6].image,(self.positionx+32,
-                self.positiony+32))#downright
-                if P1.get_button(5):
-                    self.aux_state.append('relic')
-                    self.relic_activation_cool_down=time.time()+cool_down
-                    self.stat_archive()
-                    self.activate_relic(6)
-            except IndexError:
-                pass
-        elif P1.get_hat(0) == (0,-1):
-            screen.blit(self.d_pad_down,self.rect.topleft)
-            try:
-                screen.blit(relic[3].image,(self.positionx,
+                screen.blit(relic[3].transparent,(self.positionx,
                 self.positiony+32))#down
-                if P1.get_button(5):
-                    self.aux_state.append('relic')
-                    self.relic_activation_cool_down=time.time()+cool_down
-                    self.stat_archive()
-                    self.activate_relic(3)
             except IndexError:
                 pass
-        elif P1.get_hat(0) == (-1,-1):
-            screen.blit(self.d_pad_down_left,self.rect.topleft)
             try:
-                screen.blit(relic[7].image,(self.positionx-self.relics[0].rect[2],
-                self.positiony+32))#downleft
-                if P1.get_button(5):
-                    self.aux_state.append('relic')
-                    self.relic_activation_cool_down=time.time()+cool_down
-                    self.stat_archive()
-                    self.activate_relic(7)
-            except IndexError:
-                pass
-        elif P1.get_hat(0) == (-1,0):
-            screen.blit(self.d_pad_left,self.rect.topleft)
-            try:
-                screen.blit(relic[0].image,(self.positionx-self.relics[0].rect[2],
-                self.positiony))
-                if P1.get_button(5):
-                    self.aux_state.append('relic')
-                    self.relic_activation_cool_down=time.time()+cool_down
-                    self.stat_archive()
-                    self.activate_relic(0)
-            except IndexError:
-                pass
-        elif P1.get_hat(0) == (-1,1):
-            screen.blit(self.d_pad_up_left,self.rect.topleft)
-            try:
-                screen.blit(relic[4].image,(self.positionx-self.relics[0].rect[2],
+                screen.blit(relic[4].transparent,(self.positionx-self.relics[0].rect[2],
                 self.positiony-self.relics[0].rect[3]))#upleft
-                if P1.get_button(5):
-                    self.aux_state.append('relic')
-                    self.relic_activation_cool_down=time.time()+cool_down
-                    self.stat_archive()
-                    self.activate_relic(4)
             except IndexError:
                 pass
-
+            try:
+                screen.blit(relic[5].transparent,(self.positionx+32,
+                self.positiony-self.relics[5].rect[3]))#upright
+            except IndexError:
+                pass
+            try:
+                screen.blit(relic[7].transparent,(self.positionx-self.relics[0].rect[2],
+                self.positiony+32))#downleft
+            except IndexError:
+                pass
+            try:
+                screen.blit(relic[6].transparent,(self.positionx+32,
+                self.positiony+32))#downright
+            except IndexError:
+                pass
+        ##########controls##########
+            cool_down=.75
+            if P1.get_hat(0) == (0,0):
+                screen.blit(self.d_pad,self.rect.topleft)#neutral dpad
+            elif P1.get_hat(0) == (0,1):
+                screen.blit(self.d_pad_up,self.rect.topleft)
+                try:
+                    screen.blit(relic[1].image,(self.positionx,
+                    self.positiony-self.relics[0].rect[3]))#up
+                    if P1.get_button(4):
+                        self.aux_state.append('relic')
+                        comfunc.clean_list(self.aux_state,'dpad')
+                        self.relic_activation_cool_down=time.time()+cool_down
+                        self.stat_archive()
+                        self.activate_relic(1)
+                except IndexError:
+                    pass
+            elif P1.get_hat(0) == (1,1):
+                screen.blit(self.d_pad_up_right,self.rect.topleft)
+                try:
+                    screen.blit(relic[5].image,(self.positionx+32,
+                    self.positiony-self.relics[5].rect[3]))#upright
+                    if P1.get_button(5):
+                        self.aux_state.append('relic')
+                        comfunc.clean_list(self.aux_state,'dpad')
+                        self.relic_activation_cool_down=time.time()+cool_down
+                        self.stat_archive()
+                        self.activate_relic(5)
+                except IndexError:
+                    pass
+            elif P1.get_hat(0) == (1,0):
+                screen.blit(self.d_pad_right,self.rect.topleft)
+                try:
+                    screen.blit(relic[2].image,(self.positionx+32,
+                    self.positiony))#right
+                    if P1.get_button(4):
+                        self.aux_state.append('relic')
+                        comfunc.clean_list(self.aux_state,'dpad')
+                        self.relic_activation_cool_down=time.time()+cool_down
+                        self.stat_archive()
+                        self.activate_relic(2)
+                except IndexError:
+                    pass
+            elif P1.get_hat(0) == (1,-1):
+                screen.blit(self.d_pad_down_right,self.rect.topleft)
+                try:
+                    screen.blit(relic[6].image,(self.positionx+32,
+                    self.positiony+32))#downright
+                    if P1.get_button(4):
+                        self.aux_state.append('relic')
+                        comfunc.clean_list(self.aux_state,'dpad')
+                        self.relic_activation_cool_down=time.time()+cool_down
+                        self.stat_archive()
+                        self.activate_relic(6)
+                except IndexError:
+                    pass
+            elif P1.get_hat(0) == (0,-1):
+                screen.blit(self.d_pad_down,self.rect.topleft)
+                try:
+                    screen.blit(relic[3].image,(self.positionx,
+                    self.positiony+32))#down
+                    if P1.get_button(4):
+                        self.aux_state.append('relic')
+                        comfunc.clean_list(self.aux_state,'dpad')
+                        self.relic_activation_cool_down=time.time()+cool_down
+                        self.stat_archive()
+                        self.activate_relic(3)
+                except IndexError:
+                    pass
+            elif P1.get_hat(0) == (-1,-1):
+                screen.blit(self.d_pad_down_left,self.rect.topleft)
+                try:
+                    screen.blit(relic[7].image,(self.positionx-self.relics[0].rect[2],
+                    self.positiony+32))#downleft
+                    if P1.get_button(4):
+                        self.aux_state.append('relic')
+                        comfunc.clean_list(self.aux_state,'dpad')
+                        self.relic_activation_cool_down=time.time()+cool_down
+                        self.stat_archive()
+                        self.activate_relic(7)
+                except IndexError:
+                    pass
+            elif P1.get_hat(0) == (-1,0):
+                screen.blit(self.d_pad_left,self.rect.topleft)
+                try:
+                    screen.blit(relic[0].image,(self.positionx-self.relics[0].rect[2],
+                    self.positiony))
+                    if P1.get_button(4):
+                        self.aux_state.append('relic')
+                        comfunc.clean_list(self.aux_state,'dpad')
+                        self.relic_activation_cool_down=time.time()+cool_down
+                        self.stat_archive()
+                        self.activate_relic(0)
+                except IndexError:
+                    pass
+            elif P1.get_hat(0) == (-1,1):
+                screen.blit(self.d_pad_up_left,self.rect.topleft)
+                try:
+                    screen.blit(relic[4].image,(self.positionx-self.relics[0].rect[2],
+                    self.positiony-self.relics[0].rect[3]))#upleft
+                    if P1.get_button(4):
+                        self.aux_state.append('relic')
+                        comfunc.clean_list(self.aux_state,'dpad')
+                        self.relic_activation_cool_down=time.time()+cool_down
+                        self.stat_archive()
+                        self.activate_relic(4)
+                except IndexError:
+                    pass
+        else:
+            comfunc.clean_list(self.aux_state,'dpad')
+   
     def activate_relic(self,relic_index):
         relic=self.relics[relic_index]
         self.activated_relic=relic_index
@@ -746,12 +760,16 @@ class PlayerOne(pygame.sprite.Sprite):
                 if time_stamp>self.relic_activation_cool_down:
                     self.deactivate_relic()
                     self.relic_cool_down=time.time()+.5
-            else:
-                if time_stamp>self.relic_cool_down:
-                    self.relic_select(P1)
         if P1.get_button(3):
             self.interact()
-   
+        if P1.get_hat(0)[0] or P1.get_hat(0)[1]:
+            if 'relic' in self.aux_state:
+                pass
+            else:
+                if time_stamp>self.relic_cool_down:
+                    self.dpad_timestamp=time.time()+.5
+                    self.relic_select(P1)
+
     def draw(self):
         screen.blit(self.image,(self.positionx,self.positiony))
 
@@ -770,6 +788,8 @@ class PlayerOne(pygame.sprite.Sprite):
             self.scythe_animate()
         if 'relic' in self.aux_state:
             self.relic_effects(delta,self.activated_relic,P1)
+        if 'dpad' in self.aux_state:
+            self.relic_select(P1)
         self.collide()
         self.damage()
         self.health_bar()
