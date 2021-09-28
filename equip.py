@@ -64,8 +64,8 @@ class Skunk(Relic):
         if time_stamp>self.last_hit+.15:
             self.attack_count+=1
             for i in hits:
-                i.damage(.75)
-                player.hp+=.75
+                i.damage(1.75)
+                player.hp+=1.75
                 self.last_hit=time.time()
             if self.attack_count>=2:
                 for i in hits:
@@ -79,7 +79,7 @@ class Skunk(Relic):
             self.cloud_pos=pygame.Vector2(self.rect.center)
             self.cloud_cooldown=True
 
-    def right_stick(self,axes):
+    def right_stick(self,delta,player,P1):
         pass
 
     def passives(self,screen,scarecrows):
@@ -131,7 +131,7 @@ class Fox(Relic):
             for i in hits:
                 i.trap(3)
                 i.damage(0)
-                player.mp+=5
+                player.mp+=7.5
                 self.last_hit=time.time()
 
     def special_attack(self,screen):
@@ -178,7 +178,7 @@ class Fox(Relic):
         if self.arrows:
             hit_list=pygame.sprite.groupcollide(scarecrows,self.arrows,False,True,collide_mask)
             for i in hit_list:
-                i.damage(.75)
+                i.damage(1.75)
             for i in self.arrows:
                 screen.blit(i.rotated_image,(i.rect.topleft))
                 i.rect.x+=i.velocity_x

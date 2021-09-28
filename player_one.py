@@ -46,7 +46,17 @@ class PlayerOne(pygame.sprite.Sprite):
         self.relic_cool_down=time.time()
         
         
-  
+    class Scythe(equip.Equipment):
+        def __init__(self, image,P1,origin):
+            super().__init__(image)
+            self.speed=150
+            self.origin=origin
+            self.image=image
+            self.life_time=time.time()+2
+            self.rotated_image=pygame.transform.rotozoom(self.image,con.joy_angle(P1,(3,4))*-1,1)
+            self.velocity_x=0
+            self.velocity_y=0
+
     def image_loader(self):
         self.d_pad=pygame.image.load(r'media\gui\dpad\dpad_neutral.png')
         self.d_pad_up=pygame.image.load(r'media\gui\dpad\dpad_up.png')
@@ -239,6 +249,8 @@ class PlayerOne(pygame.sprite.Sprite):
         self.blink_ghost()
 
     def health_bar(self):
+        if self.hp>100:
+            self.hp=100
         if self.hp<100:
             self.hp+=self.hp_regen
         if self.recieved_damage:
@@ -683,8 +695,7 @@ class PlayerOne(pygame.sprite.Sprite):
             self.deactivate_relic()
         elif self.mp<1:
             self.mp-=.5  
-        
-        
+         
     def stat_archive(self):
         self.defense_archive=self.defense
         self.speed_archive=self.speed
