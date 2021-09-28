@@ -44,7 +44,7 @@ nested dict]
 
 class Skunk(Relic):
     def __init__(self):
-        mana_drain=.15
+        mana_drain=.13
         self.image=pygame.image.load(r'media\relics\mephitidae_relic.png')
         self.transparent=self.image.copy()
         self.transparent.fill((255, 255, 255, 128), None, pygame.BLEND_RGBA_MULT)
@@ -70,6 +70,7 @@ class Skunk(Relic):
             if self.attack_count>=2:
                 for i in hits:
                     i.bleed()
+                    player.hp+=1.75
                 self.attack_count=0
 
     def special_attack(self,screen):
@@ -87,7 +88,7 @@ class Skunk(Relic):
             pygame.draw.circle(screen,PURPLE,self.cloud_pos,85,1)
             for i in scarecrows:
                 if i.pos.distance_to(self.cloud_pos)<85:
-                    i.hp-=.05
+                    i.hp-=.075
                     i.health_bar_pop_up()
         else:
             self.cloud_cooldown=False
@@ -107,7 +108,7 @@ Mephitidae_relic=Skunk()
 
 class Fox(Relic):
     def __init__(self):
-        mana_drain=.2
+        mana_drain=.15
         self.image=pygame.image.load(r'media\relics\vulpes_relic.png')
         self.transparent=self.image.copy()
         self.transparent.fill((255, 255, 255, 128), None, pygame.BLEND_RGBA_MULT)
@@ -167,7 +168,7 @@ class Fox(Relic):
                 self.nuked=False
                 for i in scarecrows:
                         if i.pos.distance_to(self.mine_pos)<45:
-                            i.hp-=5
+                            i.hp-=8
                             i.health_bar_pop_up()
         else:
             self.mine_cooldown=False
@@ -178,7 +179,7 @@ class Fox(Relic):
         if self.arrows:
             hit_list=pygame.sprite.groupcollide(scarecrows,self.arrows,False,True,collide_mask)
             for i in hit_list:
-                i.damage(1.75)
+                i.damage(2.75)
             for i in self.arrows:
                 screen.blit(i.rotated_image,(i.rect.topleft))
                 i.rect.x+=i.velocity_x
