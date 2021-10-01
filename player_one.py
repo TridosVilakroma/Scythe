@@ -274,6 +274,8 @@ class PlayerOne(pygame.sprite.Sprite):
 
     def mana_bar(self):
         mana_regen=.1
+        if self.mp>100:
+            self.mp=100
         if self.mp < 100:
             self.mp+=mana_regen
         outline=pygame.Rect(19,473,962,5)
@@ -789,10 +791,7 @@ class PlayerOne(pygame.sprite.Sprite):
     def action(self,P1):
         time_stamp=time.time()
         if P1.get_button(1):
-            if not comfunc.dead_zone(P1,(3,4)):
-                thing,place=comfunc.pivot(self.test_scythe.image,self.rect.center,(16,42)
-                ,con.joy_angle(P1,(3,4)))
-                screen.blit(thing,place)
+            pass
         if P1.get_button(0):
             if time_stamp>self.blink_time_ref:
                 self.blink_time_ref=time_stamp+self.blink_step_cooldown
