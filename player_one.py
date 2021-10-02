@@ -113,7 +113,7 @@ class PlayerOne(pygame.sprite.Sprite):
     def list_init(self):
         self.interactables=[]
         self.picked_up_items=[]
-        self.relics=[equip.vulpes_relic,equip.Mephitidae_relic]
+        self.relics=[equip.vulpes_relic,equip.Mephitidae_relic,equip.aeetus_relic]
         self.armor=[]
         self.weapons=[]
         self.tools=[]
@@ -787,7 +787,8 @@ class PlayerOne(pygame.sprite.Sprite):
         self.walkdownsprites.append(pygame.image.load(r'media\scyman_walk\down_walk\walkdown1.png'))
         self.walkdownsprites.append(pygame.image.load(r'media\scyman_walk\down_walk\walkdown2.png'))
         self.walkdownsprites.append(pygame.image.load(r'media\scyman_walk\down_walk\walkdown3.png'))
-
+        self.image=self.walkdownsprites[0]
+   
     def action(self,P1):
         time_stamp=time.time()
         if P1.get_button(1):

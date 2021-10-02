@@ -196,10 +196,6 @@ class Fox(Relic):
                 self.velocity_x=0
                 self.velocity_y=0
 
-    
-    
-
-
     def walk_right_load(self):
         return (r'media\relics\fox\fox_right.png')
     def walk_left_load(self):
@@ -213,25 +209,73 @@ vulpes_relic=Fox()
 
 class Eagle(Relic):
     def __init__(self):
-        mana_drain=.15
+        mana_drain=.18
         self.image=pygame.image.load(r'media\relics\aeetos_relic.png')
         self.transparent=self.image.copy()
         self.transparent.fill((255, 255, 255, 128), None, pygame.BLEND_RGBA_MULT)
         self.shape_shifted=pygame.image.load(r'media\relics\eagle\eagle_neutral.png')
+        self.eagle_feather=pygame.image.load(r'media\relics\eagle\eagle_feather.png')
         super().__init__(mana_drain,self.image)
         self.defense=1
         self.speed=170
         self.scythe_attack=0
         self.hp_regen=0
-    def attack(self):
-        print('arrow')
-    def special_attack(self):
-        print('mine')
-    def right_stick(self,axes):
-        pass
-    def passives(self):
-        pass
-        #prox=(abs(player1pos[0]-self.rect.center[0]),abs(player1pos[1]-self.rect.center[1]))
+        self.feathers=pygame.sprite.Group()
+        self.feather_delay=time.time()
+        self.entry_portal=self.Portal(pygame.image.load(r'media\relics\eagle\portal_0.png'))
+        self.exit_portal=self.Portal(pygame.image.load(r'media\relics\eagle\portal_1.png'))
+
+    class Feather(Equipment):
+            def __init__(self, image,origin,P1):
+                super().__init__(image)
+                self.speed=150
+                self.origin=origin
+                self.image=image
+                self.life_time=time.time()+.5
+                self.rotated_image=pygame.transform.rotozoom(self.image,con.joy_angle(P1,(3,4))*-1,1)
+                self.velocity_x=0
+                self.velocity_y=0
+                
+    class Portal(comfunc.ItemSprite):
+        def __init__(self, image):
+            super().__init__(image)
+            self.active=False
+
+    def attack(self,screen,hits,player):
+        self.entry_portal.active=True
+        self.entry_portal.rect.center=self.rect.center
+        
+
+    def special_attack(self,screen):
+        print('portal')
+
+    def right_stick(self,delta,player,P1):
+        origin=pygame.math.Vector2(player.rect.center)
+        feather=self.Feather(self.eagle_feather,origin,P1)
+        feather.rect.center=origin
+        feather.velocity_x,feather.velocity_y=pygame.math.Vector2((feather.speed*delta)*(P1.get_axis(3)*3),
+        (feather.speed*delta)*(P1.get_axis(4)*3))
+        if len(self.feathers)<30 and self.feather_delay<time.time():
+            self.feathers.add(feather)
+            self.feather_delay=time.time()+.5
+
+    def passives(self,screen,scarecrows):
+        if self.entry_portal.active:
+            self.entry_portal.image.convert_alpha(120)
+            screen.blit(self.entry_portal.image,self.entry_portal.rect)
+
+
+
+        self.feathers=comfunc.sprite_decay(self.feathers)
+        if self.feathers:
+            hit_list=pygame.sprite.groupcollide(scarecrows,self.feathers,False,True,collide_mask)
+            for i in hit_list:
+                i.damage(4.75)
+            for i in self.feathers:
+                screen.blit(i.rotated_image,(i.rect.topleft))
+                i.rect.x+=i.velocity_x
+                i.rect.y+=i.velocity_y
+
     def walk_right_load(self):
         return (r'media\relics\eagle\eagle_right.png')
     def walk_left_load(self):

@@ -39,7 +39,7 @@ class ItemSprite(pygame.sprite.Sprite):
     def __init__(self,image):
         super().__init__()
         self.image=image
-        self.mask=pygame.mask.from_surface(image)
+        self.mask=pygame.mask.from_surface(self.image)
         self.rect=image.get_rect()
 
 def item_decay(nested_list):
