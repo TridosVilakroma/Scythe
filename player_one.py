@@ -459,14 +459,14 @@ class PlayerOne(pygame.sprite.Sprite):
             if 'scythe_twist' not in self.aux_state:
                 self.aux_state.append('scythe_twist')
                 self.scythe_radius=0
-            self.scythe_radius+=10
+            self.scythe_radius+=20
             scythe,position=comfunc.pivot(self.test_scythe.original_image,self.rect.center,
             (16,42),con.joy_angle(P1,(0,1))-self.scythe_radius)
             self.test_scythe.image=scythe
             self.test_scythe.rect=position
             screen.blit(self.test_scythe.image,self.test_scythe.rect)
             hit_list=pygame.sprite.spritecollide(self.test_scythe,scarecrows,False,collide_mask)
-            if self.scythe_radius==90:
+            if self.scythe_radius==100 or 180 or 280:
                 self.scythe_attack_flag[1]=0
             if self.scythe_attack_flag[1]==0:
                 self.scythe_attack_flag[1]=1
