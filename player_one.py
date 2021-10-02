@@ -49,7 +49,6 @@ class PlayerOne(pygame.sprite.Sprite):
         self.relic_cool_down=time.time()
         self.test_scythe=self.Scythe(self.scythe,self.rect.center)
         
-        
     class Scythe(equip.Equipment):
         def __init__(self, image,origin):
             super().__init__(image)
@@ -821,7 +820,7 @@ class PlayerOne(pygame.sprite.Sprite):
 
     def focus_switch(self,P1,delta):
         self.traverse(P1,delta)
-        self.draw()
+        
         if self.focus =='blink':
             self.blink_step(P1)
         elif self.focus=='slash':
@@ -834,13 +833,16 @@ class PlayerOne(pygame.sprite.Sprite):
             self.scythe_animate(P1)
         if 'relic' in self.aux_state:
             self.relic_effects(delta,self.activated_relic,P1)
+        for i in self.relics:
+            i.passives(screen,scarecrows)
+        self.draw()
         if 'dpad' in self.aux_state:
             self.relic_select(P1)
         self.collide()
         self.damage()
         self.health_bar()
         self.mana_bar()
-
+          
     def update(self,P1,delta):
         self.focus_switch(P1,delta)
         self.action(P1)

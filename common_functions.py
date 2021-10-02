@@ -65,11 +65,13 @@ def sprite_decay(group):
     return filtered_group
 
 
-# image is the Surface which has to be rotated and blit
-# screen_pivot is the position of the pivot on the target Surface surf (relative to the top left of surf)
-# image_pivot is position of the pivot on the image Surface (relative to the top left of image)
-# angle is the angle of rotation in degrees
+ 
 def pivot(image,screen_pivot,image_pivot, angle):
+    '''image is the Surface which has to be rotated and blit
+    screen_pivot is the position of the pivot on the target Surface surf (relative to the top left of surf)
+    image_pivot is position of the pivot on the image Surface (relative to the top left of image)
+    angle is the angle of rotation in degrees
+    '''
     image_rect = image.get_rect(topleft = (screen_pivot[0] - image_pivot[0], screen_pivot[1]-image_pivot[1]))
     offset_center_to_pivot = (pygame.math.Vector2(screen_pivot) - image_rect.center)
     rotated_offset = (offset_center_to_pivot.rotate(angle))
@@ -77,3 +79,25 @@ def pivot(image,screen_pivot,image_pivot, angle):
     rotated_image = pygame.transform.rotate(image, angle*-1)
     rotated_image_rect = rotated_image.get_rect(center = rotated_image_center)
     return rotated_image, rotated_image_rect
+
+def sine_pulse(speed,amplitude,lower_limit):
+    '''speed- in most cases is a float to slow down pulse.
+    amplitude- the highest float the pulse will reach.
+    lower_limit- set the lowest float the pulse will reach(must be >=0)
+    '''
+    amplitude-=lower_limit
+    t=(time.time()*speed) 
+    pulse=abs(math.sin(t)*amplitude)
+    pulse+=lower_limit
+    return pulse
+
+def cosine_pulse(speed,amplitude,lower_limit):
+    '''speed- in most cases is a float to slow down pulse.
+    amplitude- the highest float the pulse will reach.
+    lower_limit- set the lowest float the pulse will reach(must be >=0)
+    '''
+    amplitude-=lower_limit
+    t=(time.time()*speed) 
+    pulse=abs(math.cos(t)*amplitude)
+    pulse+=lower_limit
+    return pulse

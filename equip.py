@@ -224,6 +224,10 @@ class Eagle(Relic):
         self.feather_delay=time.time()
         self.entry_portal=self.Portal(pygame.image.load(r'media\relics\eagle\portal_0.png'))
         self.exit_portal=self.Portal(pygame.image.load(r'media\relics\eagle\portal_1.png'))
+        self.entry_portal_cooldown=time.time()
+        self.entry_portal_lifetime=time.time()+30
+        self.exit_portal_cooldown=time.time()
+        self.exit_portal_lifetime=time.time()+30
 
     class Feather(Equipment):
             def __init__(self, image,origin,P1):
@@ -242,12 +246,21 @@ class Eagle(Relic):
             self.active=False
 
     def attack(self,screen,hits,player):
-        self.entry_portal.active=True
-        self.entry_portal.rect.center=self.rect.center
+        time_stamp=time.time()
+        if self.entry_portal_cooldown<time_stamp:
+            self.entry_portal_lifetime=time.time()+30
+            self.entry_portal_cooldown=time.time()+3
+            self.entry_portal.active=True
+            self.entry_portal.rect.center=self.rect.center
         
 
     def special_attack(self,screen):
-        print('portal')
+        time_stamp=time.time()
+        if self.exit_portal_cooldown<time_stamp:
+            self.exit_portal_lifetime=time.time()+30
+            self.exit_portal_cooldown=time.time()+3
+            self.exit_portal.active=True
+            self.exit_portal.rect.center=self.rect.center
 
     def right_stick(self,delta,player,P1):
         origin=pygame.math.Vector2(player.rect.center)
@@ -260,9 +273,28 @@ class Eagle(Relic):
             self.feather_delay=time.time()+.5
 
     def passives(self,screen,scarecrows):
+        time_stamp=time.time()
         if self.entry_portal.active:
-            self.entry_portal.image.convert_alpha(120)
-            screen.blit(self.entry_portal.image,self.entry_portal.rect)
+            if self.entry_portal_lifetime>time_stamp:
+                self.entry_portal_transparent = self.entry_portal.image.copy()
+                alpha = comfunc.sine_pulse(.6,175,50)
+                if alpha<0:
+                    alpha = 0
+                self.entry_portal_transparent.fill((255, 255, 255, alpha), None, pygame.BLEND_RGBA_MULT)
+                screen.blit(self.entry_portal_transparent,self.entry_portal.rect)
+            else:
+              self.entry_portal.active=False  
+
+        if self.exit_portal.active:
+            if self.exit_portal_lifetime>time_stamp:
+                self.exit_portal_transparent = self.exit_portal.image.copy()
+                alpha = comfunc.cosine_pulse(.5,175,50)
+                if alpha<0:
+                    alpha = 0
+                self.exit_portal_transparent.fill((255, 255, 255, alpha), None, pygame.BLEND_RGBA_MULT)
+                screen.blit(self.exit_portal_transparent,self.exit_portal.rect)
+            else:
+              self.exit_portal.active=False
 
 
 
