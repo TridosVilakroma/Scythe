@@ -83,7 +83,7 @@ class Skunk(Relic):
     def right_stick(self,delta,player,P1):
         pass
 
-    def passives(self,screen,scarecrows):
+    def passives(self,screen,scarecrows,player):
         if self.cloud and self.cloud_start>time.time()-3:
             pygame.draw.circle(screen,PURPLE,self.cloud_pos,85,1)
             for i in scarecrows:
@@ -154,7 +154,7 @@ class Fox(Relic):
             self.arrows.add(arrow)
             self.arrow_delay=time.time()+.2
 
-    def passives(self,screen,scarecrows):
+    def passives(self,screen,scarecrows,player):
         if self.mine and self.mine_start>time.time()-10:
             self.nuked=True
             screen.blit(self.fox_mine.image,(self.mine_pos[0]-self.fox_mine.image.get_width()/2,
@@ -228,6 +228,9 @@ class Eagle(Relic):
         self.entry_portal_lifetime=time.time()+30
         self.exit_portal_cooldown=time.time()
         self.exit_portal_lifetime=time.time()+30
+        self.ghost_time=time.time()
+        self.ghost_angle=10
+        self.ghost_shrink=.9
 
     class Feather(Equipment):
             def __init__(self, image,origin,P1):
@@ -272,7 +275,7 @@ class Eagle(Relic):
             self.feathers.add(feather)
             self.feather_delay=time.time()+.5
 
-    def passives(self,screen,scarecrows):
+    def passives(self,screen,scarecrows,player):
         time_stamp=time.time()
         if self.entry_portal.active:
             if self.entry_portal_lifetime>time_stamp:
@@ -282,6 +285,25 @@ class Eagle(Relic):
                     alpha = 0
                 self.entry_portal_transparent.fill((255, 255, 255, alpha), None, pygame.BLEND_RGBA_MULT)
                 screen.blit(self.entry_portal_transparent,self.entry_portal.rect)
+                if self.exit_portal.active:
+                    if self.entry_portal.rect.colliderect(player):
+                        self.ghost_time=time.time()+1.2
+                        self.ghost_angle=10
+                        self.ghost_shrink=.9
+                        self.ghost_image=player.image.copy()
+                        player.positionx=self.exit_portal.rect.left
+                        player.positiony=self.exit_portal.rect.top
+                    if self.ghost_time>time_stamp:
+                        ghost_alpha = comfunc.sine_pulse(1,250,128)
+                        self.ghost_angle+=1
+                        self.ghost_shrink-=.005
+                        if ghost_alpha<0:
+                            ghost_alpha = 0
+                        #self.ghost_image.fill((255, 255, 255, ghost_alpha), None, pygame.BLEND_RGBA_MULT)
+                        self.ghost_image_rotated=pygame.transform.rotozoom(self.ghost_image,self.ghost_angle,self.ghost_shrink)
+                        self.ghost_image_rotated.fill((255, 255, 255, ghost_alpha), None, pygame.BLEND_RGBA_MULT)
+                        screen.blit(self.ghost_image_rotated,self.entry_portal.rect.topleft)
+
             else:
               self.entry_portal.active=False  
 

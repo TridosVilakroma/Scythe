@@ -105,7 +105,6 @@ class GameElements():
         
         screen.blit(grass_clump,(randx,randy))
         enemies.spawned_loot.draw(screen)
-       # screen.blit(scyman.image,(scyman.positionx,scyman.positiony))
         scyman.update(P1,delta)
         for i in scarecrows:
             i.update()

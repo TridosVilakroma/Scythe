@@ -735,7 +735,7 @@ class PlayerOne(pygame.sprite.Sprite):
         relic=self.relics[relic_index]
         relic.rect.center=self.rect.center
         self.mp-=relic.mana_drain
-        relic.passives(screen,scarecrows)
+        relic.passives(screen,scarecrows,self)
         if P1.get_button(2):
             hits=pygame.sprite.spritecollide(self,scarecrows,False)
             relic.attack(screen,hits,self)
@@ -834,7 +834,7 @@ class PlayerOne(pygame.sprite.Sprite):
         if 'relic' in self.aux_state:
             self.relic_effects(delta,self.activated_relic,P1)
         for i in self.relics:
-            i.passives(screen,scarecrows)
+            i.passives(screen,scarecrows,self)
         self.draw()
         if 'dpad' in self.aux_state:
             self.relic_select(P1)
