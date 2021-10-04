@@ -257,8 +257,10 @@ class Eagle(Relic):
             self.entry_portal_cooldown=time.time()+3
             self.entry_portal.active=True
             self.entry_portal.rect.center=self.rect.center
+            
             self.entry_portal.particles=particles.ParticleEmitter(.1,(self.rect.left,self.rect.right),
-            (self.rect.top,self.rect.bottom),self.entry_portal.particle_colors,2)
+            (self.rect.top,self.rect.bottom),self.entry_portal.particle_colors,2,
+            'fire_fly','move_to_dest','shrink','slow_emit')
 
     def special_attack(self,screen):
         time_stamp=time.time()
@@ -267,8 +269,10 @@ class Eagle(Relic):
             self.exit_portal_cooldown=time.time()+3
             self.exit_portal.active=True
             self.exit_portal.rect.center=self.rect.center
+
             self.exit_portal.particles=particles.ParticleEmitter(.1,(self.rect.left,self.rect.right),
-            (self.rect.top,self.rect.bottom),self.exit_portal.particle_colors,2)
+            (self.rect.top,self.rect.bottom),self.exit_portal.particle_colors,2,
+            'fire_fly','move_to_dest','shrink','slow_emit')
 
     def right_stick(self,delta,player,P1):
         origin=pygame.math.Vector2(player.rect.center)
