@@ -1,4 +1,4 @@
-import pygame,time
+import pygame,time,particles
 import common_functions as comfunc
 import controller as con
 from pygame.sprite import collide_mask, collide_rect, spritecollide
@@ -222,8 +222,8 @@ class Eagle(Relic):
         self.hp_regen=0
         self.feathers=pygame.sprite.Group()
         self.feather_delay=time.time()
-        self.entry_portal=self.Portal(pygame.image.load(r'media\relics\eagle\portal_0.png'))
-        self.exit_portal=self.Portal(pygame.image.load(r'media\relics\eagle\portal_1.png'))
+        self.entry_portal=self.Portal(pygame.image.load(r'media\relics\eagle\portal_0.png'),[PINK_PURPLE,PURPLE,DARK_PURPLE])
+        self.exit_portal=self.Portal(pygame.image.load(r'media\relics\eagle\portal_1.png'),[GREEN,DARK_GREEN,LIGHT_GREEN])
         self.entry_portal_cooldown=time.time()
         self.entry_portal_lifetime=time.time()+30
         self.exit_portal_cooldown=time.time()
@@ -244,9 +244,11 @@ class Eagle(Relic):
                 self.velocity_y=0
                 
     class Portal(comfunc.ItemSprite):
-        def __init__(self, image):
+        def __init__(self, image,*particle_colors):
             super().__init__(image)
             self.active=False
+            self.particle_colors=particle_colors
+            
 
     def attack(self,screen,hits,player):
         time_stamp=time.time()
@@ -255,7 +257,8 @@ class Eagle(Relic):
             self.entry_portal_cooldown=time.time()+3
             self.entry_portal.active=True
             self.entry_portal.rect.center=self.rect.center
-        
+            self.entry_portal.particles=particles.ParticleEmitter(.1,(self.rect.left,self.rect.right),
+            (self.rect.top,self.rect.bottom),self.entry_portal.particle_colors,2)
 
     def special_attack(self,screen):
         time_stamp=time.time()
@@ -264,6 +267,8 @@ class Eagle(Relic):
             self.exit_portal_cooldown=time.time()+3
             self.exit_portal.active=True
             self.exit_portal.rect.center=self.rect.center
+            self.exit_portal.particles=particles.ParticleEmitter(.1,(self.rect.left,self.rect.right),
+            (self.rect.top,self.rect.bottom),self.exit_portal.particle_colors,2)
 
     def right_stick(self,delta,player,P1):
         origin=pygame.math.Vector2(player.rect.center)
@@ -279,6 +284,7 @@ class Eagle(Relic):
         time_stamp=time.time()
         if self.entry_portal.active:
             if self.entry_portal_lifetime>time_stamp:
+                self.entry_portal.particles.update(screen)
                 self.entry_portal_transparent = self.entry_portal.image.copy()
                 alpha = comfunc.sine_pulse(.6,175,50)
                 if alpha<0:
@@ -299,7 +305,6 @@ class Eagle(Relic):
                         self.ghost_shrink-=.005
                         if ghost_alpha<0:
                             ghost_alpha = 0
-                        #self.ghost_image.fill((255, 255, 255, ghost_alpha), None, pygame.BLEND_RGBA_MULT)
                         self.ghost_image_rotated=pygame.transform.rotozoom(self.ghost_image,self.ghost_angle,self.ghost_shrink)
                         self.ghost_image_rotated.fill((255, 255, 255, ghost_alpha), None, pygame.BLEND_RGBA_MULT)
                         screen.blit(self.ghost_image_rotated,self.entry_portal.rect.topleft)
@@ -309,16 +314,16 @@ class Eagle(Relic):
 
         if self.exit_portal.active:
             if self.exit_portal_lifetime>time_stamp:
+                self.exit_portal.particles.update(screen)
                 self.exit_portal_transparent = self.exit_portal.image.copy()
                 alpha = comfunc.cosine_pulse(.5,175,50)
                 if alpha<0:
                     alpha = 0
                 self.exit_portal_transparent.fill((255, 255, 255, alpha), None, pygame.BLEND_RGBA_MULT)
                 screen.blit(self.exit_portal_transparent,self.exit_portal.rect)
+
             else:
               self.exit_portal.active=False
-
-
 
         self.feathers=comfunc.sprite_decay(self.feathers)
         if self.feathers:
