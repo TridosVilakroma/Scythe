@@ -41,9 +41,14 @@ nested dict]
 
 """
 ###############RELICS###############
+class FakeRelic():
+    #quick work around for player starting with no activated_relic error
+    def __init__(self):
+        self.name='no_relic'
 
 class Skunk(Relic):
     def __init__(self):
+        self.name='Mephitidae_relic'
         mana_drain=.13
         self.image=pygame.image.load(r'media\relics\mephitidae_relic.png')
         self.transparent=self.image.copy()
@@ -92,8 +97,6 @@ class Skunk(Relic):
                     i.health_bar_pop_up()
         else:
             self.cloud_cooldown=False
-        
-
 
     def walk_right_load(self):
         return (r'media\relics\skunk\skunk_right.png')
@@ -108,6 +111,7 @@ Mephitidae_relic=Skunk()
 
 class Fox(Relic):
     def __init__(self):
+        self.name='vulpes_relic'
         mana_drain=.15
         self.image=pygame.image.load(r'media\relics\vulpes_relic.png')
         self.transparent=self.image.copy()
@@ -209,6 +213,7 @@ vulpes_relic=Fox()
 
 class Eagle(Relic):
     def __init__(self):
+        self.name='aeetus_relic'
         mana_drain=.18
         self.image=pygame.image.load(r'media\relics\aeetos_relic.png')
         self.transparent=self.image.copy()
@@ -249,7 +254,6 @@ class Eagle(Relic):
             self.active=False
             self.particle_colors=particle_colors
             
-
     def attack(self,screen,hits,player):
         time_stamp=time.time()
         if self.entry_portal_cooldown<time_stamp:
@@ -281,11 +285,31 @@ class Eagle(Relic):
         feather.velocity_x,feather.velocity_y=pygame.math.Vector2((feather.speed*delta)*(P1.get_axis(3)*3),
         (feather.speed*delta)*(P1.get_axis(4)*3))
         if len(self.feathers)<30 and self.feather_delay<time.time():
-            self.feathers.add(feather)
-            self.feather_delay=time.time()+.5
+            if player.hp<=50:
+                feather.velocity_x,feather.velocity_y=pygame.math.Vector2((feather.speed*delta)*(P1.get_axis(3)*4),
+                (feather.speed*delta)*(P1.get_axis(4)*4))
+                feather.life_time+=.5
+                self.feathers.add(feather)
+                self.feather_delay=time.time()+.3
+            else:
+                self.feathers.add(feather)
+                self.feather_delay=time.time()+.5
 
     def passives(self,screen,scarecrows,player):
         time_stamp=time.time()
+        if player.active_relic.name=='aeetus_relic':
+            mana_regen=False
+            hp_regen=False
+            for i in scarecrows:
+                if pygame.Vector2(player.rect.center).distance_to(i.rect.center)<=150:
+                    mana_regen=True
+                
+            if mana_regen:
+                player.mp+=.05
+            else:#if hp_regen:
+                player.hp+=.005
+
+
         if self.entry_portal.active:
             if self.entry_portal_lifetime>time_stamp:
                 self.entry_portal.particles.update(screen)

@@ -14,7 +14,6 @@ class ParticleEmitter():
         for i in motion_styles:
             self.motion_styles.append(i)
         self.particles=[]
-        print(self.motion_styles)
 
     class Particle():
         def __init__(self,pos,color,size):
@@ -25,8 +24,6 @@ class ParticleEmitter():
             self.speed=.05
             self.movement_vector=pygame.math.Vector2(0,0)
    
-
-
     def randomize_pos(self,x_range,y_range):
         x=randint(x_range[0],x_range[1])
         y=randint(y_range[0],y_range[1])
@@ -55,7 +52,7 @@ class ParticleEmitter():
             i.size-=.005
         
     '''motion_styles is used in self.behavior() to select as many of the following 
-    styles desired and apply them to the each Particle object on update.
+    styles desired and apply them to each Particle object on update.
     '''
     def behavior(self):
 
@@ -84,9 +81,7 @@ class ParticleEmitter():
                 if i.vector_length.length() !=0:
                     i.pos+=(i.dest-i.pos)*i.speed
                 else:
-                    i.dest=pygame.math.Vector2(0,0)
-
-                #enemy_position += (player_position - enemy_position).normal() * enemy_speed 
+                    i.dest=pygame.math.Vector2(0,0) 
 
     def slow_emit(self):
         if self.limiter():

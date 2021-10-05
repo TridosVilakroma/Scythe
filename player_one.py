@@ -47,6 +47,7 @@ class PlayerOne(pygame.sprite.Sprite):
         self.scythe_attack_flag=[0,0]
         self.mask=pygame.mask.from_surface(self.image)
         self.relic_cool_down=time.time()
+        self.active_relic=equip.FakeRelic()
         self.test_scythe=self.Scythe(self.scythe,self.rect.center)
         
     class Scythe(equip.Equipment):
@@ -321,7 +322,7 @@ class PlayerOne(pygame.sprite.Sprite):
                 self.positiony+=(self.speed*delta)*P1.get_axis(1)
             if motiony<0 and not self.top_blocked:
                 self.positiony+=(self.speed*delta)*P1.get_axis(1)
-
+            self.rect.center=(self.positionx,self.positiony)
         # if motionx>.5:
         #     if motiony>.5:#moving right down
                # if self.positionx<968:
@@ -713,6 +714,7 @@ class PlayerOne(pygame.sprite.Sprite):
    
     def activate_relic(self,relic_index):
         relic=self.relics[relic_index]
+        self.active_relic=relic
         self.activated_relic=relic_index
         self.defense=relic.defense
         self.speed=relic.speed
@@ -763,6 +765,7 @@ class PlayerOne(pygame.sprite.Sprite):
         self.speed=self.speed_archive
         self.scythe_attack=self.scythe_attack_archive
         self.hp_regen=self.hp_regen_archive
+        self.active_relic=equip.FakeRelic()
         comfunc.clean_list(self.aux_state,'relic')
         self.walkrightsprites.clear()
         self.walkleftsprites.clear()
