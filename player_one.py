@@ -322,7 +322,8 @@ class PlayerOne(pygame.sprite.Sprite):
                 self.positiony+=(self.speed*delta)*P1.get_axis(1)
             if motiony<0 and not self.top_blocked:
                 self.positiony+=(self.speed*delta)*P1.get_axis(1)
-            self.rect.center=(self.positionx,self.positiony)
+            self.rect.center=(self.positionx+self.image.get_width()/2,
+            self.positiony+self.image.get_height()/2)
         # if motionx>.5:
         #     if motiony>.5:#moving right down
                # if self.positionx<968:
