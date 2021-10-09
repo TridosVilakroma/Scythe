@@ -68,7 +68,7 @@ class Scarecrow(pygame.sprite.Sprite):
         self.straw_stalk=pygame.image.load(r'media\deco\straw_stalk.png')
    
     def loot_dropper(self):
-        random_loot=randint(1,3)
+        random_loot=randint(1,4)
         try:
             equip.equip_matrix[1][random_loot].rect[0]=self.x
             equip.equip_matrix[1][random_loot].rect[1]=self.y
