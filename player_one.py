@@ -48,7 +48,8 @@ class PlayerOne(pygame.sprite.Sprite):
         self.mask=pygame.mask.from_surface(self.image)
         self.relic_cool_down=time.time()
         self.active_relic=equip.FakeRelic()
-        self.test_scythe=self.Scythe(self.scythe,self.rect.center)
+        self.scythe=self.Scythe(self.scythe_image,self.rect.center)
+        self.hitlag=False
         
     class Scythe(equip.Equipment):
         def __init__(self, image,origin):
@@ -92,15 +93,15 @@ class PlayerOne(pygame.sprite.Sprite):
         self.walkdownsprites.append(pygame.image.load(r'media\scyman_walk\down_walk\walkdown1.png'))
         self.walkdownsprites.append(pygame.image.load(r'media\scyman_walk\down_walk\walkdown2.png'))
         self.walkdownsprites.append(pygame.image.load(r'media\scyman_walk\down_walk\walkdown3.png'))
-        self.scythe=pygame.image.load(r'media\player_equip\wooden_scythe.png')
-        self.scytheright=pygame.transform.rotozoom(self.scythe,-90,1)
-        self.scytherightup=pygame.transform.rotozoom(self.scythe,-45,1)
-        self.scytherightdown=pygame.transform.rotozoom(self.scythe,-135,1)
-        self.scytheleft=pygame.transform.rotozoom(self.scythe,90,1)
-        self.scytheleftup=pygame.transform.rotozoom(self.scythe,45,1)
-        self.scytheleftdown=pygame.transform.rotozoom(self.scythe,135,1)
-        self.scythedown=pygame.transform.rotozoom(self.scythe,180,1)
-        self.scytheup=self.scythe.copy()
+        self.scythe_image=pygame.image.load(r'media\player_equip\wooden_scythe.png')
+        self.scytheright=pygame.transform.rotozoom(self.scythe_image,-90,1)
+        self.scytherightup=pygame.transform.rotozoom(self.scythe_image,-45,1)
+        self.scytherightdown=pygame.transform.rotozoom(self.scythe_image,-135,1)
+        self.scytheleft=pygame.transform.rotozoom(self.scythe_image,90,1)
+        self.scytheleftup=pygame.transform.rotozoom(self.scythe_image,45,1)
+        self.scytheleftdown=pygame.transform.rotozoom(self.scythe_image,135,1)
+        self.scythedown=pygame.transform.rotozoom(self.scythe_image,180,1)
+        self.scytheup=self.scythe_image.copy()
         self.mask_scytheright=pygame.mask.from_surface(self.scytheright)
         self.mask_scytherightup=pygame.mask.from_surface(self.scytherightup)
         self.mask_scytherightdown=pygame.mask.from_surface(self.scytherightdown)
@@ -113,7 +114,7 @@ class PlayerOne(pygame.sprite.Sprite):
     def list_init(self):
         self.interactables=[]
         self.picked_up_items=[]
-        self.relics=[equip.vulpes_relic,equip.Mephitidae_relic,equip.aeetus_relic]
+        self.relics=[equip.vulpes_relic,equip.Mephitidae_relic,equip.aeetus_relic,equip.Ursidae_relic]
         self.armor=[]
         self.weapons=[]
         self.tools=[]
@@ -444,13 +445,16 @@ class PlayerOne(pygame.sprite.Sprite):
         time_stamp=time.time()
         
         if time_stamp<self.scythe_time_ref+.2:
-          
-            scythe,position=comfunc.pivot(self.test_scythe.original_image,self.rect.center,
+
+            scythe,position=comfunc.pivot(self.scythe.original_image,self.rect.center,
             (16,42),con.joy_angle(P1,(0,1)))
-            self.test_scythe.image=scythe
-            self.test_scythe.rect=position
-            screen.blit(self.test_scythe.image,self.test_scythe.rect)
-            hit_list=pygame.sprite.spritecollide(self.test_scythe,scarecrows,False,collide_mask)
+            self.scythe.image=scythe
+            self.scythe.rect=position
+            self.scythe.mask=pygame.mask.from_surface(scythe)
+            screen.blit(self.scythe.image,self.scythe.rect)
+            hit_list=pygame.sprite.spritecollide(self.scythe,scarecrows,False,collide_mask)
+            if hit_list:
+                self.hitlag=True
          
             if self.scythe_attack_flag[0]==0:
                 self.scythe_attack_flag[0]=1
@@ -461,12 +465,15 @@ class PlayerOne(pygame.sprite.Sprite):
                 self.aux_state.append('scythe_twist')
                 self.scythe_radius=0
             self.scythe_radius+=20
-            scythe,position=comfunc.pivot(self.test_scythe.original_image,self.rect.center,
+            scythe,position=comfunc.pivot(self.scythe.original_image,self.rect.center,
             (16,42),con.joy_angle(P1,(0,1))-self.scythe_radius)
-            self.test_scythe.image=scythe
-            self.test_scythe.rect=position
-            screen.blit(self.test_scythe.image,self.test_scythe.rect)
-            hit_list=pygame.sprite.spritecollide(self.test_scythe,scarecrows,False,collide_mask)
+            self.scythe.image=scythe
+            self.scythe.rect=position
+            self.scythe.mask=pygame.mask.from_surface(scythe)
+            screen.blit(self.scythe.image,self.scythe.rect)
+            hit_list=pygame.sprite.spritecollide(self.scythe,scarecrows,False,collide_mask)
+            if hit_list:
+                self.hitlag=True
             if self.scythe_radius==100 or 180 or 280:
                 self.scythe_attack_flag[1]=0
             if self.scythe_attack_flag[1]==0:
@@ -741,6 +748,8 @@ class PlayerOne(pygame.sprite.Sprite):
         relic.passives(screen,scarecrows,self)
         if P1.get_button(2):
             hits=pygame.sprite.spritecollide(self,scarecrows,False)
+            if hits:
+                self.hitlag=True
             relic.attack(screen,hits,self)
         if P1.get_button(1):
             relic.special_attack(screen)
@@ -837,13 +846,14 @@ class PlayerOne(pygame.sprite.Sprite):
             self.scythe_animate(P1)
         if 'relic' in self.aux_state:
             self.relic_effects(delta,self.activated_relic,P1)
+        self.damage()    
         for i in self.relics:
             i.passives(screen,scarecrows,self)
         self.draw()
         if 'dpad' in self.aux_state:
             self.relic_select(P1)
         self.collide()
-        self.damage()
+        
         self.health_bar()
         self.mana_bar()
           
