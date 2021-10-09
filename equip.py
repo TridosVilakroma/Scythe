@@ -227,8 +227,8 @@ class Eagle(Relic):
         self.hp_regen=0
         self.feathers=pygame.sprite.Group()
         self.feather_delay=time.time()
-        self.entry_portal=self.Portal(pygame.image.load(r'media\relics\eagle\portal_0.png'),[PINK_PURPLE,PURPLE,DARK_PURPLE])
-        self.exit_portal=self.Portal(pygame.image.load(r'media\relics\eagle\portal_1.png'),[GREEN,DARK_GREEN,LIGHT_GREEN])
+        self.entry_portal=self.Portal(pygame.image.load(r'media\relics\eagle\portal_0.png'),PINK_PURPLE,PURPLE,DARK_PURPLE)
+        self.exit_portal=self.Portal(pygame.image.load(r'media\relics\eagle\portal_1.png'),GREEN,DARK_GREEN,LIGHT_GREEN)
         self.entry_portal_cooldown=time.time()
         self.entry_portal_lifetime=time.time()+30
         self.exit_portal_cooldown=time.time()
@@ -388,6 +388,7 @@ class Bear(Relic):
         self.scythe_attack=6
         self.hp_regen=0
         self.rage_mode=False
+        self.rage_colors=(RED,RED,RED,RED,RED,DARK_RED,DARK_RED,DEEP_RED)
 
     def attack(self,screen,hits,player):
         time_stamp=time.time()
@@ -409,9 +410,16 @@ class Bear(Relic):
         if player.recieved_damage:
             self.rage_mode=True
             self.rage_timer=time.time()+5
+            self.rage_particles=particles.ParticleEmitter(.05,(self.rect.left,self.rect.right),
+            (self.rect.top,self.rect.top),self.rage_colors,2,
+            'ascend','fast_shrink','slow_emit','random_growth','vert_wave')
         if self.rage_mode and player.active_relic.name=='Ursidae_relic':
             player.speed=220
             player.defense=5
+            self.rage_particles.x_range=(self.rect.left-4,self.rect.right+4)
+            self.rage_particles.y_range=(self.rect.top-2,self.rect.top+20)
+            self.rage_particles.update(screen)
+
 
             if self.rage_timer<time.time():
                 self.rage_mode=False
