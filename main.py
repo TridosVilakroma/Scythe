@@ -30,9 +30,9 @@ for i in range(10):
     i=enemies.Scarecrow()
     scarecrows.add(i)
     enemies.enemies.append(i)
-for i in range(5):
-    i=enemies.Omnivine()
-    scarecrows.add(i)
+# for i in range(5):
+#     i=enemies.Omnivine()
+#     scarecrows.add(i)
 player.scarecrows=scarecrows
 
 #player binding
@@ -140,6 +140,10 @@ while True:
         game.focus='start'
         game.switch=True
     clock.tick(60)
+    if scyman.hitlag:
+        pygame.time.wait(40)
+        delta_ref=delta_ref=time.time()
+        scyman.hitlag=False
     delta=time.time()-delta_ref
     delta_ref=time.time()
     game.focus_switch()
