@@ -1,4 +1,4 @@
-import pygame,random,time
+import pygame,random,time,math
 from random import randint
 from color_palette import *
 
@@ -23,6 +23,7 @@ class ParticleEmitter():
             self.dest=pos
             self.speed=.05
             self.movement_vector=pygame.math.Vector2(0,0)
+            self.unique=randint(0,10)
    
     def randomize_pos(self,x_range,y_range):
         x=randint(x_range[0],x_range[1])
@@ -30,7 +31,7 @@ class ParticleEmitter():
         return (x,y)
 
     def randomize_color(self,colors):
-        color=random.choice(colors[0])
+        color=random.choice(colors)
         return color
 
     def create_particle(self):
@@ -47,9 +48,6 @@ class ParticleEmitter():
             for i in self.particles:
                 pygame.draw.circle(screen,i.color,i.pos,int(i.size))
 
-    def shrink(self):
-        for i in self.particles:
-            i.size-=.005
         
     '''motion_styles is used in self.behavior() to select as many of the following 
     styles desired and apply them to each Particle object on update.
@@ -64,6 +62,14 @@ class ParticleEmitter():
             self.shrink()
         if 'slow_emit' in self.motion_styles:
             self.slow_emit()
+        if 'ascend' in self.motion_styles:
+            self.ascend()
+        if 'fast_shrink' in self.motion_styles:
+            self.fast_shrink()
+        if 'random_growth' in self.motion_styles:
+            self.random_growth()
+        if 'vert_wave' in self.motion_styles:
+            self.vert_wave()
 
     def limiter(self):
         #emit_rate is a time interval between the return of True booleans
@@ -73,6 +79,21 @@ class ParticleEmitter():
             return True
         else:
             return False
+
+    def shrink(self):
+        for i in self.particles:
+            i.size-=.005
+
+    def fast_shrink(self):
+        for i in self.particles:
+            i.size-=.025
+
+    def random_growth(self):
+        for i in self.particles:
+            chance=randint(1,75)
+            if chance==1:
+                growth=random.uniform(0,.1)
+                i.size+=growth
 
     def move_to_dest(self):
         for i in self.particles:
@@ -89,7 +110,7 @@ class ParticleEmitter():
 
     def ascend(self):
         for i in self.particles:
-            i.pos[1] += 1
+            i.pos[1] -=.5
 
     def fire_fly(self):
         for i in self.particles:
@@ -98,6 +119,13 @@ class ParticleEmitter():
                 randint_a=randint(int(i.pos[0]-5),int(i.pos[0]+5))
                 randint_b=randint(int(i.pos[1]-5),int(i.pos[1]+5))
                 i.dest=pygame.math.Vector2(randint_a,randint_b)
+
+    def vert_wave(self):
+        for i in self.particles:
+
+            sine=math.sin(time.time()*7+i.unique)
+            i.pos[0]+=sine/2
+    
 
     def update(self,screen):
         self.behavior()
