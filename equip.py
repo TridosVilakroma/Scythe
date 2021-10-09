@@ -374,11 +374,94 @@ class Eagle(Relic):
 
 aeetus_relic=Eagle()
 
+class Bear(Relic):
+    def __init__(self):
+        self.name='Ursidae_relic'
+        mana_drain=.125
+        self.image=pygame.image.load(r'media\relics\Ursidae_relic.png')
+        self.transparent=self.image.copy()
+        self.transparent.fill((255, 255, 255, 128), None, pygame.BLEND_RGBA_MULT)
+        self.shape_shifted=pygame.image.load(r'media\relics\bear\bear_0.png')
+        super().__init__(mana_drain, self.image)
+        self.defense=3
+        self.speed=120
+        self.scythe_attack=6
+        self.hp_regen=0
+        self.rage_mode=False
+
+    def attack(self,screen,hits,player):
+        time_stamp=time.time()
+        if time_stamp>player.slash_time_ref:
+                    player.slash_time_ref=time_stamp+player.slash_cooldown
+                    player.focus='slash'
+                    if self.rage_mode:
+                        for i in hits:
+                            player.hp+=1
+                            player.mp+=1
+
+    def special_attack(self,screen):
+        pass
+
+    def right_stick(self,delta,player,P1):
+        pass
+
+    def passives(self,screen,scarecrows,player):
+        if player.recieved_damage:
+            self.rage_mode=True
+            self.rage_timer=time.time()+5
+        if self.rage_mode and player.active_relic.name=='Ursidae_relic':
+            player.speed=220
+            player.defense=5
+
+            if self.rage_timer<time.time():
+                self.rage_mode=False
+                player.speed=120
+                player.defense=3
+            
+
+
+    def walk_right_load(self):
+        return (r'media\relics\bear\bear_3.png')
+    def walk_left_load(self):
+        return (r'media\relics\bear\bear_2.png')
+    def walk_up_load(self):
+        return (r'media\relics\bear\bear_1.png')
+    def walk_down_load(self):
+        return (r'media\relics\bear\bear_4.png')
+
+Ursidae_relic=Bear()
+
+class Lion(Relic):
+    def __init__(self, mana_drain, image):
+        super().__init__(mana_drain, image)
+
+    def attack(self,screen,hits,player):
+        pass
+
+    def special_attack(self,screen):
+        pass
+
+    def right_stick(self,delta,player,P1):
+        pass
+
+    def passives(self,screen,scarecrows,player):
+        pass
+
+    def walk_right_load(self):
+        return (r'')
+    def walk_left_load(self):
+        return (r'')
+    def walk_up_load(self):
+        return (r'')
+    def walk_down_load(self):
+        return (r'')
 relics={
     1:Mephitidae_relic,
     2:vulpes_relic,
-    3:aeetus_relic
-    }
+    3:aeetus_relic,
+    4:Ursidae_relic
+}
+    
 ###############ARMOR###############
 nacht_falcata=.5
 armor={
