@@ -388,7 +388,7 @@ class Bear(Relic):
         self.scythe_attack=6
         self.hp_regen=0
         self.rage_mode=False
-        self.rage_colors=(RED,RED,RED,RED,RED,DARK_RED,DARK_RED,DEEP_RED)
+        self.rage_colors=(RED,RED,RED,RED,RED,DARK_RED,DARK_RED,DEEP_RED,ORANGE)
 
     def attack(self,screen,hits,player):
         time_stamp=time.time()
@@ -410,9 +410,9 @@ class Bear(Relic):
         if player.recieved_damage:
             self.rage_mode=True
             self.rage_timer=time.time()+5
-            self.rage_particles=particles.ParticleEmitter(.05,(self.rect.left,self.rect.right),
+            self.rage_particles=particles.ParticleEmitter(.025,(self.rect.left,self.rect.right),
             (self.rect.top,self.rect.top),self.rage_colors,2,
-            'ascend','fast_shrink','slow_emit','random_growth','vert_wave')
+            'ascend','fast_shrink','fast_emit','random_growth','vert_wave')
         if self.rage_mode and player.active_relic.name=='Ursidae_relic':
             player.speed=220
             player.defense=5
