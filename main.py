@@ -107,7 +107,7 @@ class GameElements():
         enemies.spawned_loot.draw(screen)
         scyman.update(P1,delta)
         for i in scarecrows:
-            i.update()
+            i.update(screen)
         pygame.display.flip()
 
     def game_over(self):
