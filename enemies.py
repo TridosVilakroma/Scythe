@@ -1,5 +1,5 @@
-from color_palette import GREEN, RED, WHITE
-import pygame,time,math,equip
+from color_palette import *
+import pygame,time,math,equip,particles
 from random import randint
 import common_functions as comfunc
 
@@ -26,6 +26,7 @@ class Scarecrow(pygame.sprite.Sprite):
         self.timer_wheel_step=0
         self.image_loader()
         self.mask=pygame.mask.from_surface(self.image)
+        
    
     def image_loader(self):
         self.trap_net=pygame.image.load(r'media\relics\fox\fox_net.png').convert_alpha()
@@ -79,7 +80,6 @@ class Scarecrow(pygame.sprite.Sprite):
             print('loot_dropper_error')
             pass
             
-
     def collision_check(self):
         pass
    
@@ -145,21 +145,30 @@ class Scarecrow(pygame.sprite.Sprite):
     def dust(self):
         if self.dust_start>=time.time()-.6:
             screen.blit(self.small_straw,self.dust_pos)
+            self.aux_state.append('dust_particles')
+            self.dust_particles=particles.ParticleEmitter(0,
+            (self.dust_pos[0]+16,self.dust_pos[0]+16),(self.dust_pos[1]+32,self.dust_pos[1]+32),
+            [PALE_YELLOW,WORN_YELLOW,BRIGHT_YELLOW,BROWN],1,
+            'explode_up','move_to_dest','fast_shrink','shrink')
         elif self.dust_start>=time.time()-1.2:
             screen.blit(self.straw_stalk,self.dust_pos)
             dust_rect=pygame.Rect((self.dust_pos),(32,32))
             attacks.append((.75,dust_rect))
+            
         elif self.dust_start>=time.time()-1.3:
             screen.blit(self.small_straw,self.dust_pos)
+
         else:
-           comfunc.clean_list(self.aux_state,'dust') 
+            comfunc.clean_list(self.aux_state,'dust')
+            comfunc.clean_list(self.aux_state,'dust_particles')
+
    
     def vitality(self):
         if self.hp <= 0:
             self.loot_dropper()
             self.kill()
   
-    def auxillary(self):
+    def auxillary(self,screen):
         if 'health' in self.aux_state:
             self.health_bar()
         if 'timerwheel' in self.aux_state:
@@ -170,15 +179,17 @@ class Scarecrow(pygame.sprite.Sprite):
             self.bleed()
         if 'trap' in self.aux_state:
             self.trap(self.trap_duration)
+        if 'dust_particles' in self.aux_state:
+            self.dust_particles.update(screen)
    
     def blit(self):
         screen.blit(self.image,(self.x,self.y))
 
-    def update(self):
+    def update(self,screen):
         self.pos=pygame.math.Vector2((self.rect.center))
         self.blit()
         self.vitality()
-        self.auxillary()
+        self.auxillary(screen)
         
 
 class Omnivine(pygame.sprite.Sprite):
@@ -415,7 +426,7 @@ class Omnivine(pygame.sprite.Sprite):
     def blit(self):
         screen.blit(self.image,(self.x,self.y))
 
-    def update(self):
+    def update(self,screen):
         self.pos=pygame.Vector2((self.rect.center))
         self.blit()
         self.vitality()
