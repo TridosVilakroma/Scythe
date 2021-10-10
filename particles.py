@@ -14,6 +14,8 @@ class ParticleEmitter():
         for i in motion_styles:
             self.motion_styles.append(i)
         self.particles=[]
+        self.explode_catalyst=True
+        self.explode_up_catalyst=True
 
     class Particle():
         def __init__(self,pos,color,size):
@@ -70,10 +72,18 @@ class ParticleEmitter():
             self.random_growth()
         if 'vert_wave' in self.motion_styles:
             self.vert_wave()
+        if 'horz_wave' in self.motion_styles:
+            self.horz_wave()
+        if 'fast_emit' in self.motion_styles:
+            self.fast_emit()
+        if 'explode' in self.motion_styles:
+            self.explode()
+        if 'explode_up' in self.motion_styles:
+            self.explode_up()
 
-    def limiter(self):
+    def limiter(self,speed):
         #emit_rate is a time interval between the return of True booleans
-        time_stamp=time.time()
+        time_stamp=time.time()*speed
         if time_stamp>self.emit_limit:
             self.emit_limit=time_stamp+self.emit_rate
             return True
@@ -105,7 +115,11 @@ class ParticleEmitter():
                     i.dest=pygame.math.Vector2(0,0) 
 
     def slow_emit(self):
-        if self.limiter():
+        if self.limiter(1):
+            self.create_particle()
+    
+    def fast_emit(self):
+        if self.limiter(2):
             self.create_particle()
 
     def ascend(self):
@@ -122,10 +136,42 @@ class ParticleEmitter():
 
     def vert_wave(self):
         for i in self.particles:
-
             sine=math.sin(time.time()*7+i.unique)
             i.pos[0]+=sine/2
-    
+
+    def horz_wave(self):
+        for i in self.particles:
+            sine=math.sin(time.time()*7+i.unique)
+            i.pos[1]+=sine/2   
+
+    def explode(self):
+        if self.explode_catalyst:
+            self.explode_catalyst=False
+            for i in range(25):
+                x_center=sum(self.x_range)/2
+                y_center=sum(self.y_range)/2
+                particle=self.Particle(pygame.math.Vector2(x_center,y_center),
+                self.randomize_color(self.colors),self.size*2)
+                self.particles.append(particle)
+            for i in self.particles:
+                randint_a=randint(int(i.pos[0]-50),int(i.pos[0]+50))
+                randint_b=randint(int(i.pos[1]-50),int(i.pos[1]+50))
+                i.dest=pygame.math.Vector2(randint_a,randint_b)
+
+    def explode_up(self):
+        if self.explode_up_catalyst:
+            self.explode_up_catalyst=False
+            for i in range(25):
+                x_center=sum(self.x_range)/2
+                y_center=sum(self.y_range)/2
+                particle=self.Particle(pygame.math.Vector2(x_center,y_center),
+                self.randomize_color(self.colors),self.size*2)
+                self.particles.append(particle)
+            for i in self.particles:
+                randint_a=randint(int(i.pos[0]-20),int(i.pos[0]+20))
+                randint_b=randint(int(i.pos[1]-75),int(i.pos[1]+5))
+                i.dest=pygame.math.Vector2(randint_a,randint_b)
+
 
     def update(self,screen):
         self.behavior()
