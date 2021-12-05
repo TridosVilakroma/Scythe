@@ -69,7 +69,7 @@ class Scarecrow(pygame.sprite.Sprite):
         self.straw_stalk=pygame.image.load(r'media\deco\straw_stalk.png')
    
     def loot_dropper(self):
-        random_loot=randint(1,5)
+        random_loot=randint(1,6)
         try:
             equip.equip_matrix[1][random_loot].rect[0]=self.x
             equip.equip_matrix[1][random_loot].rect[1]=self.y
@@ -312,7 +312,19 @@ class Omnivine(pygame.sprite.Sprite):
         self.shoot1=pygame.image.load(r'media\enemies\ominvine_shoot\sprite_1.png')
         self.shoot2=pygame.image.load(r'media\enemies\ominvine_shoot\sprite_2.png')
         self.bullet=pygame.image.load(r'media\enemies\ominvine_shoot\outlined_bullet.png')
-   
+
+    def loot_dropper(self):
+        random_loot=randint(1,6)
+        try:
+            equip.equip_matrix[1][random_loot].rect[0]=self.x
+            equip.equip_matrix[1][random_loot].rect[1]=self.y
+            spawned_loot.add(equip.equip_matrix[1][random_loot])
+            popped=equip.equip_matrix[1].pop(random_loot)
+            print(popped)
+        except KeyError:
+            print('loot_dropper_error')
+            pass
+
     def collision_check(self):
         pass
    
@@ -448,7 +460,7 @@ class Omnivine(pygame.sprite.Sprite):
         if 'switch' in self.aux_state:
             bullet_rect=pygame.Rect((self.bullet_pos),(32,32))
             player1_rect=pygame.Rect((player1pos),(32,32))
-            attacks.append((20,bullet_rect))
+            attacks.append((10,bullet_rect))
             if bullet_rect.colliderect(player1_rect):
                 comfunc.clean_list(self.aux_state,'switch')
                 comfunc.clean_list(self.aux_state,'bullet')
@@ -495,6 +507,7 @@ class Omnivine(pygame.sprite.Sprite):
 
     def vitality(self):
         if self.hp <= 0:
+            self.loot_dropper()
             self.kill()
   
     def auxillary(self,screen,player):

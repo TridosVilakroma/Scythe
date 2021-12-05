@@ -87,7 +87,7 @@ class Skunk(Relic):
     def right_stick(self,delta,player,P1):
         pass
 
-    def passives(self,screen,scarecrows,player):
+    def passives(self,screen,scarecrows,player,P1):
         if self.cloud_start>time.time()-3:
             pygame.draw.circle(screen,PURPLE,self.cloud_pos,85,1)
             for i in scarecrows:
@@ -133,7 +133,7 @@ class Fox(Relic):
         time_stamp=time.time()
         if time_stamp>self.last_hit+.3:
             for i in hits:
-                i.trap(7)
+                i.trap(15)
                 i.damage(0)
                 player.mp+=7.5
                 self.last_hit=time.time()
@@ -157,7 +157,7 @@ class Fox(Relic):
             self.arrows.add(arrow)
             self.arrow_delay=time.time()+.2
 
-    def passives(self,screen,scarecrows,player):
+    def passives(self,screen,scarecrows,player,P1):
         if self.mine and self.mine_start>time.time()-10:
             self.nuked=True
             screen.blit(self.fox_mine.image,(self.mine_pos[0]-self.fox_mine.image.get_width()/2,
@@ -294,7 +294,7 @@ class Eagle(Relic):
                 self.feathers.add(feather)
                 self.feather_delay=time.time()+.5
 
-    def passives(self,screen,scarecrows,player):
+    def passives(self,screen,scarecrows,player,P1):
         time_stamp=time.time()
         if player.active_relic.name=='aeetus_relic':
             mana_regen=False
@@ -356,7 +356,7 @@ class Eagle(Relic):
         if self.feathers:
             hit_list=pygame.sprite.groupcollide(scarecrows,self.feathers,False,True,collide_mask)
             for i in hit_list:
-                i.damage(4.75)
+                i.damage(8)
             for i in self.feathers:
                 screen.blit(i.rotated_image,(i.rect.topleft))
                 i.rect.x+=i.velocity_x
@@ -405,7 +405,7 @@ class Bear(Relic):
     def right_stick(self,delta,player,P1):
         pass
 
-    def passives(self,screen,scarecrows,player):
+    def passives(self,screen,scarecrows,player,P1):
         if player.recieved_damage:
             self.rage_mode=True
             self.rage_timer=time.time()+5
@@ -414,7 +414,7 @@ class Bear(Relic):
             'ascend','fast_shrink','fast_emit','random_growth','vert_wave')
         if self.rage_mode and player.active_relic.name=='Ursidae_relic':
             player.speed=220
-            player.defense=5
+            player.defense=.6
             self.rage_particles.x_range=(self.rect.left-4,self.rect.right+4)
             self.rage_particles.y_range=(self.rect.top-2,self.rect.top+20)
             self.rage_particles.update(screen)
@@ -479,7 +479,7 @@ class Lion(Relic):
     def right_stick(self,delta,player,P1):
         pass
 
-    def passives(self,screen,scarecrows,player):
+    def passives(self,screen,scarecrows,player,P1):
         if self.roar_start>time.time()-.5:
             sine=math.sin(time.time()*5)
             cosine=math.cos(time.time()*5)
@@ -510,12 +510,111 @@ class Lion(Relic):
 
 Panthera_relic=Lion()
 
+class Turtle(Relic):
+    def __init__(self):
+        self.name='Testudinidae_relic'
+        mana_drain=.115
+        self.image=pygame.image.load(r'media\relics\Testudinidae_relic.png')
+        self.transparent=self.image.copy()
+        self.transparent.fill((255, 255, 255, 128), None, pygame.BLEND_RGBA_MULT)
+        self.shape_shifted=pygame.image.load(r'media\relics\turtle\turtle.png')
+        super().__init__(mana_drain, self.image)
+        self.defense=3
+        self.speed=100
+        self.scythe_attack=0
+        self.hp_regen=.01
+        self.last_hit=time.time()
+        self.blockaded=False
+        self.pushback=False
+        self.pushback_start=time.time()
+
+    def attack(self,screen,hits,player):
+        time_stamp=time.time()
+        if time_stamp>self.last_hit+2:
+            for i in hits:
+                i.damage(20)
+                i.stun(1)
+                self.last_hit=time.time()
+
+    def special_attack(self,screen,player):
+        if 'blockade' not in player.aux_state:
+            if player.mp>5:
+                player.mp-=5
+                player.aux_state.append('blockade')
+                player.incoming_damage_tracked=True
+                player.shield-=.5
+                self.blockaded=True
+
+    def right_stick(self,delta,player,P1):
+        pass
+
+    def passives(self,screen,scarecrows,player,P1):
+        if player.active_relic.name!='Testudinidae_relic' and self.blockaded:
+            comfunc.clean_list(player.aux_state,'blockade')
+            player.incoming_damage_tracked=False
+            player.incoming_damage=[]
+            player.shield+=.5
+            self.blockaded=False
+
+        if self.blockaded and not P1.get_button(1):
+            comfunc.clean_list(player.aux_state,'blockade')
+            player.incoming_damage_tracked=False
+            player.incoming_damage=[]
+            player.shield+=.5
+            self.blockaded=False
+            self.pushback=True
+            self.pushback_start=time.time()
+
+        if self.pushback==True:
+            timestamp=time.time()
+            if self.pushback_start>timestamp-.5:
+                pygame.draw.circle(screen,RED,self.rect.center,85,1)
+                pygame.draw.circle(screen,BRIGHT_YELLOW,self.rect.center,(timestamp-self.pushback_start)*50,1)
+                pygame.draw.circle(screen,BRIGHT_YELLOW,self.rect.center,(timestamp-self.pushback_start)*115,1)
+                pygame.draw.circle(screen,BRIGHT_YELLOW,self.rect.center,(timestamp-self.pushback_start)*160,1)
+                for i in scarecrows:
+                    if i.pos.distance_to(player.rect.center)<85:
+                        i.stun(.2)
+            else:
+              self.pushback=False 
+
+        if P1.get_button(1) and self.blockaded==True:
+            player.mp-=.02
+            sine=math.sin(time.time())*4
+            cosine=math.cos(time.time())*4
+            pygame.draw.circle(screen,RED,self.rect.center,85,2)
+            pygame.draw.circle(screen,DARK_RED,self.rect.center,60+sine,1)
+            pygame.draw.circle(screen,DARK_RED,self.rect.center,40+cosine*2,1)
+            pygame.draw.circle(screen,DARK_RED,self.rect.center,20+sine*1.5,1)
+            pygame.draw.circle(screen,DARK_RED,self.rect.center,10+cosine*1.25,1)
+            if player.incoming_damage:
+                for i in scarecrows:
+                    if i.pos.distance_to(player.rect.center)<85:
+                        i.damage(sum(player.incoming_damage)*2)
+                        player.incoming_damage=[]
+                player.incoming_damage=[]
+            
+
+
+    def walk_right_load(self):
+        return (r'media\relics\turtle\turtle.png')
+    def walk_left_load(self):
+        return (r'media\relics\turtle\turtle.png')
+    def walk_up_load(self):
+        return (r'media\relics\turtle\turtle.png')
+    def walk_down_load(self):
+        return (r'media\relics\turtle\turtle.png')
+
+Testudinidae_relic=Turtle()
+
+
 relics={
     1:Mephitidae_relic,
     2:vulpes_relic,
     3:aeetus_relic,
     4:Ursidae_relic,
-    5:Panthera_relic
+    5:Panthera_relic,
+    6:Testudinidae_relic
 }
     
 ###############ARMOR###############

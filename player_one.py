@@ -23,6 +23,9 @@ class PlayerOne(pygame.sprite.Sprite):
         self.mp=100
         self.mp_ratio=960/self.mp
         self.defense=0
+        self.shield=1  #percent of damage allowed through   1==100%
+        self.incoming_damage_tracked=False
+        self.incoming_damage=[]
         self.focus = 'traverse'
         self.animating=False
         self.direction='right'
@@ -114,8 +117,8 @@ class PlayerOne(pygame.sprite.Sprite):
     def list_init(self):
         self.interactables=[]
         self.picked_up_items=[]
-        self.relics=[equip.vulpes_relic,equip.Mephitidae_relic,equip.aeetus_relic,equip.Ursidae_relic,
-        equip.Panthera_relic]
+        self.relics=[equip.Testudinidae_relic]#equip.vulpes_relic,equip.Mephitidae_relic,equip.aeetus_relic,equip.Ursidae_relic,
+       # equip.Panthera_relic
         self.armor=[]
         self.weapons=[]
         self.tools=[]
@@ -290,8 +293,10 @@ class PlayerOne(pygame.sprite.Sprite):
     def damage(self):
         for i in attacks:
             if i[1].colliderect(self.rect):
+                if self.incoming_damage_tracked:
+                    self.incoming_damage.append(i[0])
                 self.hp_before_damage=self.hp
-                self.hp-=(i[0]-self.defense)
+                self.hp-=max(0,((i[0]-self.defense)*self.shield))
                 self.hp_lost=abs(self.hp_before_damage-self.hp)
                 self.recieved_damage=True
             comfunc.clean_list(attacks,i)
@@ -746,7 +751,6 @@ class PlayerOne(pygame.sprite.Sprite):
         relic=self.relics[relic_index]
         relic.rect.center=self.rect.center
         self.mp-=relic.mana_drain
-        relic.passives(screen,scarecrows,self)
         if P1.get_button(2):
             hits=pygame.sprite.spritecollide(self,scarecrows,False)
             if hits:
@@ -849,7 +853,7 @@ class PlayerOne(pygame.sprite.Sprite):
             self.relic_effects(delta,self.activated_relic,P1)
         self.damage()    
         for i in self.relics:
-            i.passives(screen,scarecrows,self)
+            i.passives(screen,scarecrows,self,P1)
         self.draw()
         if 'dpad' in self.aux_state:
             self.relic_select(P1)
@@ -859,7 +863,8 @@ class PlayerOne(pygame.sprite.Sprite):
         self.mana_bar()
           
     def update(self,P1,delta):
-        self.focus_switch(P1,delta)
+        if 'blockade' not in self.aux_state:
+            self.focus_switch(P1,delta)
         self.action(P1)
         self.auxillary(P1,delta)
         
