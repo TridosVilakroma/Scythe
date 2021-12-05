@@ -1,4 +1,4 @@
-import pygame,time,particles
+import pygame,time,particles,math
 import common_functions as comfunc
 import controller as con
 from pygame.sprite import collide_mask, collide_rect, spritecollide
@@ -62,7 +62,7 @@ class Skunk(Relic):
         self.attack_count=0
         self.last_hit=time.time()
         self.cloud=False
-        self.cloud_start=time.time()
+        self.cloud_start=time.time()-3
 
     def attack(self,screen,hits,player):
         time_stamp=time.time()
@@ -78,9 +78,8 @@ class Skunk(Relic):
                     player.hp+=1.75
                 self.attack_count=0
 
-    def special_attack(self,screen):
+    def special_attack(self,screen,player):
         if not self.cloud_cooldown:
-            self.cloud=True
             self.cloud_start=time.time()
             self.cloud_pos=pygame.Vector2(self.rect.center)
             self.cloud_cooldown=True
@@ -89,7 +88,7 @@ class Skunk(Relic):
         pass
 
     def passives(self,screen,scarecrows,player):
-        if self.cloud and self.cloud_start>time.time()-3:
+        if self.cloud_start>time.time()-3:
             pygame.draw.circle(screen,PURPLE,self.cloud_pos,85,1)
             for i in scarecrows:
                 if i.pos.distance_to(self.cloud_pos)<85:
@@ -134,12 +133,12 @@ class Fox(Relic):
         time_stamp=time.time()
         if time_stamp>self.last_hit+.3:
             for i in hits:
-                i.trap(3)
+                i.trap(7)
                 i.damage(0)
                 player.mp+=7.5
                 self.last_hit=time.time()
 
-    def special_attack(self,screen):
+    def special_attack(self,screen,player):
         if not self.mine_cooldown:
             self.mine=True
             self.mine_start=time.time()
@@ -266,7 +265,7 @@ class Eagle(Relic):
             (self.rect.top,self.rect.bottom),self.entry_portal.particle_colors,2,
             'fire_fly','move_to_dest','shrink','slow_emit')
 
-    def special_attack(self,screen):
+    def special_attack(self,screen,player):
         time_stamp=time.time()
         if self.exit_portal_cooldown<time_stamp:
             self.exit_portal_lifetime=time.time()+30
@@ -400,7 +399,7 @@ class Bear(Relic):
                             player.hp+=1
                             player.mp+=1
 
-    def special_attack(self,screen):
+    def special_attack(self,screen,player):
         pass
 
     def right_stick(self,delta,player,P1):
@@ -440,34 +439,83 @@ class Bear(Relic):
 Ursidae_relic=Bear()
 
 class Lion(Relic):
-    def __init__(self, mana_drain, image):
-        super().__init__(mana_drain, image)
+    def __init__(self):
+        self.name='Panthera_relic'
+        mana_drain=.095
+        self.image=pygame.image.load(r'media\relics\panthera_relic.png')
+        self.transparent=self.image.copy()
+        self.transparent.fill((255, 255, 255, 128), None, pygame.BLEND_RGBA_MULT)
+        self.shape_shifted=pygame.image.load(r'media\relics\lion\lion_0.png')
+        super().__init__(mana_drain, self.image)
+        self.defense=0
+        self.speed=160
+        self.scythe_attack=0
+        self.hp_regen=0
+        self.last_hit=time.time()
+        self.chain_timer=time.time()-3
+        self.roar_start=time.time()-3
 
     def attack(self,screen,hits,player):
-        pass
+        time_stamp=time.time()
+        if time_stamp>self.last_hit+.35:
+            for i in hits:
+                i.damage(3)
+                self.last_hit=time_stamp
+            if time_stamp>self.chain_timer+.7 and player.mp>5:
+                if hits:
+                    player.mp-=5
+                    self.chain_timer=time_stamp
+                for i in hits:
+                    i.chain_lightning(screen,player)
+                
 
-    def special_attack(self,screen):
-        pass
+    def special_attack(self,screen,player):
+        if player.mp>10:
+            if not self.roar_cooldown:
+                self.roar_start=time.time()
+                self.roar_cooldown=True
+                player.mp-=10
 
     def right_stick(self,delta,player,P1):
         pass
 
     def passives(self,screen,scarecrows,player):
-        pass
+        if self.roar_start>time.time()-.5:
+            sine=math.sin(time.time()*5)
+            cosine=math.cos(time.time()*5)
+            reverse_sine=math.sin(time.time()*-5)
+            reverse_cosine=math.cos(time.time()*-5)
+            self.roar_pos=pygame.Vector2(player.rect.center)
+            pygame.draw.circle(screen,BRIGHT_YELLOW,self.roar_pos,100,1)
+            pygame.draw.circle(screen,PALE_YELLOW,self.roar_pos,sine*100,1)
+            pygame.draw.circle(screen,PALE_YELLOW,self.roar_pos,cosine*100,1)
+            pygame.draw.circle(screen,WORN_YELLOW,self.roar_pos,reverse_sine*100,1)
+            pygame.draw.circle(screen,WORN_YELLOW,self.roar_pos,reverse_cosine*100,1)
+            for i in scarecrows:
+                if i.pos.distance_to(self.roar_pos)<100:
+                    i.stun(6)
+                    i.health_bar_pop_up()
+        else:
+            self.roar_cooldown=False
+
 
     def walk_right_load(self):
-        return (r'')
+        return (r'media\relics\lion\lion_0.png')
     def walk_left_load(self):
-        return (r'')
+        return (r'media\relics\lion\lion_0.png')
     def walk_up_load(self):
-        return (r'')
+        return (r'media\relics\lion\lion_0.png')
     def walk_down_load(self):
-        return (r'')
+        return (r'media\relics\lion\lion_0.png')
+
+Panthera_relic=Lion()
+
 relics={
     1:Mephitidae_relic,
     2:vulpes_relic,
     3:aeetus_relic,
-    4:Ursidae_relic
+    4:Ursidae_relic,
+    5:Panthera_relic
 }
     
 ###############ARMOR###############

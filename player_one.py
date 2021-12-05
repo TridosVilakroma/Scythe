@@ -114,7 +114,8 @@ class PlayerOne(pygame.sprite.Sprite):
     def list_init(self):
         self.interactables=[]
         self.picked_up_items=[]
-        self.relics=[equip.vulpes_relic,equip.Mephitidae_relic,equip.aeetus_relic,equip.Ursidae_relic]
+        self.relics=[equip.vulpes_relic,equip.Mephitidae_relic,equip.aeetus_relic,equip.Ursidae_relic,
+        equip.Panthera_relic]
         self.armor=[]
         self.weapons=[]
         self.tools=[]
@@ -752,7 +753,7 @@ class PlayerOne(pygame.sprite.Sprite):
                 self.hitlag=True
             relic.attack(screen,hits,self)
         if P1.get_button(1):
-            relic.special_attack(screen)
+            relic.special_attack(screen,self)
 
         if not comfunc.dead_zone(P1,(3,4)):
             relic.right_stick(delta,self,P1)

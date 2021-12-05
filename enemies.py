@@ -17,7 +17,7 @@ class Scarecrow(pygame.sprite.Sprite):
         self.y=randint(0,468)
         self.rect=pygame.Rect(self.x,self.y,self.image.get_width(),self.image.get_height())
         self.pos=pygame.math.Vector2((self.rect.center))
-        self.hp = randint(10,25)
+        self.hp = (randint(10,25)+75)
         self.hp_ratio=self.rect.width/self.hp
         self.defense = 0#randint(0,3)
         self.damage_ref_timer=time.time()
@@ -69,7 +69,7 @@ class Scarecrow(pygame.sprite.Sprite):
         self.straw_stalk=pygame.image.load(r'media\deco\straw_stalk.png')
    
     def loot_dropper(self):
-        random_loot=randint(1,4)
+        random_loot=randint(1,5)
         try:
             equip.equip_matrix[1][random_loot].rect[0]=self.x
             equip.equip_matrix[1][random_loot].rect[1]=self.y
@@ -101,6 +101,20 @@ class Scarecrow(pygame.sprite.Sprite):
             screen.blit(self.trap_net,self.rect.topleft)
         else:
             comfunc.clean_list(self.aux_state,'trap')
+
+    def stun(self,duration):
+        if 'stun' not in self.aux_state:
+            self.stun_start=time.time()+duration
+            self.aux_state.append('stun')
+            self.stun_duration=duration
+            self.stun_particles=particles.ParticleEmitter(.05,(self.pos[0]-10,self.pos[0]+10),
+            (self.pos[1]-20,self.pos[1]),
+            [RED,PALE_YELLOW,PALE_YELLOW,PALE_YELLOW,BRIGHT_YELLOW,BRIGHT_YELLOW,BRIGHT_YELLOW,BRIGHT_YELLOW],
+            2,'burst_emit20','halo_wave',square=True)
+        if self.stun_start>time.time():
+            self.stun_particles.update(screen)
+        else:
+            comfunc.clean_list(self.aux_state,'stun')
 
     def bleed(self):
         if 'bleed' not in self.aux_state:
@@ -162,21 +176,57 @@ class Scarecrow(pygame.sprite.Sprite):
             comfunc.clean_list(self.aux_state,'dust')
             comfunc.clean_list(self.aux_state,'dust_particles')
 
-   
+    def chain_lightning(self,screen,player):
+        if 'chain' not in self.aux_state:
+            self.chain_start=time.time()
+            self.aux_state.append('chain')
+            self.chain_pos=pygame.Vector2(self.rect.center)
+            enemy_counter=0
+            for i in enemies:
+                if 0<i.pos.distance_to(self.chain_pos)<115:
+                    enemy_counter+=1
+
+                    i.lightning=particles.ParticleEmitter(0,(i.pos[0],self.chain_pos[0]),
+                    (i.pos[1],self.chain_pos[1]),(WHITE,BLUE),1,
+                    'lightning_bolt','fast_decay','shake','move_to_dest','random_growth',square=True)
+
+                    self.lightning_implosion=particles.ParticleEmitter(0,(self.rect.center[0],self.rect.center[0]),
+                    (self.rect.center[1],self.rect.center[1]),[WHITE,BLUE],1,
+                    'implode','move_to_dest_fast','fast_shrink','shrink')
+
+                    i.damage(8)
+        if self.chain_start>time.time()-1.5:
+            self.hp-=.25
+            self.hpbar_ref_timer=time.time()+3
+            self.health_bar()
+            for i in enemies:
+                try:
+                    i.lightning.update(screen)
+                    self.lightning_implosion.update(screen)
+                except AttributeError:
+                    pass
+        else:
+            comfunc.clean_list(self.aux_state,'chain')
+
     def vitality(self):
         if self.hp <= 0:
             self.loot_dropper()
             self.kill()
   
-    def auxillary(self,screen):
+    def auxillary(self,screen,player):
         if 'health' in self.aux_state:
             self.health_bar()
-        if 'timerwheel' in self.aux_state:
-            self.timer_wheel()
+        if 'stun' in self.aux_state:
+            self.stun(self.stun_duration)
+        if 'stun' not in self.aux_state:
+            if 'timerwheel' in self.aux_state:
+                self.timer_wheel()
         if 'dust' in self.aux_state:
             self.dust()
         if 'bleed' in self.aux_state:
             self.bleed()
+        if 'chain' in self.aux_state:
+            self.chain_lightning(screen,player)
         if 'trap' in self.aux_state:
             self.trap(self.trap_duration)
         if 'dust_particles' in self.aux_state:
@@ -185,11 +235,11 @@ class Scarecrow(pygame.sprite.Sprite):
     def blit(self):
         screen.blit(self.image,(self.x,self.y))
 
-    def update(self,screen):
+    def update(self,screen,player):
         self.pos=pygame.math.Vector2((self.rect.center))
         self.blit()
         self.vitality()
-        self.auxillary(screen)
+        self.auxillary(screen,player)
         
 
 class Omnivine(pygame.sprite.Sprite):
@@ -201,7 +251,7 @@ class Omnivine(pygame.sprite.Sprite):
         self.y=randint(0,468)
         self.rect=pygame.Rect(self.x,self.y,self.image.get_width(),self.image.get_height())
         self.pos=pygame.math.Vector2((self.rect.center))
-        self.hp = randint(10,25)
+        self.hp = randint(10,25)+50
         self.hp_ratio=self.rect.width/self.hp
         self.defense = randint(0,3)
         self.damage_ref_timer=time.time()
@@ -285,6 +335,20 @@ class Omnivine(pygame.sprite.Sprite):
         else:
             comfunc.clean_list(self.aux_state,'trap')
 
+    def stun(self,duration):
+        if 'stun' not in self.aux_state:
+            self.stun_start=time.time()+duration
+            self.aux_state.append('stun')
+            self.stun_duration=duration
+            self.stun_particles=particles.ParticleEmitter(.05,(self.pos[0]-10,self.pos[0]+10),
+            (self.pos[1]-20,self.pos[1]),
+            [RED,PALE_YELLOW,PALE_YELLOW,PALE_YELLOW,BRIGHT_YELLOW,BRIGHT_YELLOW,BRIGHT_YELLOW,BRIGHT_YELLOW],
+            2,'burst_emit20','halo_wave',square=True)
+        if self.stun_start>time.time():
+            self.stun_particles.update(screen)
+        else:
+            comfunc.clean_list(self.aux_state,'stun')
+
     def bleed(self):
         if 'bleed' not in self.aux_state:
             self.bleed_start=time.time()
@@ -295,6 +359,38 @@ class Omnivine(pygame.sprite.Sprite):
             self.health_bar()
         else:
             comfunc.clean_list(self.aux_state,'bleed')
+
+    def chain_lightning(self,screen,player):
+        if 'chain' not in self.aux_state:
+            self.chain_start=time.time()
+            self.aux_state.append('chain')
+            self.chain_pos=pygame.Vector2(self.rect.center)
+            enemy_counter=0
+            for i in enemies:
+                if 0<i.pos.distance_to(self.chain_pos)<115:
+                    enemy_counter+=1
+
+                    i.lightning=particles.ParticleEmitter(0,(i.pos[0],self.chain_pos[0]),
+                    (i.pos[1],self.chain_pos[1]),(WHITE,BLUE),1,
+                    'lightning_bolt','fast_decay','shake','move_to_dest','random_growth',square=True)
+
+                    self.lightning_implosion=particles.ParticleEmitter(0,(self.rect.center[0],self.rect.center[0]),
+                    (self.rect.center[1],self.rect.center[1]),[WHITE,BLUE],1,
+                    'implode','move_to_dest_fast','fast_shrink','shrink')
+
+                    i.damage(8)
+        if self.chain_start>time.time()-1.5:
+            self.hp-=.25
+            self.hpbar_ref_timer=time.time()+3
+            self.health_bar()
+            for i in enemies:
+                try:
+                    i.lightning.update(screen)
+                    self.lightning_implosion.update(screen)
+                except AttributeError:
+                    pass
+        else:
+            comfunc.clean_list(self.aux_state,'chain')
 
     def health_bar_pop_up(self):
         self.hpbar_ref_timer=time.time()+3
@@ -401,34 +497,40 @@ class Omnivine(pygame.sprite.Sprite):
         if self.hp <= 0:
             self.kill()
   
-    def auxillary(self):
+    def auxillary(self,screen,player):
         if 'health' in self.aux_state:
             self.health_bar()
-        if 'timerwheel' in self.aux_state:
-            self.timer_wheel()
-        if 'shoot' in self.aux_state:
-            self.shoot()
-        else:
-            self.traverse()
-        chance=randint(self.chance_to_shoot[0],self.chance_to_shoot[1])
-        if chance ==1 and 'shoot' not in self.aux_state:
-            self.aux_state.append('shoot')
-            self.shoot_start=time.time()
-            self.shoot_pos=player1pos
-            self.timer_wheel_step=0
+        if 'stun' in self.aux_state:
+            self.stun(self.stun_duration)
+        if 'stun' not in self.aux_state:
+            if 'timerwheel' in self.aux_state:
+                self.timer_wheel()
+            if 'shoot' in self.aux_state:
+                self.shoot()
+            else:
+                self.traverse()
+            chance=randint(self.chance_to_shoot[0],self.chance_to_shoot[1])
+            if chance ==1 and 'shoot' not in self.aux_state:
+                self.aux_state.append('shoot')
+                self.shoot_start=time.time()
+                self.shoot_pos=player1pos
+                self.timer_wheel_step=0
         if 'bullet' in self.aux_state:
             self.bullet_trajectory()
         if 'bleed' in self.aux_state:
             self.bleed()
         if 'trap' in self.aux_state:
             self.trap(self.trap_duration)
+        
+        if 'chain' in self.aux_state:
+            self.chain_lightning(screen,player)
    
     def blit(self):
         screen.blit(self.image,(self.x,self.y))
 
-    def update(self,screen):
+    def update(self,screen,player):
         self.pos=pygame.Vector2((self.rect.center))
         self.blit()
         self.vitality()
-        self.auxillary()
+        self.auxillary(screen,player)
         

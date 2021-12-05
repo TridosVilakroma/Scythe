@@ -26,15 +26,16 @@ randx=randint(0,1000)
 randy=randint(0,500)
 #enemy loading
 scarecrows=pygame.sprite.Group()
+
 for i in range(10):
     i=enemies.Scarecrow()
     scarecrows.add(i)
-    enemies.enemies.append(i)
+    #enemies.enemies.append(i)
 for i in range(5):
     i=enemies.Omnivine()
     scarecrows.add(i)
 player.scarecrows=scarecrows
-
+enemies.enemies=scarecrows
 #player binding
 scyman=player.PlayerOne(500,250)
 
@@ -107,7 +108,7 @@ class GameElements():
         enemies.spawned_loot.draw(screen)
         scyman.update(P1,delta)
         for i in scarecrows:
-            i.update(screen)
+            i.update(screen,scyman)
         pygame.display.flip()
 
     def game_over(self):
