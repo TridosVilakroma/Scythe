@@ -607,6 +607,73 @@ class Turtle(Relic):
 
 Testudinidae_relic=Turtle()
 
+class Wolf(Relic):
+    def __init__(self):
+        self.name='Canidae_relic'
+        mana_drain=0#.115
+        self.image=pygame.image.load(r'media\relics\canidae_relic.png')
+        self.transparent=self.image.copy()
+        self.transparent.fill((255, 255, 255, 128), None, pygame.BLEND_RGBA_MULT)
+        self.shape_shifted=pygame.image.load(r'media\relics\wolf\wolf.png')
+        super().__init__(mana_drain, self.image)
+        self.defense=1
+        self.speed=150
+        self.scythe_attack=0
+        self.hp_regen=0
+        self.last_hit=time.time()
+        self.counter_store_cooldown=time.time()
+        self.counter_store=False
+        self.stored_energy=0
+        self.countered=False
+
+    def attack(self,screen,hits,player):
+        time_stamp=time.time()
+        if time_stamp>self.last_hit+.3:
+            for i in hits:
+                i.damage(10)
+                if self.stored_energy:
+                    i.damage(self.stored_energy)
+                    self.stored_energy=0
+                self.last_hit=time.time()
+
+    def special_attack(self,screen,player):
+        if time.time()>self.counter_store_cooldown:
+            if player.mp>15:
+                player.mp-=15
+                self.counter_store_cooldown=time.time()+1
+                player.incoming_damage_tracked=True
+                player.shield-=1
+                self.counter_store=True
+
+    def right_stick(self,delta,player,P1):
+        pass
+
+    def passives(self,screen,scarecrows,player,P1):
+            if self.counter_store==True:
+                if self.counter_store_cooldown>time.time()+.85:
+                   self.stored_energy+=(sum(player.incoming_damage)*2)
+                   if player.incoming_damage:
+                       self.countered=True
+                   player.incoming_damage=[]
+                else:
+                    player.incoming_damage_tracked=False
+                    player.incoming_damage=[]
+                    player.shield+=1
+                    self.counter_store=False
+                    self.countered=False
+            if self.countered==True:
+                pygame.draw.circle(screen,PINK_PURPLE,self.rect.center,15,1)
+
+    def walk_right_load(self):
+        return (r'media\relics\wolf\wolf.png')
+    def walk_left_load(self):
+        return (r'media\relics\wolf\wolf.png')
+    def walk_up_load(self):
+        return (r'media\relics\wolf\wolf.png')
+    def walk_down_load(self):
+        return (r'media\relics\wolf\wolf.png')
+
+Canidae_relic=Wolf()
 
 relics={
     1:Mephitidae_relic,
@@ -614,7 +681,8 @@ relics={
     3:aeetus_relic,
     4:Ursidae_relic,
     5:Panthera_relic,
-    6:Testudinidae_relic
+    6:Testudinidae_relic,
+    7:Canidae_relic
 }
     
 ###############ARMOR###############

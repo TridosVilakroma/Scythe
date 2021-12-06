@@ -117,7 +117,7 @@ class PlayerOne(pygame.sprite.Sprite):
     def list_init(self):
         self.interactables=[]
         self.picked_up_items=[]
-        self.relics=[equip.Testudinidae_relic]#equip.vulpes_relic,equip.Mephitidae_relic,equip.aeetus_relic,equip.Ursidae_relic,
+        self.relics=[equip.Canidae_relic]#equip.vulpes_relic,equip.Mephitidae_relic,equip.aeetus_relic,equip.Ursidae_relic,
        # equip.Panthera_relic
         self.armor=[]
         self.weapons=[]
