@@ -64,7 +64,7 @@ class Skunk(Relic):
         self.cloud=False
         self.cloud_start=time.time()-3
 
-    def attack(self,screen,hits,player):
+    def attack(self,screen,hits,player,P1):
         time_stamp=time.time()
         if time_stamp>self.last_hit+.15:
             self.attack_count+=1
@@ -129,7 +129,7 @@ class Fox(Relic):
         self.arrows=pygame.sprite.Group()
         self.arrow_delay=time.time()
         
-    def attack(self,screen,hits,player):
+    def attack(self,screen,hits,player,P1):
         time_stamp=time.time()
         if time_stamp>self.last_hit+.3:
             for i in hits:
@@ -253,7 +253,7 @@ class Eagle(Relic):
             self.active=False
             self.particle_colors=particle_colors
             
-    def attack(self,screen,hits,player):
+    def attack(self,screen,hits,player,P1):
         time_stamp=time.time()
         if self.entry_portal_cooldown<time_stamp:
             self.entry_portal_lifetime=time.time()+30
@@ -389,7 +389,7 @@ class Bear(Relic):
         self.rage_mode=False
         self.rage_colors=(RED,RED,RED,RED,RED,DARK_RED,DARK_RED,DEEP_RED,ORANGE)
 
-    def attack(self,screen,hits,player):
+    def attack(self,screen,hits,player,P1):
         time_stamp=time.time()
         if time_stamp>player.slash_time_ref:
                     player.slash_time_ref=time_stamp+player.slash_cooldown
@@ -455,7 +455,7 @@ class Lion(Relic):
         self.chain_timer=time.time()-3
         self.roar_start=time.time()-3
 
-    def attack(self,screen,hits,player):
+    def attack(self,screen,hits,player,P1):
         time_stamp=time.time()
         if time_stamp>self.last_hit+.35:
             for i in hits:
@@ -528,7 +528,7 @@ class Turtle(Relic):
         self.pushback=False
         self.pushback_start=time.time()
 
-    def attack(self,screen,hits,player):
+    def attack(self,screen,hits,player,P1):
         time_stamp=time.time()
         if time_stamp>self.last_hit+2:
             for i in hits:
@@ -610,7 +610,7 @@ Testudinidae_relic=Turtle()
 class Wolf(Relic):
     def __init__(self):
         self.name='Canidae_relic'
-        mana_drain=0#.115
+        mana_drain=.115
         self.image=pygame.image.load(r'media\relics\canidae_relic.png')
         self.transparent=self.image.copy()
         self.transparent.fill((255, 255, 255, 128), None, pygame.BLEND_RGBA_MULT)
@@ -626,7 +626,7 @@ class Wolf(Relic):
         self.stored_energy=0
         self.countered=False
 
-    def attack(self,screen,hits,player):
+    def attack(self,screen,hits,player,P1):
         time_stamp=time.time()
         if time_stamp>self.last_hit+.3:
             for i in hits:
@@ -675,6 +675,64 @@ class Wolf(Relic):
 
 Canidae_relic=Wolf()
 
+class Lynx(Relic):
+    def __init__(self):
+        self.name='Felidae_relic'
+        mana_drain=.125
+        self.image=pygame.image.load(r'media\relics\felidae_relic.png')
+        self.transparent=self.image.copy()
+        self.transparent.fill((255, 255, 255, 128), None, pygame.BLEND_RGBA_MULT)
+        self.shape_shifted=pygame.image.load(r'media\relics\lynx\lynx.png')
+        super().__init__(mana_drain, self.image)
+        self.defense=0
+        self.speed=300
+        self.scythe_attack=0
+        self.hp_regen=0
+        self.last_hit=time.time()
+        self.attack_flag=False
+
+    def attack(self,screen,hits,player,P1):
+        if self.attack_flag==False and P1.get_button(2):
+            self.attack_flag=True
+            for i in hits:
+                i.damage(5)
+                if player.blink_start>time.time()+.35:
+                    player.mp+=5
+        
+
+    def special_attack(self,screen,player):
+        pass
+
+    def right_stick(self,delta,player,P1):
+        pass
+
+    def passives(self,screen,scarecrows,player,P1):
+        timestamp=time.time()
+        if self.attack_flag==True and not P1.get_button(2):
+            self.attack_flag=False
+        if player.active_relic.name =='Felidae_relic':
+            player.blink_distance=135
+            player.blink_step_cooldown=.3
+            player.blink_mp_cost=5
+        else:
+            player.blink_distance=90
+            player.blink_step_cooldown=.5
+            self.blink_mp_cost=0
+        if player.blink_start>timestamp-.2:
+            pass
+        
+
+    def walk_right_load(self):
+        return (r'media\relics\lynx\lynx.png')
+    def walk_left_load(self):
+        return (r'media\relics\lynx\lynx.png')
+    def walk_up_load(self):
+        return (r'media\relics\lynx\lynx.png')
+    def walk_down_load(self):
+        return (r'media\relics\lynx\lynx.png')
+
+Felidae_relic=Lynx()
+
 relics={
     1:Mephitidae_relic,
     2:vulpes_relic,
@@ -682,7 +740,8 @@ relics={
     4:Ursidae_relic,
     5:Panthera_relic,
     6:Testudinidae_relic,
-    7:Canidae_relic
+    7:Canidae_relic,
+    8:Felidae_relic
 }
     
 ###############ARMOR###############

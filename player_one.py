@@ -41,7 +41,9 @@ class PlayerOne(pygame.sprite.Sprite):
         self.speed=180
         self.blink_distance=90
         self.blink_step_cooldown=.5
+        self.blink_mp_cost=0
         self.blink_time_ref=time.time()
+        self.blink_start=time.time()
         self.scythe_angle=45
         self.scythe_time_ref=time.time()
         self.slash_time_ref=time.time()
@@ -117,7 +119,7 @@ class PlayerOne(pygame.sprite.Sprite):
     def list_init(self):
         self.interactables=[]
         self.picked_up_items=[]
-        self.relics=[equip.Canidae_relic]#equip.vulpes_relic,equip.Mephitidae_relic,equip.aeetus_relic,equip.Ursidae_relic,
+        self.relics=[equip.Felidae_relic]#equip.vulpes_relic,equip.Mephitidae_relic,equip.aeetus_relic,equip.Ursidae_relic,
        # equip.Panthera_relic
         self.armor=[]
         self.weapons=[]
@@ -755,7 +757,7 @@ class PlayerOne(pygame.sprite.Sprite):
             hits=pygame.sprite.spritecollide(self,scarecrows,False)
             if hits:
                 self.hitlag=True
-            relic.attack(screen,hits,self)
+            relic.attack(screen,hits,self,P1)
         if P1.get_button(1):
             relic.special_attack(screen,self)
 
@@ -812,8 +814,10 @@ class PlayerOne(pygame.sprite.Sprite):
             pass
         if P1.get_button(0):
             if time_stamp>self.blink_time_ref:
-                self.blink_time_ref=time_stamp+self.blink_step_cooldown
-                self.focus ='blink'
+                if self.mp>=self.blink_mp_cost:
+                    self.mp-=self.blink_mp_cost
+                    self.blink_time_ref=time_stamp+self.blink_step_cooldown
+                    self.focus ='blink'
         if P1.get_button(2) and 'relic' not in self.aux_state:
                 if time_stamp>self.slash_time_ref:
                     self.slash_time_ref=time_stamp+self.slash_cooldown
