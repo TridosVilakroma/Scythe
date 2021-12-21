@@ -35,6 +35,7 @@ for i in range(5):
     i=enemies.Omnivine()
     scarecrows.add(i)
 player.scarecrows=scarecrows
+equip.scarecrows=scarecrows
 enemies.enemies=scarecrows
 #player binding
 scyman=player.PlayerOne(500,250)

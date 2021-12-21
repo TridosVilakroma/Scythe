@@ -4,6 +4,8 @@ import controller as con
 from pygame.sprite import collide_mask, collide_rect, spritecollide
 from color_palette import *
 
+scarecrows=None#variable overwritten in main to add enemy access here
+
 #Base equipment class
 class Equipment(pygame.sprite.Sprite):
     def __init__(self,image):
@@ -690,13 +692,14 @@ class Lynx(Relic):
         self.hp_regen=0
         self.last_hit=time.time()
         self.attack_flag=False
+        self.blink_hit_counter=0
 
     def attack(self,screen,hits,player,P1):
         if self.attack_flag==False and P1.get_button(2):
             self.attack_flag=True
             for i in hits:
                 i.damage(5)
-                if player.blink_start>time.time()+.35:
+                if player.blink_start>time.time()-.5:
                     player.mp+=5
         
 
@@ -714,12 +717,29 @@ class Lynx(Relic):
             player.blink_distance=135
             player.blink_step_cooldown=.3
             player.blink_mp_cost=5
+
+            if player.blink_start>timestamp-.5:
+                player.invulnerable=True
+            else:
+                player.invulnerable=False
+
+            if player.blinked_lynx_flag:
+                blink_path=(player.ghostpos,player.rect.center)
+                pygame.draw.line(screen,GREY_BLUE,player.ghostpos,player.rect.center,3)
+                for i in scarecrows:
+                    if i.rect.clipline(blink_path):
+                        i.damage(10)
+                        print(blink_path,i.rect.center)
+                self.blink_hit_counter+=1
+                if self.blink_hit_counter==2:
+                    player.blinked_lynx_flag=False
+                    self.blink_hit_counter=0
         else:
             player.blink_distance=90
             player.blink_step_cooldown=.5
-            self.blink_mp_cost=0
-        if player.blink_start>timestamp-.2:
-            pass
+            player.blink_mp_cost=0
+       
+        
         
 
     def walk_right_load(self):

@@ -20,6 +20,7 @@ class PlayerOne(pygame.sprite.Sprite):
         self.hp_drain_length=100
         self.drain_ratio=960/self.hp_drain_length
         self.recieved_damage=False
+        self.invulnerable=False
         self.mp=100
         self.mp_ratio=960/self.mp
         self.defense=0
@@ -55,6 +56,8 @@ class PlayerOne(pygame.sprite.Sprite):
         self.active_relic=equip.FakeRelic()
         self.scythe=self.Scythe(self.scythe_image,self.rect.center)
         self.hitlag=False
+        self.blinked_lynx_flag=False
+        self.blinked_lynx_flag2=False
         
     class Scythe(equip.Equipment):
         def __init__(self, image,origin):
@@ -119,7 +122,7 @@ class PlayerOne(pygame.sprite.Sprite):
     def list_init(self):
         self.interactables=[]
         self.picked_up_items=[]
-        self.relics=[equip.Felidae_relic]#equip.vulpes_relic,equip.Mephitidae_relic,equip.aeetus_relic,equip.Ursidae_relic,
+        self.relics=[equip.Testudinidae_relic,equip.Felidae_relic]#equip.vulpes_relic,equip.Mephitidae_relic,equip.aeetus_relic,equip.Ursidae_relic,
        # equip.Panthera_relic
         self.armor=[]
         self.weapons=[]
@@ -218,6 +221,9 @@ class PlayerOne(pygame.sprite.Sprite):
             self.image=self.walkdownsprites[int(self.current_sprite)]
   
     def blink_ghost(self):
+        if self.blinked_lynx_flag==False and self.blinked_lynx_flag2==False:
+            self.blinked_lynx_flag=True
+            self.blinked_lynx_flag2=True
         if self.blink_start>time.time()-.25:
             self.ghost.set_alpha(50)
             self.ghost_trail=self.image.copy()
@@ -225,6 +231,7 @@ class PlayerOne(pygame.sprite.Sprite):
             screen.blit(self.ghost,self.ghostpos)
             screen.blit(self.ghost_trail,(((self.blink_startposx+self.positionx)/2),((self.blink_startposy+self.positiony)/2)))
         else:
+            self.blinked_lynx_flag2=False
             self.aux_state.remove('blink')
   
     def blink_animate(self,direction):
@@ -855,7 +862,11 @@ class PlayerOne(pygame.sprite.Sprite):
             self.scythe_animate(P1)
         if 'relic' in self.aux_state:
             self.relic_effects(delta,self.activated_relic,P1)
-        self.damage()    
+        if not self.invulnerable:
+            self.damage()
+        else:
+            for i in attacks:
+                comfunc.clean_list(attacks,i)
         for i in self.relics:
             i.passives(screen,scarecrows,self,P1)
         self.draw()
