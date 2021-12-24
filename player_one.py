@@ -646,7 +646,7 @@ class PlayerOne(pygame.sprite.Sprite):
                 try:
                     screen.blit(relic[5].image,(self.positionx+32,
                     self.positiony-self.relics[5].rect[3]))#upright
-                    if P1.get_button(5):
+                    if P1.get_button(4):
                         self.aux_state.append('relic')
                         comfunc.clean_list(self.aux_state,'dpad')
                         self.relic_activation_cool_down=time.time()+cool_down

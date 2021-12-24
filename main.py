@@ -3,21 +3,27 @@ from sprite_animation import Spritesheet
 from pygame.constants import JOYAXISMOTION, JOYBUTTONDOWN, JOYHATMOTION, MOUSEBUTTONDOWN
 import common_functions as comfunc
 import player_one as player
+import level_loader as lev
 from color_palette import *
 from random import randint
 import controller as con
 
 screen_width = 1000
 screen_height = 500
+canvas_width = 3000
+canvas_height = 1500
 pygame.init()
 clock = pygame.time.Clock()
 screen = pygame.display.set_mode((screen_width,screen_height))
+canvas = pygame.Surface((canvas_width,canvas_height))
 pygame.display.set_caption('Scythe')
 player.screen = screen
 enemies.screen=screen
 #image loading
 corner_flair=pygame.image.load("media\Corner_flair.png")
 botright_corner_bush=pygame.transform.rotate(corner_flair,90)
+back_ground=pygame.image.load(r"levels\bg.jpg")
+back_ground=pygame.transform.scale(back_ground,(screen_width,screen_height))
 #scyman=pygame.image.load('media\scyman.png')
 windy_cloud=Spritesheet('media\windy_cloud\wc.png',[0,30],True)
 grass_clump=pygame.image.load('media\deco\grass_clump.png')
@@ -31,9 +37,9 @@ for i in range(10):
     i=enemies.Scarecrow()
     scarecrows.add(i)
     #enemies.enemies.append(i)
-for i in range(5):
-    i=enemies.Omnivine()
-    scarecrows.add(i)
+# for i in range(5):
+#     i=enemies.Omnivine()
+#     scarecrows.add(i)
 player.scarecrows=scarecrows
 equip.scarecrows=scarecrows
 enemies.enemies=scarecrows
@@ -50,6 +56,8 @@ class GameElements():
     def __init__(self):
         self.focus= 'start'
         self.switch = False
+        self.level_loaded=False
+        self.current_level=1
 
     def start_screen(self):
         global P1
@@ -57,13 +65,16 @@ class GameElements():
         
         for event in pygame.event.get():
             comfunc.quit(event)
-            if event.type == MOUSEBUTTONDOWN:
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    self.focus='map_loader'
+            elif event.type == MOUSEBUTTONDOWN:
                 if P1:
                     self.switch = False
                     self.focus='play'
                 else:
                     self.switch = True
-            if event.type == JOYBUTTONDOWN:
+            elif event.type == JOYBUTTONDOWN:
                 if P1:
                     self.switch = False
                     self.focus='play'
@@ -112,6 +123,24 @@ class GameElements():
             i.update(screen,scyman)
         pygame.display.flip()
 
+    def map_loader(self):
+        if not self.level_loaded:
+            self.level_data=lev.load_level(self.current_level)
+            self.level_loaded=True
+            self.canvas=pygame.transform.scale(lev.create_canvas(self.level_data),(9100,4500))
+        screen.blit(back_ground,(0,0))
+        screen.blit(self.canvas,(0,0))
+        if scyman.hp <=0:
+            self.focus='gameover'
+        for event in pygame.event.get():
+            comfunc.quit(event)
+        enemies.player1pos=(scyman.positionx,scyman.positiony)
+        enemies.spawned_loot.draw(screen)
+        scyman.update(P1,delta)
+        for i in scarecrows:
+            i.update(screen,scyman)
+        pygame.display.flip()
+
     def game_over(self):
         screen.fill(DEEP_RED)
         for event in pygame.event.get():
@@ -134,6 +163,8 @@ class GameElements():
             self.game_play()
         elif self.focus=='gameover':
             self.game_over()
+        elif self.focus=='map_loader':
+            self.map_loader()
    
 game = GameElements()
 delta_ref=time.time()
