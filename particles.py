@@ -58,15 +58,15 @@ class ParticleEmitter():
         particles_copy=[i for i in self.particles if i.size > 0]
         self.particles=particles_copy
 
-    def draw_all_particles(self,screen):
+    def draw_all_particles(self,canvas):
         if self.particles:
             for i in self.particles:
-                pygame.draw.circle(screen,i.color,i.pos,int(i.size))
+                pygame.draw.circle(canvas,i.color,i.pos,int(i.size))
 
-    def draw_all_particles_square(self,screen):
+    def draw_all_particles_square(self,canvas):
         if self.particles:
             for i in self.particles:
-                pygame.draw.rect(screen,i.color,(i.pos,(int(i.size),int(i.size))))
+                pygame.draw.rect(canvas,i.color,(i.pos,(int(i.size),int(i.size))))
 
         
     '''motion_styles is used in self.behavior() to select as many of the following 
@@ -259,9 +259,9 @@ class ParticleEmitter():
                 i.dest=pygame.math.Vector2(randint_a,randint_b)
 
 
-    def update(self,screen):
+    def update(self,canvas):
         self.behavior()
         if self.square==True:
-            self.draw_all_particles_square(screen)
+            self.draw_all_particles_square(canvas)
         else:
-            self.draw_all_particles(screen)
+            self.draw_all_particles(canvas)

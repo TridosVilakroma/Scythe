@@ -2,12 +2,12 @@ import pickle,pygame
 from pygame.locals import *
 from os import path
 
-tile_size = 10
+tile_size = 30
 cols = 100
-margin = 10
+#margin = 10
 screen_width = tile_size * cols
-screen_height = int((tile_size * (cols/2)) + margin)
-num_lines = int((tile_size * cols)/2)
+#screen_height = int((tile_size * (cols/2)) + margin)
+#num_lines = int((tile_size * cols)/2)
 canvas_width = 3000
 canvas_height = 1500
 cells = (tile_size * cols)//2
@@ -63,9 +63,7 @@ def load_level(level):
 
 
 def create_canvas(world_data):
-    canvas = pygame.Surface((canvas_width,canvas_height))
-    canvas.fill((0,0,0))
-    canvas.set_colorkey((0,0,0))
+    canvas = pygame.Surface((canvas_width,canvas_height), pygame.SRCALPHA)
     for row in range(cells):
         for col in range(cells):
             if world_data[row][col] > 0:

@@ -37,14 +37,14 @@ for i in range(10):
     i=enemies.Scarecrow()
     scarecrows.add(i)
     #enemies.enemies.append(i)
-# for i in range(5):
-#     i=enemies.Omnivine()
-#     scarecrows.add(i)
+for i in range(5):
+    i=enemies.Omnivine()
+    scarecrows.add(i)
 player.scarecrows=scarecrows
 equip.scarecrows=scarecrows
 enemies.enemies=scarecrows
 #player binding
-scyman=player.PlayerOne(500,250)
+scyman=player.PlayerOne(0,0)#500,250
 
 #text loading
 plug_in_text=text.TextHandler('media\VecnaBold.ttf',LEATHER,'Plug In Controller',50)
@@ -53,11 +53,15 @@ press_start_text =text.TextHandler('media\VecnaBold.ttf',LEATHER,'Press Start',5
 game_over_text =text.TextHandler("media\VecnaBold.ttf",DARK_RED,'Game Over',150)
 
 class GameElements():
-    def __init__(self):
+    def __init__(self,canvas):
         self.focus= 'start'
         self.switch = False
         self.level_loaded=False
         self.current_level=1
+        self.canvas=canvas
+        self.canvas_pos=pygame.math.Vector2(0,0)
+        self.screen_top_left=pygame.math.Vector2(0,0)
+        self.canvas_pos=pygame.math.Vector2(0,0)
 
     def start_screen(self):
         global P1
@@ -127,19 +131,39 @@ class GameElements():
         if not self.level_loaded:
             self.level_data=lev.load_level(self.current_level)
             self.level_loaded=True
-            self.canvas=pygame.transform.scale(lev.create_canvas(self.level_data),(9100,4500))
+            self.canvas_original=lev.create_canvas(self.level_data)
+
         screen.blit(back_ground,(0,0))
-        screen.blit(self.canvas,(0,0))
+        self.canvas=self.canvas_original.copy()
+        player.canvas=self.canvas
+        enemies.canvas=self.canvas
         if scyman.hp <=0:
             self.focus='gameover'
         for event in pygame.event.get():
             comfunc.quit(event)
         enemies.player1pos=(scyman.positionx,scyman.positiony)
-        enemies.spawned_loot.draw(screen)
+        enemies.spawned_loot.draw(canvas)
         scyman.update(P1,delta)
         for i in scarecrows:
-            i.update(screen,scyman)
+            i.update(canvas,scyman)
+        screen.blit(self.canvas,(self.canvas_movement()))
+        scyman.update_gui()  
         pygame.display.flip()
+
+    def canvas_movement(self):
+        canvas_dest=pygame.math.Vector2(self.screen_top_left-scyman.rect.center+pygame.math.Vector2(screen_width/2,screen_height/2))
+        if canvas_dest[0]>32:
+            canvas_dest[0]=32
+        if canvas_dest[1]>32:
+            canvas_dest[1]=32
+        if canvas_dest[0]<-2032:
+            canvas_dest[0]=-2032
+        if canvas_dest[1]<-1032:
+            canvas_dest[1]=-1032
+        canvas_vector_length=pygame.math.Vector2(canvas_dest-self.canvas_pos)
+        if canvas_vector_length !=0:
+            self.canvas_pos+=(canvas_dest-self.canvas_pos)*.15
+        return self.canvas_pos
 
     def game_over(self):
         screen.fill(DEEP_RED)
@@ -166,17 +190,19 @@ class GameElements():
         elif self.focus=='map_loader':
             self.map_loader()
    
-game = GameElements()
+game = GameElements(canvas)
+player.canvas=game.canvas
+enemies.canvas=game.canvas
 delta_ref=time.time()
 while True:
     if pygame.joystick.get_count()==0:
         game.focus='start'
         game.switch=True
     clock.tick(60)
-    if scyman.hitlag:
-        pygame.time.wait(40)
-        delta_ref=delta_ref=time.time()
-        scyman.hitlag=False
+    # if scyman.hitlag:
+    #     pygame.time.wait(40)
+    #     delta_ref=delta_ref=time.time()
+    #     scyman.hitlag=False
     delta=time.time()-delta_ref
     delta_ref=time.time()
     game.focus_switch()

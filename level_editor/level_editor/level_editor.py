@@ -65,8 +65,8 @@ bot_right=pygame.image.load(r'media\tile\edge\botright.png')
 
 #create empty tile list
 world_data = []
-for row in range(screen_height):
-    r = [0] * screen_width
+for row in range(screen_height*2):
+    r = [0] * screen_width*2
     world_data.append(r)
 
 #blank template [y][x]

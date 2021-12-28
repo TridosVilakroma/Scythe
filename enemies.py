@@ -4,6 +4,7 @@ from random import randint
 import common_functions as comfunc
 
 screen=None
+canvas=None
 enemies=[]
 player1pos=None
 attacks=[]
@@ -98,7 +99,7 @@ class Scarecrow(pygame.sprite.Sprite):
             self.aux_state.append('trap')
             self.trap_duration=duration
         if self.trap_start>time.time():
-            screen.blit(self.trap_net,self.rect.topleft)
+            canvas.blit(self.trap_net,self.rect.topleft)
         else:
             comfunc.clean_list(self.aux_state,'trap')
 
@@ -112,7 +113,7 @@ class Scarecrow(pygame.sprite.Sprite):
             [RED,PALE_YELLOW,PALE_YELLOW,PALE_YELLOW,BRIGHT_YELLOW,BRIGHT_YELLOW,BRIGHT_YELLOW,BRIGHT_YELLOW],
             2,'burst_emit20','halo_wave',square=True)
         if self.stun_start>time.time():
-            self.stun_particles.update(screen)
+            self.stun_particles.update(canvas)
         else:
             comfunc.clean_list(self.aux_state,'stun')
 
@@ -139,15 +140,15 @@ class Scarecrow(pygame.sprite.Sprite):
             outline=pygame.Rect(self.rect.left-1,self.rect.top-health_bar_thickness-1,self.rect.width+2,5)
             health=pygame.Rect(self.rect.left,self.rect.top-health_bar_thickness,self.hp*self.hp_ratio,health_bar_thickness)
             missing_health=pygame.Rect(self.rect.left,self.rect.top-health_bar_thickness,self.rect.width,health_bar_thickness)
-            pygame.draw.rect(screen,WHITE,outline,0,1)
-            pygame.draw.rect(screen,RED,missing_health,0,1)
-            pygame.draw.rect(screen,GREEN,health,0,1)
+            pygame.draw.rect(canvas,WHITE,outline,0,1)
+            pygame.draw.rect(canvas,RED,missing_health,0,1)
+            pygame.draw.rect(canvas,GREEN,health,0,1)
         else:
             comfunc.clean_list(self.aux_state,'health')
    
     def timer_wheel(self):
         if int(self.timer_wheel_step)<=len(self.timer_wheel_img)-1:
-            screen.blit(self.timer_wheel_img[self.timer_wheel_step],self.rect.center)
+            canvas.blit(self.timer_wheel_img[self.timer_wheel_step],self.rect.center)
             self.timer_wheel_step+=1
         else:
             self.aux_state.append('dust')
@@ -158,25 +159,25 @@ class Scarecrow(pygame.sprite.Sprite):
    
     def dust(self):
         if self.dust_start>=time.time()-.6:
-            screen.blit(self.small_straw,self.dust_pos)
+            canvas.blit(self.small_straw,self.dust_pos)
             self.aux_state.append('dust_particles')
             self.dust_particles=particles.ParticleEmitter(0,
             (self.dust_pos[0]+16,self.dust_pos[0]+16),(self.dust_pos[1]+32,self.dust_pos[1]+32),
             [PALE_YELLOW,WORN_YELLOW,BRIGHT_YELLOW,BROWN],1,
             'explode_up','move_to_dest','fast_shrink','shrink')
         elif self.dust_start>=time.time()-1.2:
-            screen.blit(self.straw_stalk,self.dust_pos)
+            canvas.blit(self.straw_stalk,self.dust_pos)
             dust_rect=pygame.Rect((self.dust_pos),(32,32))
             attacks.append((.75,dust_rect))
             
         elif self.dust_start>=time.time()-1.3:
-            screen.blit(self.small_straw,self.dust_pos)
+            canvas.blit(self.small_straw,self.dust_pos)
 
         else:
             comfunc.clean_list(self.aux_state,'dust')
             comfunc.clean_list(self.aux_state,'dust_particles')
 
-    def chain_lightning(self,screen,player):
+    def chain_lightning(self,canvas,player):
         if 'chain' not in self.aux_state:
             self.chain_start=time.time()
             self.aux_state.append('chain')
@@ -201,8 +202,8 @@ class Scarecrow(pygame.sprite.Sprite):
             self.health_bar()
             for i in enemies:
                 try:
-                    i.lightning.update(screen)
-                    self.lightning_implosion.update(screen)
+                    i.lightning.update(canvas)
+                    self.lightning_implosion.update(canvas)
                 except AttributeError:
                     pass
         else:
@@ -213,7 +214,7 @@ class Scarecrow(pygame.sprite.Sprite):
             self.loot_dropper()
             self.kill()
   
-    def auxillary(self,screen,player):
+    def auxillary(self,canvas,player):
         if 'health' in self.aux_state:
             self.health_bar()
         if 'stun' in self.aux_state:
@@ -226,20 +227,20 @@ class Scarecrow(pygame.sprite.Sprite):
         if 'bleed' in self.aux_state:
             self.bleed()
         if 'chain' in self.aux_state:
-            self.chain_lightning(screen,player)
+            self.chain_lightning(canvas,player)
         if 'trap' in self.aux_state:
             self.trap(self.trap_duration)
         if 'dust_particles' in self.aux_state:
-            self.dust_particles.update(screen)
+            self.dust_particles.update(canvas)
    
     def blit(self):
-        screen.blit(self.image,(self.x,self.y))
+        canvas.blit(self.image,(self.x,self.y))
 
-    def update(self,screen,player):
+    def update(self,canvas,player):
         self.pos=pygame.math.Vector2((self.rect.center))
         self.blit()
         self.vitality()
-        self.auxillary(screen,player)
+        self.auxillary(canvas,player)
         
 
 class Omnivine(pygame.sprite.Sprite):
@@ -343,7 +344,7 @@ class Omnivine(pygame.sprite.Sprite):
             self.aux_state.append('trap')
             self.trap_duration=duration
         if self.trap_start>time.time():
-            screen.blit(self.trap_net,self.rect.topleft)
+            canvas.blit(self.trap_net,self.rect.topleft)
         else:
             comfunc.clean_list(self.aux_state,'trap')
 
@@ -357,7 +358,7 @@ class Omnivine(pygame.sprite.Sprite):
             [RED,PALE_YELLOW,PALE_YELLOW,PALE_YELLOW,BRIGHT_YELLOW,BRIGHT_YELLOW,BRIGHT_YELLOW,BRIGHT_YELLOW],
             2,'burst_emit20','halo_wave',square=True)
         if self.stun_start>time.time():
-            self.stun_particles.update(screen)
+            self.stun_particles.update(canvas)
         else:
             comfunc.clean_list(self.aux_state,'stun')
 
@@ -372,7 +373,7 @@ class Omnivine(pygame.sprite.Sprite):
         else:
             comfunc.clean_list(self.aux_state,'bleed')
 
-    def chain_lightning(self,screen,player):
+    def chain_lightning(self,canvas,player):
         if 'chain' not in self.aux_state:
             self.chain_start=time.time()
             self.aux_state.append('chain')
@@ -397,8 +398,8 @@ class Omnivine(pygame.sprite.Sprite):
             self.health_bar()
             for i in enemies:
                 try:
-                    i.lightning.update(screen)
-                    self.lightning_implosion.update(screen)
+                    i.lightning.update(canvas)
+                    self.lightning_implosion.update(canvas)
                 except AttributeError:
                     pass
         else:
@@ -416,15 +417,15 @@ class Omnivine(pygame.sprite.Sprite):
             outline=pygame.Rect(self.rect.left-1,self.rect.top-health_bar_thickness-1,self.rect.width+2,5)
             health=pygame.Rect(self.rect.left,self.rect.top-health_bar_thickness,self.hp*self.hp_ratio,health_bar_thickness)
             missing_health=pygame.Rect(self.rect.left,self.rect.top-health_bar_thickness,self.rect.width,health_bar_thickness)
-            pygame.draw.rect(screen,WHITE,outline,0,1)
-            pygame.draw.rect(screen,RED,missing_health,0,1)
-            pygame.draw.rect(screen,GREEN,health,0,1)
+            pygame.draw.rect(canvas,WHITE,outline,0,1)
+            pygame.draw.rect(canvas,RED,missing_health,0,1)
+            pygame.draw.rect(canvas,GREEN,health,0,1)
         else:
             comfunc.clean_list(self.aux_state,'health')
    
     def timer_wheel(self):
         if int(self.timer_wheel_step)<=len(self.timer_wheel_img)-1:
-            screen.blit(self.timer_wheel_img[self.timer_wheel_step],self.rect.center)
+            canvas.blit(self.timer_wheel_img[self.timer_wheel_step],self.rect.center)
             self.timer_wheel_step+=1
         else:
             self.aux_state.append('shoot')
@@ -471,7 +472,7 @@ class Omnivine(pygame.sprite.Sprite):
         if 'switch' in self.aux_state:
             self.bullet_pos[0]+=self.bullet_vector[0]
             self.bullet_pos[1]+=self.bullet_vector[1]
-            screen.blit(self.bullet,self.bullet_pos)
+            canvas.blit(self.bullet,self.bullet_pos)
 
     def traverse(self):
         prox=(abs(player1pos[0]-self.rect.center[0]),abs(player1pos[1]-self.rect.center[1]))
@@ -510,7 +511,7 @@ class Omnivine(pygame.sprite.Sprite):
             self.loot_dropper()
             self.kill()
   
-    def auxillary(self,screen,player):
+    def auxillary(self,canvas,player):
         if 'health' in self.aux_state:
             self.health_bar()
         if 'stun' in self.aux_state:
@@ -536,14 +537,14 @@ class Omnivine(pygame.sprite.Sprite):
             self.trap(self.trap_duration)
         
         if 'chain' in self.aux_state:
-            self.chain_lightning(screen,player)
+            self.chain_lightning(canvas,player)
    
     def blit(self):
-        screen.blit(self.image,(self.x,self.y))
+        canvas.blit(self.image,(self.x,self.y))
 
-    def update(self,screen,player):
+    def update(self,canvas,player):
         self.pos=pygame.Vector2((self.rect.center))
         self.blit()
         self.vitality()
-        self.auxillary(screen,player)
+        self.auxillary(canvas,player)
         
