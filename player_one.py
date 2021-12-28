@@ -341,63 +341,6 @@ class PlayerOne(pygame.sprite.Sprite):
                 self.positiony+=(self.speed*delta)*P1.get_axis(1)
             self.rect.center=(self.positionx+self.image.get_width()/2,
             self.positiony+self.image.get_height()/2)
-        # if motionx>.5:
-        #     if motiony>.5:#moving right down
-               # if self.positionx<968:
-                   # if self.positiony<468:
-                      #  if not self.right_blocked:
-                       #     self.positionx+=(self.speed*delta)*.75
-                       # if not self.bottom_blocked:
-                       #     self.positiony+=(self.speed*delta)*.75
-                       # self.animate_switch()
-           # elif motiony<-.5:#moving right up
-                # if self.positionx<968:
-                #     if self.positiony>0:
-                #         if not self.right_blocked:
-                #             self.positionx+=(self.speed*delta)*.75
-                #         if not self.top_blocked:
-                #             self.positiony-=(self.speed*delta)*.75
-                      #  self.animate_switch()            
-           # elif self.positionx<968:#moving right
-               # if not self.right_blocked:
-                   # self.positionx+=self.speed*delta
-               # self.animate_switch()
-        #     self.direction='right'
-        # elif motionx<-.5:
-        #     if motiony>.5:#moving left down
-        #         if self.positionx>0:
-        #             if self.positiony<468:
-        #                 if not self.left_blocked:
-        #                     self.positionx-=(self.speed*delta)*.75
-        #                 if not self.bottom_blocked:
-        #                     self.positiony+=(self.speed*delta)*.75
-        #                 self.animate_switch()
-        #     elif motiony<-.5:#moving left up
-        #         if self.positionx>0:
-        #             if self.positiony>0:
-        #                 if not self.left_blocked:
-        #                     self.positionx-=(self.speed*delta)*.75
-        #                 if not self.top_blocked:
-        #                     self.positiony-=(self.speed*delta)*.75
-        #                 self.animate_switch()
-        #     elif self.positionx>0:#moving left
-        #         if not self.left_blocked:
-        #             self.positionx-=self.speed*delta
-        #         self.animate_switch()
-        #     self.direction='left'
-        # elif motiony>.5:#moving down
-        #     if self.positiony<468:
-        #         if not self.bottom_blocked:
-        #             self.positiony+=self.speed*delta
-        #         self.animate_switch()
-        #     self.direction='down'
-        # elif motiony<-.5:#moving up
-        #     if self.positiony>0:
-        #         if not self.top_blocked:
-        #             self.positiony-=self.speed*delta
-        #         self.animate_switch()           
-        #     self.direction='up'
-        # self.traverse_animate()
         self.right_blocked,self.left_blocked,self.bottom_blocked,self.top_blocked=False,False,False,False
   
     def blink_step(self,P1):
@@ -887,4 +830,3 @@ class PlayerOne(pygame.sprite.Sprite):
             self.focus_switch(P1,delta)
         self.action(P1)
         self.auxillary(P1,delta)
-        
