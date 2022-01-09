@@ -19,11 +19,13 @@ class PlayerOne(pygame.sprite.Sprite):
         self.list_init()
         self.hp=100
         self.hp_ratio=960/self.hp
+        self.mini_hp_ratio=32/self.hp
         self.hp_regen=0
         self.hp_drain_length=100
         self.drain_ratio=960/self.hp_drain_length
         self.recieved_damage=False
         self.invulnerable=False
+        self.hpbar_ref_timer=time.time()
         self.mp=100
         self.mp_ratio=960/self.mp
         self.defense=0
@@ -296,6 +298,21 @@ class PlayerOne(pygame.sprite.Sprite):
         pygame.draw.rect(screen,RED,drain,0,1)
         pygame.draw.rect(screen,GREEN,health,0,1)
 
+    def mini_health_bar(self):
+        time_stamp=time.time()
+        if time_stamp<self.hpbar_ref_timer:
+            health_bar_thickness=3
+            outline=pygame.Rect(self.rect.left-1,self.rect.top-health_bar_thickness-1,self.rect.width+2,5)
+            health=pygame.Rect(self.rect.left,self.rect.top-health_bar_thickness,self.hp*self.mini_hp_ratio,health_bar_thickness)
+            missing_health=pygame.Rect(self.rect.left,self.rect.top-health_bar_thickness,self.rect.width,health_bar_thickness)
+            pygame.draw.rect(canvas,WHITE,outline,0,1)
+            pygame.draw.rect(canvas,RED,missing_health,0,1)
+            pygame.draw.rect(canvas,GREEN,health,0,1)
+            print('here')
+        else:
+            print('there')
+            comfunc.clean_list(self.aux_state,'health')
+
     def mana_bar(self):
         mana_regen=.1
         if self.mp>100:
@@ -312,6 +329,8 @@ class PlayerOne(pygame.sprite.Sprite):
     def damage(self):
         for i in attacks:
             if i[1].colliderect(self.rect):
+                self.aux_state.append('health')
+                self.hpbar_ref_timer=time.time()+3
                 if self.incoming_damage_tracked:
                     self.incoming_damage.append(i[0])
                 self.hp_before_damage=self.hp
@@ -809,6 +828,8 @@ class PlayerOne(pygame.sprite.Sprite):
             self.scythe_slash(P1)
   
     def auxillary(self,P1,delta):
+        if 'health' in self.aux_state:
+            self.mini_health_bar()
         if 'blink' in self.aux_state:
             self.blink_ghost()
         if 'scythe' in self.aux_state:

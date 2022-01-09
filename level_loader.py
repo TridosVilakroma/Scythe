@@ -75,14 +75,12 @@ collidable_structures=pygame.sprite.Group()
 
 def build(img,row,col):
     structure=Structure(img,col * tile_size,row * tile_size)
-    #structure.rect.x,structure.rect.y=col * tile_size, row * tile_size
     collidable_structures.add(structure)
 
 enemy_container=pygame.sprite.Group()
 
 def spawn(enemy_type,row,col):
         enemy=eval(f'enemies.{enemy_type}({col * tile_size},{row * tile_size})')
-        #enemy.x,enemy.y=col * tile_size, row * tile_size
         enemy_container.add(enemy)
 
 
