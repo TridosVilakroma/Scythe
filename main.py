@@ -30,17 +30,19 @@ grass_clump=pygame.image.load('media\deco\grass_clump.png')
 relic=equip.equip_matrix[1][randint(1,3)].image
 randx=randint(0,1000)
 randy=randint(0,500)
+#structure group
+structures=pygame.sprite.Group()
 #enemy loading
 scarecrows=pygame.sprite.Group()
-
-for i in range(10):
-    i=enemies.Scarecrow()
-    scarecrows.add(i)
-    #enemies.enemies.append(i)
-for i in range(5):
-    i=enemies.Omnivine()
-    scarecrows.add(i)
+# for i in range(10):
+#     i=enemies.Scarecrow()
+#     scarecrows.add(i)
+#     #enemies.enemies.append(i)
+# for i in range(5):
+#     i=enemies.Omnivine()
+#     scarecrows.add(i)
 player.scarecrows=scarecrows
+player.structures=structures
 equip.scarecrows=scarecrows
 enemies.enemies=scarecrows
 #player binding
@@ -63,6 +65,9 @@ class GameElements():
         self.screen_top_left=pygame.math.Vector2(0,0)
         self.canvas_pos=pygame.math.Vector2(0,0)
 
+    def enemy_loader(sself):
+        pass
+
     def start_screen(self):
         global P1
         P1=con.joy_init()
@@ -81,7 +86,7 @@ class GameElements():
             elif event.type == JOYBUTTONDOWN:
                 if P1:
                     self.switch = False
-                    self.focus='play'
+                    self.focus='map_loader'
                 else:
                     self.switch = True
         screen.fill((0, 95, 65))
@@ -129,9 +134,13 @@ class GameElements():
 
     def map_loader(self):
         if not self.level_loaded:
-            self.level_data=lev.load_level(self.current_level)
+            structures.empty()
+            scarecrows.empty()
+            self.level_data,self.game_data=lev.load_level(self.current_level)
             self.level_loaded=True
-            self.canvas_original=lev.create_canvas(self.level_data)
+            self.canvas_original,enemy_container,collidable_structures=lev.create_canvas(self.level_data,self.game_data)
+            structures.add(collidable_structures)
+            scarecrows.add(enemy_container)
 
         screen.blit(back_ground,(0,0))
         self.canvas=self.canvas_original.copy()
@@ -146,6 +155,7 @@ class GameElements():
         scyman.update(P1,delta)
         for i in scarecrows:
             i.update(self.canvas,scyman)
+        structures.draw(self.canvas)
         screen.blit(self.canvas,(self.canvas_movement()))
         scyman.update_gui()  
         pygame.display.flip()

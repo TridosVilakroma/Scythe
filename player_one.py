@@ -6,9 +6,11 @@ import common_functions as comfunc
 import enemies,equip
 from color_palette import *
 import controller as con
+import level_loader as lev
 screen=None#variable overwritten in main to allow blit access from this module
 canvas=None#variable overwritten in main to allow blit access from this module
 scarecrows=None#variable overwritten in main to add enemy access here
+structures=None#variable overwritten in main to add enemy access here
 attacks=[]
 enemies.attacks=attacks
 class PlayerOne(pygame.sprite.Sprite):
@@ -175,18 +177,25 @@ class PlayerOne(pygame.sprite.Sprite):
        #collision between player and enemies
         for i in scarecrows:
             if self.rect.colliderect(i):
-                if abs(i.rect.left-self.rect.right)<collision_tolerence:
-                    self.right_blocked=True
-                if abs(i.rect.right-self.rect.left)<collision_tolerence:
-                    self.left_blocked=True
-                if abs(i.rect.top-self.rect.bottom)<collision_tolerence:
-                    self.bottom_blocked=True
-                if abs(i.rect.bottom-self.rect.top)<collision_tolerence:
-                    self.top_blocked=True
+                if pygame.sprite.collide_mask(self,i):
+                    self.positionx,self.positiony=self.last_pos
+                    # if abs(i.rect.left-self.rect.right)<collision_tolerence:
+                    #     self.right_blocked=True
+                    # if abs(i.rect.right-self.rect.left)<collision_tolerence:
+                    #     self.left_blocked=True
+                    # if abs(i.rect.top-self.rect.bottom)<collision_tolerence:
+                    #     self.bottom_blocked=True
+                    # if abs(i.rect.bottom-self.rect.top)<collision_tolerence:
+                    #     self.top_blocked=True
         #collision between player and equipment
         self.interactables.clear()
         for i in pygame.sprite.spritecollide(self,enemies.spawned_loot,False):
             self.interactables.append(i)
+        #collision between player and structures
+        for i in structures:
+            if self.rect.colliderect(i):
+                if pygame.sprite.collide_mask(self,i):
+                    self.positionx,self.positiony=self.last_pos
   
     def animate_switch(self):
         self.animating=True   
@@ -826,6 +835,7 @@ class PlayerOne(pygame.sprite.Sprite):
         self.mana_bar()    
          
     def update(self,P1,delta):
+        self.last_pos=self.positionx,self.positiony
         if 'blockade' not in self.aux_state:
             self.focus_switch(P1,delta)
         self.action(P1)

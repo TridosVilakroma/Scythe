@@ -23,6 +23,10 @@ pygame.display.set_caption('Level Editor')
 
 #load images
 
+#enemies
+scarecrow = pygame.image.load(r'media\deco\scarecrow.png')
+omnivine = pygame.image.load(r'media\enemies\ominvine.png')
+
 #tiles
 dirt_img1 = pygame.image.load(r'media\tile\tiles\dirt1.png')
 dirt_img2 = pygame.image.load(r'media\tile\tiles\dirt2.png')
@@ -53,6 +57,9 @@ topend = pygame.image.load(r'media\tile\tiles\topendroad.png')
 rightend = pygame.image.load(r'media\tile\tiles\rightendroad.png')
 leftend = pygame.image.load(r'media\tile\tiles\leftendroad.png')
 
+#structure
+block = pygame.image.load(r'level_editor\level_editor\mappack\PNG\mapTile_114.png')
+
 #edges
 top_left=pygame.image.load(r'media\tile\edge\topleft.png')
 top=pygame.image.load(r'media\tile\edge\top.png')
@@ -65,9 +72,14 @@ bot_right=pygame.image.load(r'media\tile\edge\botright.png')
 
 #create empty tile list
 world_data = []
-for row in range(screen_height*2):
-    r = [0] * screen_width*2
+for row in range(screen_height*3):
+    r = [0] * screen_width*3
     world_data.append(r)
+
+game_data = []
+for row in range(screen_height*3):
+    r = [0] * screen_width*3
+    game_data.append(r)
 
 #blank template [y][x]
 def blank_template():
@@ -105,12 +117,13 @@ class world_edit():
         self.tileset_last=6
         self.level=1
         self.clicked=False
+        self.data_set=world_data
 
     def draw_world(self):
         for row in range(cells):
             for col in range(cells):
                 if world_data[row][col] > 0:
-                    #tiles
+                #####tiles
                     if world_data[row][col] == 1:
                         #dirt blocks
                         img = pygame.transform.scale(dirt_img1, (tile_size, tile_size))
@@ -135,7 +148,7 @@ class world_edit():
                         #stone blocks
                         img = pygame.transform.scale(stone_img1, (tile_size, tile_size))
                         screen.blit(img, (col * tile_size, row * tile_size))
-                    #roads
+                #####roads
                     if world_data[row][col] == 7:
                         #horizontal road
                         img = pygame.transform.scale(horzroad, (tile_size, tile_size))
@@ -188,9 +201,15 @@ class world_edit():
                         #left dead end road
                         img = pygame.transform.scale(leftend, (tile_size, tile_size))
                         screen.blit(img, (col * tile_size, row * tile_size))
+                    #structure
+                    if game_data[row][col] == 300:
+                        # img = pygame.transform.scale(grass_img1, (tile_size, tile_size))
+                        # screen.blit(img, (col * tile_size, row * tile_size))
+                        img = pygame.transform.scale(block, (tile_size, tile_size))
+                        screen.blit(img, (col * tile_size, row * tile_size))
+                        #game_data[row][col]=300
 
-
-                    #edges
+                #####edges
                     if world_data[row][col] == 100:
                         #top left edge
                         img = pygame.transform.scale(top_left, (tile_size, tile_size))
@@ -224,6 +243,16 @@ class world_edit():
                         img = pygame.transform.scale(bot_right, (tile_size, tile_size))
                         screen.blit(img, (col * tile_size, row * tile_size))
 
+                #####enemies
+                    if game_data[row][col] == 200:
+                        #scarecrow 
+                        img = pygame.transform.scale(scarecrow, (tile_size, tile_size))
+                        screen.blit(img, (col * tile_size, row * tile_size))
+                    if game_data[row][col] == 201:
+                        #omnivine
+                        img = pygame.transform.scale(omnivine, (tile_size, tile_size))
+                        screen.blit(img, (col * tile_size, row * tile_size))
+
     def event_handler(self):
         for event in pygame.event.get():
             #quit game
@@ -240,19 +269,19 @@ class world_edit():
                 if x < screen_width and y < screen_height:
                     #update tile value
                     if pygame.mouse.get_pressed()[0] == 1:
-                        if world_data[y][x] > self.tileset_last or world_data[y][x] < self.tileset_first:
-                            world_data[y][x] = self.tileset_first
+                        if self.data_set[y][x] > self.tileset_last or self.data_set[y][x] < self.tileset_first:
+                            self.data_set[y][x] = self.tileset_first
                         else:
-                            world_data[y][x] += 1
-                        if world_data[y][x] > self.tileset_last:
-                            world_data[y][x] = self.tileset_first
+                            self.data_set[y][x] += 1
+                        if self.data_set[y][x] > self.tileset_last:
+                            self.data_set[y][x] = self.tileset_first
                     elif pygame.mouse.get_pressed()[2] == 1:
-                        if world_data[y][x] > self.tileset_last or world_data[y][x] < self.tileset_first:
-                            world_data[y][x] = self.tileset_first
+                        if self.data_set[y][x] > self.tileset_last or self.data_set[y][x] < self.tileset_first:
+                            self.data_set[y][x] = self.tileset_first
                         else:
-                            world_data[y][x] -= 1
-                        if world_data[y][x] < self.tileset_first:
-                            world_data[y][x] = self.tileset_last
+                            self.data_set[y][x] -= 1
+                        if self.data_set[y][x] < self.tileset_first:
+                            self.data_set[y][x] = self.tileset_last
             if event.type == pygame.MOUSEBUTTONUP:
                 self.clicked = False
             #up and down key presses to change level number
@@ -272,25 +301,40 @@ class world_edit():
             #change tile set
                 if event.key == pygame.K_1:
                     #standard tiles
+                    self.data_set=world_data
                     self.tileset_first=1
                     self.tileset_last=6
                     print('Standard tiles selected')
                 if event.key == pygame.K_2:
                     #road tiles
+                    self.data_set=world_data
                     self.tileset_first=7
                     self.tileset_last=19
                     print('Road tiles selected')
+                if event.key == pygame.K_3:
+                    #structures
+                    self.data_set=game_data
+                    self.tileset_first=300
+                    self.tileset_last=301
+                    print('Structures selected')
+                if event.key == pygame.K_9:
+                    #enemy placement
+                    self.data_set=game_data
+                    self.tileset_first=200
+                    self.tileset_last=202
+                    print('Enemies selected')
 
     def save_level(self):
         pickle_out = open(f'levels\level{self.level}_data', 'wb')
-        pickle.dump(world_data, pickle_out)
+        pickle.dump((world_data,game_data), pickle_out)
         pickle_out.close()
 
     def load_level(self):
-        global world_data
+        global world_data,game_data
         if path.exists(f'levels\level{self.level}_data'):
             pickle_in = open(f'levels\level{self.level}_data', 'rb')
-            world_data = pickle.load(pickle_in)
+            coupled_data = pickle.load(pickle_in)
+            world_data,game_data = coupled_data[0],coupled_data[1]
             pickle_in.close()
     #console output for current level
     def console_output(self):

@@ -1,13 +1,10 @@
-import pickle,pygame
+import pickle,pygame,enemies
 from pygame.locals import *
 from os import path
 
 tile_size = 30
 cols = 100
-#margin = 10
 screen_width = tile_size * cols
-#screen_height = int((tile_size * (cols/2)) + margin)
-#num_lines = int((tile_size * cols)/2)
 canvas_width = 3000
 canvas_height = 1500
 cells = (tile_size * cols)//2
@@ -44,6 +41,9 @@ topend = pygame.image.load(r'media\tile\tiles\topendroad.png')
 rightend = pygame.image.load(r'media\tile\tiles\rightendroad.png')
 leftend = pygame.image.load(r'media\tile\tiles\leftendroad.png')
 
+#structure
+block = pygame.image.load(r'level_editor\level_editor\mappack\PNG\mapTile_114.png')
+
 #edges
 top_left=pygame.image.load(r'media\tile\edge\topleft.png')
 top=pygame.image.load(r'media\tile\edge\top.png')
@@ -57,16 +57,42 @@ bot_right=pygame.image.load(r'media\tile\edge\botright.png')
 def load_level(level):
     if path.exists(f'levels\level{level}_data'):
         pickle_in = open(f'levels\level{level}_data', 'rb')
-        world_data = pickle.load(pickle_in)
+        coupled_data = pickle.load(pickle_in)
+        world_data,game_data = coupled_data[0],coupled_data[1]
         pickle_in.close()
-        return world_data
+        return world_data,game_data
+
+class Structure(pygame.sprite.Sprite):
+    def __init__(self,tile,x,y):
+        super().__init__()
+        self.image=tile
+        self.mask=pygame.mask.from_surface(tile)
+        self.rect=tile.get_rect()
+        self.rect.x=x
+        self.rect.y=y
+
+collidable_structures=pygame.sprite.Group()
+
+def build(img,row,col):
+    structure=Structure(img,col * tile_size,row * tile_size)
+    #structure.rect.x,structure.rect.y=col * tile_size, row * tile_size
+    collidable_structures.add(structure)
+
+enemy_container=pygame.sprite.Group()
+
+def spawn(enemy_type,row,col):
+        enemy=eval(f'enemies.{enemy_type}({col * tile_size},{row * tile_size})')
+        #enemy.x,enemy.y=col * tile_size, row * tile_size
+        enemy_container.add(enemy)
 
 
-def create_canvas(world_data):
+
+def create_canvas(world_data,game_data):
     canvas = pygame.Surface((canvas_width,canvas_height), pygame.SRCALPHA)
     for row in range(cells):
         for col in range(cells):
             if world_data[row][col] > 0:
+        ########world_data
                 #tiles
                 if world_data[row][col] == 1:
                     #dirt blocks
@@ -145,9 +171,21 @@ def create_canvas(world_data):
                     #left dead end road
                     img = pygame.transform.scale(leftend, (tile_size, tile_size))
                     canvas.blit(img, (col * tile_size, row * tile_size))
+        ########game_data 
+        ########enemies
+                if game_data[row][col] == 200:
+                    #scarecrow 
+                    spawn('Scarecrow',row,col)
+                if game_data[row][col] == 201:
+                    #omnivine
+                    spawn('Omnivine',row,col)
+        ########structure
+                if game_data[row][col] == 300:
+                    img = pygame.transform.scale(block, (tile_size, tile_size))
+                    # canvas.blit(img, (col * tile_size, row * tile_size))
+                    build(img,row,col)
 
-
-                #edges
+        ########edges
                 if world_data[row][col] == 100:
                     #top left edge
                     img = pygame.transform.scale(top_left, (tile_size, tile_size))
@@ -180,4 +218,4 @@ def create_canvas(world_data):
                     #bottom right edge
                     img = pygame.transform.scale(bot_right, (tile_size, tile_size))
                     canvas.blit(img, (col * tile_size, row * tile_size))
-    return canvas
+    return canvas,enemy_container,collidable_structures

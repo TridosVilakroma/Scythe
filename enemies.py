@@ -11,11 +11,13 @@ attacks=[]
 spawned_loot=pygame.sprite.Group()
 
 class Scarecrow(pygame.sprite.Sprite):
-    def __init__(self):
+    def __init__(self,x,y):
         super().__init__()
         self.image = pygame.image.load('media\deco\scarecrow.png').convert_alpha()
-        self.x=randint(0,968)
-        self.y=randint(0,468)
+        # self.x=randint(0,968)
+        # self.y=randint(0,468)
+        self.x=x
+        self.y=y
         self.rect=pygame.Rect(self.x,self.y,self.image.get_width(),self.image.get_height())
         self.pos=pygame.math.Vector2((self.rect.center))
         self.hp = (randint(10,25)+75)
@@ -244,12 +246,14 @@ class Scarecrow(pygame.sprite.Sprite):
         
 
 class Omnivine(pygame.sprite.Sprite):
-    def __init__(self):
+    def __init__(self,x,y):
         super().__init__()
         self.image = pygame.image.load('media\enemies\omnivine_walk\sprite_0.png').convert_alpha()
         self.mask=pygame.mask.from_surface(self.image)
-        self.x=randint(0,968)
-        self.y=randint(0,468)
+        # self.x=randint(0,968)
+        # self.y=randint(0,468)
+        self.x=x
+        self.y=y
         self.rect=pygame.Rect(self.x,self.y,self.image.get_width(),self.image.get_height())
         self.pos=pygame.math.Vector2((self.rect.center))
         self.hp = randint(10,25)+50
