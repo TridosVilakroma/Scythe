@@ -24,7 +24,6 @@ corner_flair=pygame.image.load("media\Corner_flair.png")
 botright_corner_bush=pygame.transform.rotate(corner_flair,90)
 back_ground=pygame.image.load(r"levels\bg.jpg")
 back_ground=pygame.transform.scale(back_ground,(screen_width,screen_height))
-#scyman=pygame.image.load('media\scyman.png')
 windy_cloud=Spritesheet('media\windy_cloud\wc.png',[0,30],True)
 grass_clump=pygame.image.load('media\deco\grass_clump.png')
 relic=equip.equip_matrix[1][randint(1,3)].image
@@ -45,8 +44,7 @@ player.scarecrows=scarecrows
 player.structures=structures
 equip.scarecrows=scarecrows
 enemies.enemies=scarecrows
-#player binding
-scyman=player.PlayerOne(0,0)#500,250
+
 
 #text loading
 plug_in_text=text.TextHandler('media\VecnaBold.ttf',LEATHER,'Plug In Controller',50)
@@ -58,6 +56,7 @@ class GameElements():
     def __init__(self,canvas):
         self.focus= 'start'
         self.switch = False
+        self.loading=True
         self.level_loaded=False
         self.current_level=1
         self.canvas=canvas
@@ -65,13 +64,13 @@ class GameElements():
         self.screen_top_left=pygame.math.Vector2(0,0)
         self.canvas_pos=pygame.math.Vector2(0,0)
 
-    def enemy_loader(sself):
-        pass
-
     def start_screen(self):
-        global P1
+        global P1,scyman
         P1=con.joy_init()
-        
+        if self.loading:
+            self.loading=False
+            #player binding
+            scyman=player.PlayerOne(0,0)#500,250
         for event in pygame.event.get():
             comfunc.quit(event)
             if event.type == pygame.KEYDOWN:
@@ -80,7 +79,7 @@ class GameElements():
             elif event.type == MOUSEBUTTONDOWN:
                 if P1:
                     self.switch = False
-                    self.focus='play'
+                    self.focus='map_loader'
                 else:
                     self.switch = True
             elif event.type == JOYBUTTONDOWN:
@@ -134,8 +133,10 @@ class GameElements():
 
     def map_loader(self):
         if not self.level_loaded:
+            print(scarecrows)
             structures.empty()
             scarecrows.empty()
+            print(scarecrows)
             self.level_data,self.game_data=lev.load_level(self.current_level)
             self.level_loaded=True
             self.canvas_original,enemy_container,collidable_structures=lev.create_canvas(self.level_data,self.game_data)
@@ -180,14 +181,17 @@ class GameElements():
         for event in pygame.event.get():
             comfunc.quit(event)
             if event.type==JOYBUTTONDOWN:
-                self.focus='start'
-                scyman.hp=100
+                self.reset()
             if event.type==MOUSEBUTTONDOWN:
-                self.focus='start'
-                scyman.hp=100
+                self.reset()
         screen.blit(game_over_text.text_obj,((screen_width/2 -game_over_text.text_obj.get_width()/2,screen_height/4 -game_over_text.text_obj.get_height()/2)))
         pygame.display.flip()
-            
+
+    def reset(self):
+        self.loading=True
+        self.level_loaded=False
+        self.focus='start'
+
     def focus_switch(self):
         if self.focus == 'start':
             self.start_screen()

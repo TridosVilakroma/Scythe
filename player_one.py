@@ -308,9 +308,7 @@ class PlayerOne(pygame.sprite.Sprite):
             pygame.draw.rect(canvas,WHITE,outline,0,1)
             pygame.draw.rect(canvas,RED,missing_health,0,1)
             pygame.draw.rect(canvas,GREEN,health,0,1)
-            print('here')
         else:
-            print('there')
             comfunc.clean_list(self.aux_state,'health')
 
     def mana_bar(self):

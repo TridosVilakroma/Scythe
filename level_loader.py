@@ -54,7 +54,12 @@ bot_left=pygame.image.load(r'media\tile\edge\botleft.png')
 bot=pygame.image.load(r'media\tile\edge\bot.png')
 bot_right=pygame.image.load(r'media\tile\edge\botright.png')
 
+collidable_structures=pygame.sprite.Group()
+enemy_container=pygame.sprite.Group()
+
 def load_level(level):
+    collidable_structures.empty()
+    enemy_container.empty()
     if path.exists(f'levels\level{level}_data'):
         pickle_in = open(f'levels\level{level}_data', 'rb')
         coupled_data = pickle.load(pickle_in)
@@ -71,13 +76,11 @@ class Structure(pygame.sprite.Sprite):
         self.rect.x=x
         self.rect.y=y
 
-collidable_structures=pygame.sprite.Group()
 
 def build(img,row,col):
     structure=Structure(img,col * tile_size,row * tile_size)
     collidable_structures.add(structure)
 
-enemy_container=pygame.sprite.Group()
 
 def spawn(enemy_type,row,col):
         enemy=eval(f'enemies.{enemy_type}({col * tile_size},{row * tile_size})')

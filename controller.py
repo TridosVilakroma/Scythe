@@ -9,7 +9,11 @@ def joy_init():
         if joysticks >1:
             P2 = pygame.joystick.Joystick(1)
     try:
-        return P1
+        if joysticks >1:
+            return P1,P2
+        else:
+            return P1
+
     except UnboundLocalError:
         return None
 
