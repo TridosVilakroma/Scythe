@@ -133,10 +133,8 @@ class GameElements():
 
     def map_loader(self):
         if not self.level_loaded:
-            print(scarecrows)
             structures.empty()
             scarecrows.empty()
-            print(scarecrows)
             self.level_data,self.game_data=lev.load_level(self.current_level)
             self.level_loaded=True
             self.canvas_original,enemy_container,collidable_structures=lev.create_canvas(self.level_data,self.game_data)
@@ -147,8 +145,6 @@ class GameElements():
         self.canvas=self.canvas_original.copy()
         player.canvas=self.canvas
         enemies.canvas=self.canvas
-        if scyman.hp <=0:
-            self.focus='gameover'
         for event in pygame.event.get():
             comfunc.quit(event)
         enemies.player1pos=(scyman.positionx,scyman.positiony)
@@ -158,6 +154,15 @@ class GameElements():
             i.update(self.canvas,scyman)
         structures.draw(self.canvas)
         screen.blit(self.canvas,(self.canvas_movement()))
+        if scyman.hp <=0:
+            self.blur=screen.copy().convert_alpha()
+            self.blur=comfunc.surf_blur(self.blur,5)
+            # for i in range(5):
+            #     self.blur=pygame.transform.smoothscale(self.blur,(2000,1500))
+            #     self.blur=pygame.transform.smoothscale(self.blur,(1000,500))
+            self.alpha=150
+            self.blur.set_alpha(self.alpha)
+            self.focus='gameover'
         scyman.update_gui()  
         pygame.display.flip()
 
@@ -178,6 +183,10 @@ class GameElements():
 
     def game_over(self):
         screen.fill(DEEP_RED)
+        screen.blit(self.blur,(0,0))
+        self.blur.set_alpha(self.alpha)
+        self.alpha-=.30
+        
         for event in pygame.event.get():
             comfunc.quit(event)
             if event.type==JOYBUTTONDOWN:

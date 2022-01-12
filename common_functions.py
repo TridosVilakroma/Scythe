@@ -101,3 +101,18 @@ def cosine_pulse(speed,amplitude,lower_limit):
     pulse=abs(math.cos(t)*amplitude)
     pulse+=lower_limit
     return pulse
+
+def surf_blur(surface,strength):
+    '''blur effect is made by first strectching the surface
+     then returning it to its initial size.
+     the effect can be increased by repeating the process.
+     strength expects an int to determine the number of cycles
+     to run before returning the surface.
+     '''
+    rect=surface.get_rect()
+    temp=surface
+    x,y=rect[2],rect[3]
+    for i in range(strength):
+                temp=pygame.transform.smoothscale(temp,(x*2,y*2))
+                temp=pygame.transform.smoothscale(temp,(x,y))
+    return temp
