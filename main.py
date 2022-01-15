@@ -1,6 +1,6 @@
-import pygame, time, random, sys,text,enemies,equip
+import pygame, time, random, sys,text,enemies,equip,gui
 from sprite_animation import Spritesheet
-from pygame.constants import JOYAXISMOTION, JOYBUTTONDOWN, JOYHATMOTION, MOUSEBUTTONDOWN
+from pygame.constants import JOYAXISMOTION, JOYBUTTONDOWN, JOYHATMOTION, MOUSEBUTTONDOWN,MOUSEBUTTONUP
 import common_functions as comfunc
 import player_one as player
 import level_loader as lev
@@ -29,17 +29,22 @@ grass_clump=pygame.image.load('media\deco\grass_clump.png')
 relic=equip.equip_matrix[1][randint(1,3)].image
 randx=randint(0,1000)
 randy=randint(0,500)
+#button loading
+start_button=gui.Button(pygame.image.load(r'media\gui\main_menu\buttonLong_beige.png'),
+    pygame.image.load(r'media\gui\main_menu\buttonLong_beige_pressed.png'),(720,100),'map_loader')
+multiplayer_button=gui.Button(pygame.image.load(r'media\gui\main_menu\buttonLong_beige.png'),
+    pygame.image.load(r'media\gui\main_menu\buttonLong_beige_pressed.png'),(720,180))
+settings_button=gui.Button(pygame.image.load(r'media\gui\main_menu\buttonLong_beige.png'),
+    pygame.image.load(r'media\gui\main_menu\buttonLong_beige_pressed.png'),(720,260))
+credits_button=gui.Button(pygame.image.load(r'media\gui\main_menu\buttonLong_beige.png'),
+    pygame.image.load(r'media\gui\main_menu\buttonLong_beige_pressed.png'),(720,340))
+
 #structure group
 structures=pygame.sprite.Group()
 #enemy loading
+start_vine=enemies.Omnivine(randint(50,950),randint(50,450))
+
 scarecrows=pygame.sprite.Group()
-# for i in range(10):
-#     i=enemies.Scarecrow()
-#     scarecrows.add(i)
-#     #enemies.enemies.append(i)
-# for i in range(5):
-#     i=enemies.Omnivine()
-#     scarecrows.add(i)
 player.scarecrows=scarecrows
 player.structures=structures
 equip.scarecrows=scarecrows
@@ -51,6 +56,11 @@ plug_in_text=text.TextHandler('media\VecnaBold.ttf',LEATHER,'Plug In Controller'
 title_text =text.TextHandler("media\VecnaBold.ttf",LIGHT_LEATHER,'Scythe',150)
 press_start_text =text.TextHandler('media\VecnaBold.ttf',LEATHER,'Press Start',50)
 game_over_text =text.TextHandler("media\VecnaBold.ttf",DARK_RED,'Game Over',150)
+pause_text=text.TextHandler('media\VecnaBold.ttf',LIGHT_GREY,'Pause',45)
+play_text=text.TextHandler('media\VecnaBold.ttf',BLACK,'Play',35)
+multiplayer_text=text.TextHandler('media\VecnaBold.ttf',BLACK,'Multiplayer',35)
+settings_text=text.TextHandler('media\VecnaBold.ttf',BLACK,'Settings',35)
+credits_text=text.TextHandler('media\VecnaBold.ttf',BLACK,'Credits',35)
 
 class GameElements():
     def __init__(self,canvas):
@@ -58,11 +68,13 @@ class GameElements():
         self.switch = False
         self.loading=True
         self.level_loaded=False
+        self.paused=False
         self.current_level=1
         self.canvas=canvas
         self.canvas_pos=pygame.math.Vector2(0,0)
         self.screen_top_left=pygame.math.Vector2(0,0)
         self.canvas_pos=pygame.math.Vector2(0,0)
+        self.main_loaded=False
 
     def start_screen(self):
         global P1,scyman
@@ -79,7 +91,7 @@ class GameElements():
             elif event.type == MOUSEBUTTONDOWN:
                 if P1:
                     self.switch = False
-                    self.focus='map_loader'
+                    self.focus='main'
                 else:
                     self.switch = True
             elif event.type == JOYBUTTONDOWN:
@@ -90,6 +102,8 @@ class GameElements():
                     self.switch = True
         screen.fill((0, 95, 65))
         screen.blit(relic,(randx,randy))
+        start_vine.demo()
+        screen.blit(start_vine.image,(start_vine.rect.center))
         screen.blit(windy_cloud.image,windy_cloud.position,windy_cloud.frame)
         windy_cloud.update()
         screen.blit(corner_flair,(0,467))
@@ -108,10 +122,70 @@ class GameElements():
                 self.switch=False
         pygame.display.flip()
 
+    def pause(self):
+        global delta_ref
+        while True:
+            if not self.paused:
+                self.paused=True
+                self.pause_background=screen.copy()
+                self.pause_background=comfunc.surf_blur(self.pause_background,2)
+            screen.blit(self.pause_background,(0,0))
+            screen.blit(pause_text.text_obj,
+                ((screen_width/2 -pause_text.text_obj.get_width()/2,
+                screen_height/2 -pause_text.text_obj.get_height()/2)))
+            pygame.display.flip()
+            for event in pygame.event.get():
+                comfunc.quit(event)
+                if event.type == JOYBUTTONDOWN:
+                    if P1.get_button(7):
+                        self.paused=False
+                        delta_ref=time.time()
+                        return
+
     def main_menu(self):
+        global P1,scyman
+        if not self.main_loaded:
+            self.main_loaded=True
+            self.buttons=pygame.sprite.Group()
+            self.buttons.add(start_button)
+            self.buttons.add(multiplayer_button)
+            self.buttons.add(settings_button)
+            self.buttons.add(credits_button)
+
+        screen.fill((0, 95, 65))
+        screen.blit(relic,(randx,randy))
+        start_vine.demo()
+        screen.blit(start_vine.image,(start_vine.rect.center))
+        screen.blit(windy_cloud.image,windy_cloud.position,windy_cloud.frame)
+        windy_cloud.update()
+        screen.blit(corner_flair,(0,467))
+        screen.blit(botright_corner_bush,(967,467))
+        screen.blit(title_text.text_obj,((screen_width/2 -title_text.
+        text_obj.get_width()/2,screen_height -title_text.text_obj.get_height())))
+        self.buttons.draw(screen)
+        screen.blit(play_text.text_obj,(start_button.rect.center[0] - play_text.rect.width/2,start_button.rect.center[1] - play_text.rect.height/2))
+        screen.blit(multiplayer_text.text_obj,(multiplayer_button.rect.center[0] - multiplayer_text.rect.width/2,multiplayer_button.rect.center[1] - multiplayer_text.rect.height/2))
+        screen.blit(settings_text.text_obj,(settings_button.rect.center[0] - settings_text.rect.width/2,settings_button.rect.center[1] - settings_text.rect.height/2))
+        screen.blit(credits_text.text_obj,(credits_button.rect.center[0] - credits_text.rect.width/2,credits_button.rect.center[1] - credits_text.rect.height/2))
+        mouse_pos=pygame.mouse.get_pos()
         for event in pygame.event.get():
             comfunc.quit(event)
-        screen.fill((0, 95, 65))
+            if event.type == MOUSEBUTTONDOWN:
+                for i in self.buttons:
+                    if i.rect.collidepoint(mouse_pos):
+                        i.image_swap()
+                        i.clicked()
+            if event.type==MOUSEBUTTONUP:
+                for i in self.buttons:
+                    if i.rect.collidepoint(mouse_pos):
+                        if i.depressed:
+                            temp=i.activate()
+                            if temp:
+                                self.focus=temp
+
+
+            elif event.type == JOYBUTTONDOWN:
+                pass
         pygame.display.flip()
 
     def game_play(self):
@@ -140,13 +214,10 @@ class GameElements():
             self.canvas_original,enemy_container,collidable_structures=lev.create_canvas(self.level_data,self.game_data)
             structures.add(collidable_structures)
             scarecrows.add(enemy_container)
-
         screen.blit(back_ground,(0,0))
         self.canvas=self.canvas_original.copy()
         player.canvas=self.canvas
         enemies.canvas=self.canvas
-        for event in pygame.event.get():
-            comfunc.quit(event)
         enemies.player1pos=(scyman.positionx,scyman.positiony)
         enemies.spawned_loot.draw(self.canvas)
         scyman.update(P1,delta)
@@ -156,14 +227,15 @@ class GameElements():
         screen.blit(self.canvas,(self.canvas_movement()))
         if scyman.hp <=0:
             self.blur=screen.copy().convert_alpha()
-            self.blur=comfunc.surf_blur(self.blur,5)
-            # for i in range(5):
-            #     self.blur=pygame.transform.smoothscale(self.blur,(2000,1500))
-            #     self.blur=pygame.transform.smoothscale(self.blur,(1000,500))
             self.alpha=150
             self.blur.set_alpha(self.alpha)
             self.focus='gameover'
-        scyman.update_gui()  
+        scyman.update_gui()
+        for event in pygame.event.get():
+            comfunc.quit(event)
+            if event.type==JOYBUTTONDOWN:
+                if P1.get_button(7):
+                    self.pause()
         pygame.display.flip()
 
     def canvas_movement(self):
@@ -184,6 +256,7 @@ class GameElements():
     def game_over(self):
         screen.fill(DEEP_RED)
         screen.blit(self.blur,(0,0))
+        self.blur=comfunc.surf_blur(self.blur,1)
         self.blur.set_alpha(self.alpha)
         self.alpha-=.30
         
@@ -199,7 +272,7 @@ class GameElements():
     def reset(self):
         self.loading=True
         self.level_loaded=False
-        self.focus='start'
+        self.focus='main'
 
     def focus_switch(self):
         if self.focus == 'start':

@@ -10,6 +10,7 @@ class TextHandler():
         self.antialias=antialias
         self.font=pygame.font.Font(self.path,int(self.size))
         self.text_obj = self.font.render(self.text,self.antialias,self.color)
+        self.rect=self.text_obj.get_rect()
         self.switch=False
         self.timer=0
     def shrink_pop(self,timer):

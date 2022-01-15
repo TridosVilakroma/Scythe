@@ -112,7 +112,7 @@ def surf_blur(surface,strength):
     rect=surface.get_rect()
     temp=surface
     x,y=rect[2],rect[3]
-    for i in range(strength):
+    for _ in range(strength):
                 temp=pygame.transform.smoothscale(temp,(x*2,y*2))
                 temp=pygame.transform.smoothscale(temp,(x,y))
     return temp

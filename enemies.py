@@ -269,6 +269,8 @@ class Omnivine(pygame.sprite.Sprite):
         self.bullet_speed=2.5
         self.chance_to_shoot=1,750 #chance is one in the second int
         self.bullet_air_time=3.25
+        self.dest=pygame.math.Vector2(0,0)
+        self.vector=pygame.math.Vector2(0,0)
    
     def image_loader(self):
         self.trap_net=pygame.image.load(r'media\relics\fox\fox_net.png').convert_alpha()
@@ -477,6 +479,23 @@ class Omnivine(pygame.sprite.Sprite):
             self.bullet_pos[0]+=self.bullet_vector[0]
             self.bullet_pos[1]+=self.bullet_vector[1]
             canvas.blit(self.bullet,self.bullet_pos)
+
+    def demo(self):
+        self.current_sprite+=self.animate_speed
+        if int(self.current_sprite)>=len(self.traverse_sprites):
+            self.current_sprite=0
+        self.image=self.traverse_sprites[int(self.current_sprite)]
+        self.image=pygame.transform.smoothscale(self.image,(25,25))
+        # chance=randint(1,75)
+        # if chance==1:
+        #     randint_a=randint(50,950)
+        #     randint_b=randint(50,450)
+        #     self.dest=pygame.math.Vector2(randint_a,randint_b)
+        #     self.direction=()
+            
+        # self.temp=pygame.Vector2(self.rect.center)
+        # self.temp+=self.vector
+        # self.rect.center=self.temp
 
     def traverse(self):
         prox=(abs(player1pos[0]-self.rect.center[0]),abs(player1pos[1]-self.rect.center[1]))
