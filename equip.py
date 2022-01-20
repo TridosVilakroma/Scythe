@@ -50,6 +50,7 @@ class FakeRelic():
 
 class Skunk(Relic):
     def __init__(self):
+        self.io_name='Skunk'
         self.name='Mephitidae_relic'
         mana_drain=.13
         self.image=pygame.image.load(r'media\relics\mephitidae_relic.png')
@@ -112,6 +113,7 @@ Mephitidae_relic=Skunk()
 
 class Fox(Relic):
     def __init__(self):
+        self.io_name='Fox'
         self.name='vulpes_relic'
         mana_drain=.15
         self.image=pygame.image.load(r'media\relics\vulpes_relic.png')
@@ -214,6 +216,7 @@ vulpes_relic=Fox()
 
 class Eagle(Relic):
     def __init__(self):
+        self.io_name='Eagle'
         self.name='aeetus_relic'
         mana_drain=.18
         self.image=pygame.image.load(r'media\relics\aeetos_relic.png')
@@ -377,6 +380,7 @@ aeetus_relic=Eagle()
 
 class Bear(Relic):
     def __init__(self):
+        self.io_name='Bear'
         self.name='Ursidae_relic'
         mana_drain=.125
         self.image=pygame.image.load(r'media\relics\Ursidae_relic.png')
@@ -442,6 +446,7 @@ Ursidae_relic=Bear()
 
 class Lion(Relic):
     def __init__(self):
+        self.io_name='Lion'
         self.name='Panthera_relic'
         mana_drain=.095
         self.image=pygame.image.load(r'media\relics\panthera_relic.png')
@@ -514,6 +519,7 @@ Panthera_relic=Lion()
 
 class Turtle(Relic):
     def __init__(self):
+        self.io_name='Turtle'
         self.name='Testudinidae_relic'
         mana_drain=.115
         self.image=pygame.image.load(r'media\relics\Testudinidae_relic.png')
@@ -611,6 +617,7 @@ Testudinidae_relic=Turtle()
 
 class Wolf(Relic):
     def __init__(self):
+        self.io_name='Wolf'
         self.name='Canidae_relic'
         mana_drain=.115
         self.image=pygame.image.load(r'media\relics\canidae_relic.png')
@@ -679,6 +686,7 @@ Canidae_relic=Wolf()
 
 class Lynx(Relic):
     def __init__(self):
+        self.io_name='Lynx'
         self.name='Felidae_relic'
         mana_drain=.125
         self.image=pygame.image.load(r'media\relics\felidae_relic.png')
@@ -765,9 +773,9 @@ relics={
 }
     
 ###############ARMOR###############
-nacht_falcata=.5
+
 armor={
-    1:nacht_falcata
+
 }
 ###############WEAPONS###############
 

@@ -78,9 +78,7 @@ class Scarecrow(pygame.sprite.Sprite):
             equip.equip_matrix[1][random_loot].rect[1]=self.y
             spawned_loot.add(equip.equip_matrix[1][random_loot])
             popped=equip.equip_matrix[1].pop(random_loot)
-            print(popped)
         except KeyError:
-            print('loot_dropper_error')
             pass
             
     def collision_check(self):
@@ -215,7 +213,10 @@ class Scarecrow(pygame.sprite.Sprite):
         if self.hp <= 0:
             self.loot_dropper()
             self.kill()
-  
+
+    def demo(self):
+            self.image=pygame.transform.smoothscale(self.image,(25,25))
+
     def auxillary(self,canvas,player):
         if 'health' in self.aux_state:
             self.health_bar()
@@ -486,16 +487,33 @@ class Omnivine(pygame.sprite.Sprite):
             self.current_sprite=0
         self.image=self.traverse_sprites[int(self.current_sprite)]
         self.image=pygame.transform.smoothscale(self.image,(25,25))
-        # chance=randint(1,75)
-        # if chance==1:
-        #     randint_a=randint(50,950)
-        #     randint_b=randint(50,450)
-        #     self.dest=pygame.math.Vector2(randint_a,randint_b)
-        #     self.direction=()
-            
-        # self.temp=pygame.Vector2(self.rect.center)
-        # self.temp+=self.vector
-        # self.rect.center=self.temp
+        chance=randint(1,175)
+        if chance==1:
+            randint_a=randint(50,950)
+            randint_b=randint(50,450)
+            self.dest=pygame.math.Vector2(randint_a,randint_b)
+        if self.dest!= (0,0):
+            if self.dest[1]==self.y:
+                if self.dest[0]>self.x:
+                    self.x+=.25
+                elif self.dest[0]<self.x:
+                    self.x-=.25
+            if self.dest[1]!=self.y:
+                if self.dest[0]>self.x:
+                    self.x+=.1875
+                elif self.dest[0]<self.x:
+                    self.x-=.1875
+            if self.dest[0]==self.x:
+                if self.dest[1]>self.y:
+                    self.y+=.25
+                elif self.dest[1]<self.y:
+                    self.y-=.25
+            if self.dest[0]!=self.x:
+                if self.dest[1]>self.y:
+                    self.y+=.1875
+                elif self.dest[1]<self.y:
+                    self.y-=.1875
+            self.rect=pygame.Rect(self.x,self.y,self.image.get_width(),self.image.get_height())
 
     def traverse(self):
         prox=(abs(player1pos[0]-self.rect.center[0]),abs(player1pos[1]-self.rect.center[1]))

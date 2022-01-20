@@ -7,6 +7,7 @@ import level_loader as lev
 from color_palette import *
 from random import randint
 import controller as con
+from save_data import data_IO as dio
 
 screen_width = 1000
 screen_height = 500
@@ -31,18 +32,32 @@ randx=randint(0,1000)
 randy=randint(0,500)
 #button loading
 start_button=gui.Button(pygame.image.load(r'media\gui\main_menu\buttonLong_beige.png'),
-    pygame.image.load(r'media\gui\main_menu\buttonLong_beige_pressed.png'),(720,100),'map_loader')
+    pygame.image.load(r'media\gui\main_menu\buttonLong_beige_pressed.png'),(720,100),'->Play<-','save_select')
 multiplayer_button=gui.Button(pygame.image.load(r'media\gui\main_menu\buttonLong_beige.png'),
-    pygame.image.load(r'media\gui\main_menu\buttonLong_beige_pressed.png'),(720,180))
+    pygame.image.load(r'media\gui\main_menu\buttonLong_beige_pressed.png'),(720,180),'Multiplayer')
 settings_button=gui.Button(pygame.image.load(r'media\gui\main_menu\buttonLong_beige.png'),
-    pygame.image.load(r'media\gui\main_menu\buttonLong_beige_pressed.png'),(720,260))
+    pygame.image.load(r'media\gui\main_menu\buttonLong_beige_pressed.png'),(720,260),'Settings')
 credits_button=gui.Button(pygame.image.load(r'media\gui\main_menu\buttonLong_beige.png'),
-    pygame.image.load(r'media\gui\main_menu\buttonLong_beige_pressed.png'),(720,340))
+    pygame.image.load(r'media\gui\main_menu\buttonLong_beige_pressed.png'),(720,340),'Credits')
+save_button_1=gui.Button(pygame.image.load(r'media\gui\main_menu\panel_beige.png'),
+    pygame.image.load(r'media\gui\main_menu\panelInset_beige.png'),(300,250),'File 1','map_loader',True)
+save_button_2=gui.Button(pygame.image.load(r'media\gui\main_menu\panel_beige.png'),
+    pygame.image.load(r'media\gui\main_menu\panelInset_beige.png'),(500,250),'File 2','map_loader',True)
+save_button_3=gui.Button(pygame.image.load(r'media\gui\main_menu\panel_beige.png'),
+    pygame.image.load(r'media\gui\main_menu\panelInset_beige.png'),(700,250),'File 3','map_loader',True)
 
 #structure group
 structures=pygame.sprite.Group()
 #enemy loading
-start_vine=enemies.Omnivine(randint(50,950),randint(50,450))
+demo_enemies=pygame.sprite.Group()
+
+for i in range(4):
+    start_scarecrow=enemies.Scarecrow(randint(50,950),randint(50,450))
+    demo_enemies.add(start_scarecrow)
+    start_scarecrow=enemies.Scarecrow(randint(50,950),randint(50,450))
+    demo_enemies.add(start_scarecrow)
+    start_vine=enemies.Omnivine(randint(50,950),randint(50,450))
+    demo_enemies.add(start_vine)
 
 scarecrows=pygame.sprite.Group()
 player.scarecrows=scarecrows
@@ -75,6 +90,8 @@ class GameElements():
         self.screen_top_left=pygame.math.Vector2(0,0)
         self.canvas_pos=pygame.math.Vector2(0,0)
         self.main_loaded=False
+        self.save_select_loaded=False
+        self.save_slot=0
 
     def start_screen(self):
         global P1,scyman
@@ -89,11 +106,12 @@ class GameElements():
                 if event.key == pygame.K_SPACE:
                     self.focus='map_loader'
             elif event.type == MOUSEBUTTONDOWN:
-                if P1:
-                    self.switch = False
-                    self.focus='main'
-                else:
-                    self.switch = True
+                self.focus='main'
+                # if P1:
+                #     self.switch = False
+                #     self.focus='main'
+                # else:
+                #     self.switch = True
             elif event.type == JOYBUTTONDOWN:
                 if P1:
                     self.switch = False
@@ -102,8 +120,9 @@ class GameElements():
                     self.switch = True
         screen.fill((0, 95, 65))
         screen.blit(relic,(randx,randy))
-        start_vine.demo()
-        screen.blit(start_vine.image,(start_vine.rect.center))
+        for i in demo_enemies:
+            i.demo()
+        demo_enemies.draw(screen)
         screen.blit(windy_cloud.image,windy_cloud.position,windy_cloud.frame)
         windy_cloud.update()
         screen.blit(corner_flair,(0,467))
@@ -154,8 +173,9 @@ class GameElements():
 
         screen.fill((0, 95, 65))
         screen.blit(relic,(randx,randy))
-        start_vine.demo()
-        screen.blit(start_vine.image,(start_vine.rect.center))
+        for i in demo_enemies:
+            i.demo()
+        demo_enemies.draw(screen)
         screen.blit(windy_cloud.image,windy_cloud.position,windy_cloud.frame)
         windy_cloud.update()
         screen.blit(corner_flair,(0,467))
@@ -163,10 +183,6 @@ class GameElements():
         screen.blit(title_text.text_obj,((screen_width/2 -title_text.
         text_obj.get_width()/2,screen_height -title_text.text_obj.get_height())))
         self.buttons.draw(screen)
-        screen.blit(play_text.text_obj,(start_button.rect.center[0] - play_text.rect.width/2,start_button.rect.center[1] - play_text.rect.height/2))
-        screen.blit(multiplayer_text.text_obj,(multiplayer_button.rect.center[0] - multiplayer_text.rect.width/2,multiplayer_button.rect.center[1] - multiplayer_text.rect.height/2))
-        screen.blit(settings_text.text_obj,(settings_button.rect.center[0] - settings_text.rect.width/2,settings_button.rect.center[1] - settings_text.rect.height/2))
-        screen.blit(credits_text.text_obj,(credits_button.rect.center[0] - credits_text.rect.width/2,credits_button.rect.center[1] - credits_text.rect.height/2))
         mouse_pos=pygame.mouse.get_pos()
         for event in pygame.event.get():
             comfunc.quit(event)
@@ -182,6 +198,57 @@ class GameElements():
                             temp=i.activate()
                             if temp:
                                 self.focus=temp
+                    if i.depressed:
+                        i.depressed=False
+                        i.image_swap()
+
+
+
+            elif event.type == JOYBUTTONDOWN:
+                pass
+        pygame.display.flip()
+
+    def save_select(self):
+        global P1,scyman
+        if not self.save_select_loaded:
+            self.save_select_loaded=True
+            self.buttons=pygame.sprite.Group()
+            self.buttons.add(save_button_1)
+            self.buttons.add(save_button_2)
+            self.buttons.add(save_button_3)
+
+        screen.fill((0, 95, 65))
+        screen.blit(relic,(randx,randy))
+        for i in demo_enemies:
+            i.demo()
+        demo_enemies.draw(screen)
+        screen.blit(windy_cloud.image,windy_cloud.position,windy_cloud.frame)
+        windy_cloud.update()
+        screen.blit(corner_flair,(0,467))
+        screen.blit(botright_corner_bush,(967,467))
+        screen.blit(title_text.text_obj,((screen_width/2 -title_text.
+        text_obj.get_width()/2,screen_height -title_text.text_obj.get_height())))
+        self.buttons.draw(screen)
+        mouse_pos=pygame.mouse.get_pos()
+        for event in pygame.event.get():
+            comfunc.quit(event)
+            if event.type == MOUSEBUTTONDOWN:
+                for i in self.buttons:
+                    if i.rect.collidepoint(mouse_pos):
+                        i.image_swap()
+                        i.clicked()
+            if event.type==MOUSEBUTTONUP:
+                for i in self.buttons:
+                    if i.rect.collidepoint(mouse_pos):
+                        if i.depressed:
+                            temp=i.activate()
+                            if temp:
+                                self.save_slot=int(i.text[5])
+                                self.load_game()
+                                self.focus=temp
+                    if i.depressed:
+                        i.depressed=False
+                        i.image_swap()
 
 
             elif event.type == JOYBUTTONDOWN:
@@ -274,11 +341,80 @@ class GameElements():
         self.level_loaded=False
         self.focus='main'
 
+    def save_game(self):
+        player_data={
+            1:[],
+            2:[],
+            3:[],
+            4:[]
+        }
+        for i in scyman.relics:
+            player_data[1].append(i.io_name)
+        for i in scyman.armor:
+            player_data[2].append(i.io_name)
+        for i in scyman.weapons:
+            player_data[3].append(i.io_name)
+        for i in scyman.tools:
+            player_data[4].append(i.io_name)
+        equipment_data={
+            1:[]
+        }
+        for i in equip.equip:
+            equipment_data[1].append(i.io_name)
+        enemy_data={
+        }
+        for index,i in enumerate(enemies.spawned_loot,start=1):
+            name=i.io_name
+            enemy_data[index]=name
+        game_data={
+            1:self.current_level
+        }
+        data_archive={
+            1:player_data,
+            2:equipment_data,
+            3:enemy_data,
+            4:game_data
+        }
+        dio.save(data_archive,self.save_slot)
+
+    def load_game(self):
+        try:
+            data_archive=dio.load(self.save_slot)
+            player_data,equipment_data,enemy_data,game_data=data_archive[1],data_archive[2],data_archive[3],data_archive[4]
+            #player data
+            for i in player_data[1]:
+                relic=eval(f'equip.{i}()')
+                scyman.relics.append(relic)
+            for i in player_data[2]:
+                armor=eval(f'equip.{i}()')
+                scyman.armor.append(armor)
+            for i in player_data[3]:
+                weapon=eval(f'equip.{i}()')
+                scyman.weapons.append(weapon)
+            for i in player_data[4]:
+                tool=eval(f'equip.{i}()')
+                scyman.tools.append(tool)
+            #equip data
+            for i in equipment_data[1]:
+                equipment=eval(f'equip.{i}()')
+                equip.equip.append(equipment)
+            #enemy data
+            for i in enemy_data.values():
+                loot=eval(f'equip.{i}()')
+                enemies.spawned_loot.add(loot)
+            #game data
+            self.current_level=game_data[1]
+        except TypeError:
+            self.save_game()
+
+
     def focus_switch(self):
         if self.focus == 'start':
             self.start_screen()
         elif self.focus == 'main':
             self.main_menu()
+        elif self.focus == 'save_select':
+            self.save_select()
         elif self.focus == 'play':
             self.game_play()
         elif self.focus=='gameover':
@@ -291,9 +427,9 @@ player.canvas=game.canvas
 enemies.canvas=game.canvas
 delta_ref=time.time()
 while True:
-    if pygame.joystick.get_count()==0:
-        game.focus='start'
-        game.switch=True
+    # if pygame.joystick.get_count()==0:
+    #     game.focus='start'
+    #     game.switch=True
     clock.tick(60)
     # if scyman.hitlag:
     #     pygame.time.wait(40)

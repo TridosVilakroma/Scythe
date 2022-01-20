@@ -1,12 +1,11 @@
 from pygame.constants import JOYBUTTONDOWN
 import pygame,time,math
-
 from pygame.sprite import collide_mask
 import common_functions as comfunc
 import enemies,equip
 from color_palette import *
 import controller as con
-import level_loader as lev
+
 screen=None#variable overwritten in main to allow blit access from this module
 canvas=None#variable overwritten in main to allow blit access from this module
 scarecrows=None#variable overwritten in main to add enemy access here
