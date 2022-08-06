@@ -11,13 +11,21 @@ def sprite_parser(sheet,frame,width,height,color=(0,0,0)):
     image.set_colorkey(color)
     return image
 
-def dead_zone(controller,joy_stick):
-    x_axis = controller.get_axis(joy_stick[0])
-    y_axis = controller.get_axis(joy_stick[1])
-    if abs(x_axis) > .3 or abs(y_axis) > .3:
-        return False
-    else:
-        return True
+def dead_zone(controller,joy_stick=False,tolerance=.3,single_axis=False):
+    if joy_stick:
+        x_axis = controller.get_axis(joy_stick[0])
+        y_axis = controller.get_axis(joy_stick[1])
+        if abs(x_axis) > tolerance or abs(y_axis) > tolerance:
+            return False
+        else:
+            return True
+    elif single_axis is not False:
+        axis = controller.get_axis(single_axis)
+        if abs(axis) > tolerance:
+            return False
+        else:
+            return True
+
 
 def move(rect_center,speed,angle):
     x = rect_center[0] + (speed*math.cos(math.radians(angle)))

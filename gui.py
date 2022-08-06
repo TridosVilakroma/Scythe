@@ -6,6 +6,8 @@ class Button(pygame.sprite.Sprite):
     def __init__(self,image,clicked_image,pos,text='None',purpose=None,sl_text=False):
         super().__init__()
         self.pos=pos
+        self.x=pos[0]
+        self.y=pos[1]
         self.image=image
         self.rect=image.get_rect()
         self.clicked_image=clicked_image

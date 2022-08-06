@@ -37,4 +37,16 @@ class TextHandler():
     def update(self):
         self.font=pygame.font.Font(self.path,int(self.size))
         self.text_obj = self.font.render(self.text,self.antialias,self.color)
-        
+
+    @property
+    def x(self):
+        return self.rect.x
+    @property
+    def y(self):
+        return self.rect.y
+    @property
+    def width(self):
+        return self.rect.width
+    @property
+    def height(self):
+        return self.rect.height

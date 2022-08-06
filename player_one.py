@@ -360,13 +360,13 @@ class PlayerOne(pygame.sprite.Sprite):
                 self.positionx+=(self.speed*delta)*P1.get_axis(0)
             if motionx<0 and not self.left_blocked:
                 self.positionx+=(self.speed*delta)*P1.get_axis(0)
-            if motiony>0 and not self.bottom_blocked:
+            if motiony>0 and not self.down_blocked:
                 self.positiony+=(self.speed*delta)*P1.get_axis(1)
-            if motiony<0 and not self.top_blocked:
+            if motiony<0 and not self.up_blocked:
                 self.positiony+=(self.speed*delta)*P1.get_axis(1)
             self.rect.center=(self.positionx+self.image.get_width()/2,
             self.positiony+self.image.get_height()/2)
-        self.right_blocked,self.left_blocked,self.bottom_blocked,self.top_blocked=False,False,False,False
+        self.right_blocked,self.left_blocked,self.down_blocked,self.up_blocked=False,False,False,False
   
     def blink_step(self,P1):
         self.blink_startposx=self.positionx

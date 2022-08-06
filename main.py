@@ -67,15 +67,18 @@ enemies.enemies=scarecrows
 
 
 #text loading
-plug_in_text=text.TextHandler('media\VecnaBold.ttf',LEATHER,'Plug In Controller',50)
-title_text =text.TextHandler("media\VecnaBold.ttf",LIGHT_LEATHER,'Scythe',150)
-press_start_text =text.TextHandler('media\VecnaBold.ttf',LEATHER,'Press Start',50)
-game_over_text =text.TextHandler("media\VecnaBold.ttf",DARK_RED,'Game Over',150)
-pause_text=text.TextHandler('media\VecnaBold.ttf',LIGHT_GREY,'Pause',45)
-play_text=text.TextHandler('media\VecnaBold.ttf',BLACK,'Play',35)
-multiplayer_text=text.TextHandler('media\VecnaBold.ttf',BLACK,'Multiplayer',35)
-settings_text=text.TextHandler('media\VecnaBold.ttf',BLACK,'Settings',35)
-credits_text=text.TextHandler('media\VecnaBold.ttf',BLACK,'Credits',35)
+standad_font='media\VecnaBold.ttf'
+plug_in_text=text.TextHandler(standad_font,LEATHER,'Plug In Controller',50)
+title_text =text.TextHandler(standad_font,LIGHT_LEATHER,'Scythe',150)
+press_start_text =text.TextHandler(standad_font,LEATHER,'Press Start',50)
+game_over_text =text.TextHandler(standad_font,DARK_RED,'Game Over',150)
+pause_text=text.TextHandler(standad_font,LIGHT_GREY,'Pause',45)
+play_text=text.TextHandler(standad_font,BLACK,'Play',35)
+multiplayer_text=text.TextHandler(standad_font,BLACK,'Multiplayer',35)
+settings_text=text.TextHandler(standad_font,BLACK,'Settings',35)
+credits_text=text.TextHandler(standad_font,BLACK,'Credits',35)
+button_select_left=text.TextHandler(standad_font,LIGHT_LEATHER,'->',50)
+button_select_right=text.TextHandler(standad_font,LIGHT_LEATHER,'<-',50)
 
 class GameElements():
     def __init__(self,canvas):
@@ -115,7 +118,7 @@ class GameElements():
             elif event.type == JOYBUTTONDOWN:
                 if P1:
                     self.switch = False
-                    self.focus='map_loader'
+                    self.focus='main'
                 else:
                     self.switch = True
         screen.fill((0, 95, 65))
@@ -170,6 +173,13 @@ class GameElements():
             self.buttons.add(multiplayer_button)
             self.buttons.add(settings_button)
             self.buttons.add(credits_button)
+            self.button_order=[
+                start_button,
+                multiplayer_button,
+                settings_button,
+                credits_button]
+            self.button_focus=0
+            self.reset_joystick_needed=False
 
         screen.fill((0, 95, 65))
         screen.blit(relic,(randx,randy))
@@ -181,9 +191,20 @@ class GameElements():
         screen.blit(corner_flair,(0,467))
         screen.blit(botright_corner_bush,(967,467))
         screen.blit(title_text.text_obj,((screen_width/2 -title_text.
-        text_obj.get_width()/2,screen_height -title_text.text_obj.get_height())))
+            text_obj.get_width()/2,screen_height -title_text.text_obj.get_height())))
         self.buttons.draw(screen)
         mouse_pos=pygame.mouse.get_pos()
+        for i in self.buttons:
+            if i.rect.collidepoint(mouse_pos):
+                self.button_focus=self.button_order.index(i)
+        screen.blit(
+            button_select_left.text_obj,
+            (self.button_order[self.button_focus].rect.left-button_select_left.width,
+            self.button_order[self.button_focus].rect.top))
+        screen.blit(
+            button_select_right.text_obj,
+            (self.button_order[self.button_focus].rect.right,
+            self.button_order[self.button_focus].rect.top))
         for event in pygame.event.get():
             comfunc.quit(event)
             if event.type == MOUSEBUTTONDOWN:
@@ -201,11 +222,40 @@ class GameElements():
                     if i.depressed:
                         i.depressed=False
                         i.image_swap()
-
-
-
             elif event.type == JOYBUTTONDOWN:
-                pass
+                if P1.get_button(0) or P1.get_button(7):
+                    temp=self.button_order[self.button_focus].activate()
+                    if temp:
+                        self.focus=temp
+                elif P1.get_button(1):
+                    self.focus='start'
+            elif event.type == JOYHATMOTION:
+                if event.__dict__['hat']==0:
+                    if event.__dict__['value'][1]==-1:
+                        self.button_focus+=1
+                        if self.button_focus>len(self.button_order)-1:
+                            self.button_focus=0
+                    if event.__dict__['value'][1]==1:
+                        self.button_focus-=1
+                        if self.button_focus<0:
+                            self.button_focus=len(self.button_order)-1
+            elif event.type == JOYAXISMOTION:
+                if not self.reset_joystick_needed and not comfunc.dead_zone(P1,single_axis=1):
+                    if event.__dict__['axis']==1:
+                        if event.__dict__['value']>.95:
+                            self.reset_joystick_needed=True
+                            self.button_focus+=1
+                            if self.button_focus>len(self.button_order)-1:
+                                self.button_focus=0
+                        if event.__dict__['value']<-.95:
+                            self.reset_joystick_needed=True
+                            self.button_focus-=1
+                            if self.button_focus<0:
+                                self.button_focus=len(self.button_order)-1
+                elif comfunc.dead_zone(P1,single_axis=1,tolerance=.85):
+                    self.reset_joystick_needed=False
+
+
         pygame.display.flip()
 
     def save_select(self):
@@ -216,6 +266,12 @@ class GameElements():
             self.buttons.add(save_button_1)
             self.buttons.add(save_button_2)
             self.buttons.add(save_button_3)
+            self.button_order=[
+                save_button_1,
+                save_button_2,
+                save_button_3]
+            self.button_focus=0
+            self.reset_joystick_needed=False
 
         screen.fill((0, 95, 65))
         screen.blit(relic,(randx,randy))
@@ -227,9 +283,20 @@ class GameElements():
         screen.blit(corner_flair,(0,467))
         screen.blit(botright_corner_bush,(967,467))
         screen.blit(title_text.text_obj,((screen_width/2 -title_text.
-        text_obj.get_width()/2,screen_height -title_text.text_obj.get_height())))
+            text_obj.get_width()/2,screen_height -title_text.text_obj.get_height())))
         self.buttons.draw(screen)
         mouse_pos=pygame.mouse.get_pos()
+        for i in self.buttons:
+            if i.rect.collidepoint(mouse_pos):
+                self.button_focus=self.button_order.index(i)
+        screen.blit(
+            button_select_left.text_obj,
+            (self.button_order[self.button_focus].rect.left-button_select_left.width,
+            self.button_order[self.button_focus].rect.centery-button_select_left.height/2))
+        screen.blit(
+            button_select_right.text_obj,
+            (self.button_order[self.button_focus].rect.right,
+            self.button_order[self.button_focus].rect.centery-button_select_right.height/2))
         for event in pygame.event.get():
             comfunc.quit(event)
             if event.type == MOUSEBUTTONDOWN:
@@ -249,10 +316,41 @@ class GameElements():
                     if i.depressed:
                         i.depressed=False
                         i.image_swap()
-
-
             elif event.type == JOYBUTTONDOWN:
-                pass
+                if P1.get_button(0) or P1.get_button(7):
+                    temp=self.button_order[self.button_focus].activate()
+                    if temp:
+                        self.focus=temp
+                elif P1.get_button(1):
+                    self.focus='start'
+            elif event.type == JOYHATMOTION:
+                if event.__dict__['hat']==0:
+                    if event.__dict__['value'][0]==1:
+                        self.button_focus+=1
+                        if self.button_focus>len(self.button_order)-1:
+                            self.button_focus=0
+                    if event.__dict__['value'][0]==-1:
+                        self.button_focus-=1
+                        if self.button_focus<0:
+                            self.button_focus=len(self.button_order)-1
+            elif event.type == JOYAXISMOTION:
+                if not self.reset_joystick_needed and not comfunc.dead_zone(P1,single_axis=0):
+                    if event.__dict__['axis']==0:
+                        if event.__dict__['value']>.95:
+                            self.reset_joystick_needed=True
+                            self.button_focus+=1
+                            if self.button_focus>len(self.button_order)-1:
+                                self.button_focus=0
+                        if event.__dict__['value']<-.95:
+                            self.reset_joystick_needed=True
+                            self.button_focus-=1
+                            if self.button_focus<0:
+                                self.button_focus=len(self.button_order)-1
+                elif comfunc.dead_zone(P1,single_axis=0,tolerance=.85):
+                    self.reset_joystick_needed=False
+
+
+
         pygame.display.flip()
 
     def game_play(self):
