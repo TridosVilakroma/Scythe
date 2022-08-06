@@ -1,6 +1,6 @@
 import pygame, time, random, sys,text,enemies,equip,gui
 from sprite_animation import Spritesheet
-from pygame.constants import JOYAXISMOTION, JOYBUTTONDOWN, JOYHATMOTION, MOUSEBUTTONDOWN,MOUSEBUTTONUP
+from pygame.constants import JOYAXISMOTION, JOYBUTTONDOWN, JOYBUTTONUP, JOYHATMOTION, MOUSEBUTTONDOWN,MOUSEBUTTONUP
 import common_functions as comfunc
 import player_one as player
 import level_loader as lev
@@ -116,11 +116,12 @@ class GameElements():
                 # else:
                 #     self.switch = True
             elif event.type == JOYBUTTONDOWN:
-                if P1:
-                    self.switch = False
-                    self.focus='main'
-                else:
-                    self.switch = True
+                if not  event.__dict__['button']==1:
+                    if P1:
+                        self.switch = False
+                        self.focus='main'
+                    else:
+                        self.switch = True
         screen.fill((0, 95, 65))
         screen.blit(relic,(randx,randy))
         for i in demo_enemies:
@@ -219,6 +220,7 @@ class GameElements():
                             temp=i.activate()
                             if temp:
                                 self.focus=temp
+                                self.main_loaded=False
                     if i.depressed:
                         i.depressed=False
                         i.image_swap()
@@ -227,8 +229,11 @@ class GameElements():
                     temp=self.button_order[self.button_focus].activate()
                     if temp:
                         self.focus=temp
-                elif P1.get_button(1):
+                        self.main_loaded=False
+            elif event.type == JOYBUTTONUP:
+                if event.__dict__['button']==1:
                     self.focus='start'
+                    self.main_loaded=False
             elif event.type == JOYHATMOTION:
                 if event.__dict__['hat']==0:
                     if event.__dict__['value'][1]==-1:
@@ -313,6 +318,7 @@ class GameElements():
                                 self.save_slot=int(i.text[5])
                                 self.load_game()
                                 self.focus=temp
+                                self.save_select_loaded=False
                     if i.depressed:
                         i.depressed=False
                         i.image_swap()
@@ -321,8 +327,11 @@ class GameElements():
                     temp=self.button_order[self.button_focus].activate()
                     if temp:
                         self.focus=temp
-                elif P1.get_button(1):
-                    self.focus='start'
+                        self.save_select_loaded=False
+            elif event.type == JOYBUTTONUP:
+                if event.__dict__['button']==1:
+                    self.focus='main'
+                    self.save_select_loaded=False
             elif event.type == JOYHATMOTION:
                 if event.__dict__['hat']==0:
                     if event.__dict__['value'][0]==1:
