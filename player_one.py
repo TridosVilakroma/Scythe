@@ -60,9 +60,8 @@ class PlayerOne(pygame.sprite.Sprite):
         self.active_relic=equip.FakeRelic()
         self.scythe=self.Scythe(self.scythe_image,self.rect.center)
         self.hitlag=False
-        self.blinked_lynx_flag=False
-        self.blinked_lynx_flag2=False
-        
+
+
     class Scythe(equip.Equipment):
         def __init__(self, image,origin):
             super().__init__(image)
@@ -197,10 +196,10 @@ class PlayerOne(pygame.sprite.Sprite):
             if self.rect.colliderect(i):
                 if pygame.sprite.collide_mask(self,i):
                     self.positionx,self.positiony=self.last_pos
-  
+
     def animate_switch(self):
         self.animating=True   
-  
+
     def traverse_animate(self):
         if self.direction=='right':
             if self.animating==True:
@@ -230,11 +229,8 @@ class PlayerOne(pygame.sprite.Sprite):
                     self.current_sprite=0
                 self.animating=False
             self.image=self.walkdownsprites[int(self.current_sprite)]
-  
+
     def blink_ghost(self):
-        if self.blinked_lynx_flag==False and self.blinked_lynx_flag2==False:
-            self.blinked_lynx_flag=True
-            self.blinked_lynx_flag2=True
         if self.blink_start>time.time()-.25:
             self.ghost.set_alpha(50)
             self.ghost_trail=self.image.copy()
@@ -242,9 +238,8 @@ class PlayerOne(pygame.sprite.Sprite):
             canvas.blit(self.ghost,self.ghostpos)
             canvas.blit(self.ghost_trail,(((self.blink_startposx+self.positionx)/2),((self.blink_startposy+self.positiony)/2)))
         else:
-            self.blinked_lynx_flag2=False
             self.aux_state.remove('blink')
-  
+
     def blink_animate(self,direction):
         self.ghostpos=(self.positionx,self.positiony)
         self.ghost=self.image.copy()
@@ -367,7 +362,7 @@ class PlayerOne(pygame.sprite.Sprite):
             self.rect.center=(self.positionx+self.image.get_width()/2,
             self.positiony+self.image.get_height()/2)
         self.right_blocked,self.left_blocked,self.down_blocked,self.up_blocked=False,False,False,False
-  
+
     def blink_step(self,P1):
         self.blink_startposx=self.positionx
         self.blink_startposy=self.positiony
@@ -419,12 +414,12 @@ class PlayerOne(pygame.sprite.Sprite):
                 self.positiony-=self.blink_distance/2
             else:
                 self.positiony-=self.blink_distance
-  
+
     def scythe_slash(self,P1):
         self.aux_state.append('scythe')
         self.focus='traverse'
         self.scythe_time_ref=time.time()
-  
+
     def scythe_animate(self,P1):
         time_stamp=time.time()
         
@@ -626,7 +621,7 @@ class PlayerOne(pygame.sprite.Sprite):
                     pass
         else:
             comfunc.clean_list(self.aux_state,'dpad')
-   
+
     def activate_relic(self,relic_index):
         relic=self.relics[relic_index]
         self.active_relic=relic
@@ -669,7 +664,7 @@ class PlayerOne(pygame.sprite.Sprite):
             self.deactivate_relic()
         elif self.mp<1:
             self.mp-=.5  
-         
+
     def stat_archive(self):
         self.defense_archive=self.defense
         self.speed_archive=self.speed
@@ -706,7 +701,7 @@ class PlayerOne(pygame.sprite.Sprite):
         self.walkdownsprites.append(pygame.image.load(r'media\scyman_walk\down_walk\walkdown2.png'))
         self.walkdownsprites.append(pygame.image.load(r'media\scyman_walk\down_walk\walkdown3.png'))
         self.image=self.walkdownsprites[0]
-   
+
     def action(self,P1):
         time_stamp=time.time()
         if P1.get_button(1):
@@ -741,12 +736,12 @@ class PlayerOne(pygame.sprite.Sprite):
 
     def focus_switch(self,P1,delta):
         self.traverse(P1,delta)
-        
+
         if self.focus =='blink':
             self.blink_step(P1)
         elif self.focus=='slash':
             self.scythe_slash(P1)
-  
+
     def auxillary(self,P1,delta):
         if 'health' in self.aux_state:
             self.mini_health_bar()
@@ -767,14 +762,14 @@ class PlayerOne(pygame.sprite.Sprite):
         if 'dpad' in self.aux_state:
             self.relic_select(P1)
         self.collide()
-        
+
         # self.health_bar()
         # self.mana_bar()
 
     def update_gui(self):
         self.health_bar()
-        self.mana_bar()    
-         
+        self.mana_bar()
+
     def update(self,P1,delta):
         self.last_pos=self.positionx,self.positiony
         if 'blockade' not in self.aux_state:

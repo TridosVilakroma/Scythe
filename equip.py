@@ -701,6 +701,8 @@ class Lynx(Relic):
         self.last_hit=time.time()
         self.attack_flag=False
         self.blink_hit_counter=0
+        self.blinked_lynx_flag=False
+        self.last_blink_time=time.time()
 
     def attack(self,screen,hits,player,P1):
         if self.attack_flag==False and P1.get_button(2):
@@ -709,7 +711,7 @@ class Lynx(Relic):
                 i.damage(5)
                 if player.blink_start>time.time()-.5:
                     player.mp+=5
-        
+
 
     def special_attack(self,screen,player):
         pass
@@ -731,24 +733,29 @@ class Lynx(Relic):
             else:
                 player.invulnerable=False
 
-            if player.blinked_lynx_flag:
-                blink_path=(player.ghostpos,player.rect.center)
-                pygame.draw.line(screen,GREY_BLUE,player.ghostpos,player.rect.center,3)
+            if self.last_blink_time<time.time()-.25:
+                if P1.get_button(0) and player.mp>player.blink_mp_cost:
+                    self.blinked_lynx_flag=True
+                    self.ghostpos=(player.positionx,player.positiony)
+                    self.last_blink_time=time.time()
+            if self.blinked_lynx_flag:
+                blink_path=(self.ghostpos,player.rect.center)
+                pygame.draw.line(screen,GREY_BLUE,self.ghostpos,player.rect.center,5)
                 for i in scarecrows:
                     if i.rect.clipline(blink_path):
                         i.damage(10)
-                        print(blink_path,i.rect.center)
                 self.blink_hit_counter+=1
-                if self.blink_hit_counter==2:
-                    player.blinked_lynx_flag=False
+                if self.blink_hit_counter==6:
+                    self.blinked_lynx_flag=False
                     self.blink_hit_counter=0
+            
         else:
             player.blink_distance=90
             player.blink_step_cooldown=.5
             player.blink_mp_cost=0
-       
-        
-        
+
+
+
 
     def walk_right_load(self):
         return (r'media\relics\lynx\lynx.png')
@@ -771,7 +778,7 @@ relics={
     7:Canidae_relic,
     8:Felidae_relic
 }
-    
+
 ###############ARMOR###############
 
 armor={
@@ -782,14 +789,14 @@ armor={
 class Scythe(Weapon):
     def __init__(self, image, damage, cooldown):
         super().__init__(image, damage, cooldown)
-        
+
 weapons={
-    
+
 }
 ###############TOOLS###############
 
 tools={
-    
+
 }
 
 
