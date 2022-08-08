@@ -39,9 +39,7 @@ class PlayerOne(pygame.sprite.Sprite):
         self.image_loader()
         self.current_sprite=0
         self.image=self.walkrightsprites[self.current_sprite]
-        self.positionx=pos_x
-        self.positiony=pos_y
-        self.rect=self.image.get_rect()
+        self.rect=pygame.Rect(pos_x,pos_y,self.image.get_width(),self.image.get_height())
         self.animate_speed=.09
         self.speed=180
         self.blink_distance=90
@@ -61,6 +59,18 @@ class PlayerOne(pygame.sprite.Sprite):
         self.scythe=self.Scythe(self.scythe_image,self.rect.center)
         self.hitlag=False
 
+    @property
+    def x(self):
+        return self.rect.x
+    @x.setter
+    def x(self,value):
+        self.rect.x=value
+    @property
+    def y(self):
+        return self.rect.y
+    @y.setter
+    def y(self,value):
+        self.rect.y=value
 
     class Scythe(equip.Equipment):
         def __init__(self, image,origin):
@@ -163,39 +173,38 @@ class PlayerOne(pygame.sprite.Sprite):
                 self.picked_up_items.remove(i)
 
     def collide(self):
-        collision_tolerence=5
-        self.rect=pygame.Rect(self.positionx,self.positiony,self.image.get_width(),self.image.get_height())
+        collision_tolerence=10
         #screen boundaries
-        if self.positionx<32:
-            self.positionx=32
-        if self.positionx>2936:
-            self.positionx=2936
-        if self.positiony<32:
-            self.positiony=32
-        if self.positiony>1436:
-            self.positiony=1436
-       #collision between player and enemies
-        for i in scarecrows:
-            if self.rect.colliderect(i):
-                if pygame.sprite.collide_mask(self,i):
-                    self.positionx,self.positiony=self.last_pos
-                    # if abs(i.rect.left-self.rect.right)<collision_tolerence:
-                    #     self.right_blocked=True
-                    # if abs(i.rect.right-self.rect.left)<collision_tolerence:
-                    #     self.left_blocked=True
-                    # if abs(i.rect.top-self.rect.bottom)<collision_tolerence:
-                    #     self.bottom_blocked=True
-                    # if abs(i.rect.bottom-self.rect.top)<collision_tolerence:
-                    #     self.top_blocked=True
+        if self.x<32:
+            self.x=32
+        if self.x>2936:
+            self.x=2936
+        if self.y<32:
+            self.y=32
+        if self.y>1436:
+            self.y=1436
         #collision between player and equipment
         self.interactables.clear()
         for i in pygame.sprite.spritecollide(self,enemies.spawned_loot,False):
             self.interactables.append(i)
-        #collision between player and structures
+
+    def collision_check(self,xy,old_pos):
         for i in structures:
             if self.rect.colliderect(i):
                 if pygame.sprite.collide_mask(self,i):
-                    self.positionx,self.positiony=self.last_pos
+                    if xy=='x':
+                        self.x=old_pos
+                    elif xy=='y':
+                        self.y=old_pos
+                    break
+        for i in scarecrows:
+            if self.rect.colliderect(i):
+                if pygame.sprite.collide_mask(self,i):
+                    if xy=='x':
+                        self.x=old_pos
+                    elif xy=='y':
+                        self.y=old_pos
+                    break
 
     def animate_switch(self):
         self.animating=True   
@@ -236,12 +245,12 @@ class PlayerOne(pygame.sprite.Sprite):
             self.ghost_trail=self.image.copy()
             self.ghost_trail.set_alpha(150)
             canvas.blit(self.ghost,self.ghostpos)
-            canvas.blit(self.ghost_trail,(((self.blink_startposx+self.positionx)/2),((self.blink_startposy+self.positiony)/2)))
+            canvas.blit(self.ghost_trail,(((self.blink_startposx+self.x)/2),((self.blink_startposy+self.y)/2)))
         else:
             self.aux_state.remove('blink')
 
     def blink_animate(self,direction):
-        self.ghostpos=(self.positionx,self.positiony)
+        self.ghostpos=(self.x,self.y)
         self.ghost=self.image.copy()
         self.aux_state.append('blink')
         if self.animating==True:
@@ -250,27 +259,21 @@ class PlayerOne(pygame.sprite.Sprite):
                 if int(self.current_sprite)>=len(self.blinkrightsprites):
                     self.current_sprite=0
                     self.animating=False
-                self.image=self.blinkrightsprites[int(self.current_sprite)]
             elif direction=='left':
                 self.current_sprite+=self.animate_speed
                 if int(self.current_sprite)>=len(self.blinkleftsprites):
                     self.current_sprite=0
                     self.animating=False
-                self.image=self.blinkleftsprites[int(self.current_sprite)]
             if direction=='down':
                 self.current_sprite+=self.animate_speed
                 if int(self.current_sprite)>=len(self.blinkdownsprites):
                     self.current_sprite=0
                     self.animating=False
-                self.image=self.blinkdownsprites[int(self.current_sprite)]
             if direction=='up':
                 self.current_sprite+=self.animate_speed
                 if int(self.current_sprite)>=len(self.blinkupsprites):
                     self.current_sprite=0
                     self.animating=False
-                self.image=self.blinkupsprites[int(self.current_sprite)]
-        else:
-            self.image=self.walkrightsprites[int(self.current_sprite)]
         self.blink_ghost()
 
     def health_bar(self):
@@ -351,69 +354,96 @@ class PlayerOne(pygame.sprite.Sprite):
         if not comfunc.dead_zone(P1,(0,1)):
             self.animate_switch()
             self.traverse_animate()
-            if motionx>0 and not self.right_blocked:
-                self.positionx+=(self.speed*delta)*P1.get_axis(0)
-            if motionx<0 and not self.left_blocked:
-                self.positionx+=(self.speed*delta)*P1.get_axis(0)
-            if motiony>0 and not self.down_blocked:
-                self.positiony+=(self.speed*delta)*P1.get_axis(1)
-            if motiony<0 and not self.up_blocked:
-                self.positiony+=(self.speed*delta)*P1.get_axis(1)
-            self.rect.center=(self.positionx+self.image.get_width()/2,
-            self.positiony+self.image.get_height()/2)
+            if not comfunc.dead_zone(P1,single_axis=0):
+                old_x=self.x
+                if motionx>0:
+                    self.x+=(self.speed*delta)*P1.get_axis(0)
+                    self.collision_check('x',old_x)
+                if motionx<0:
+                    self.x+=(self.speed*delta)*P1.get_axis(0)
+                    self.collision_check('x',old_x)
+            if not comfunc.dead_zone(P1,single_axis=1):
+                old_y=self.y
+                if motiony<0:
+                    self.y+=(self.speed*delta)*P1.get_axis(1)
+                    self.collision_check('y',old_y)
+                if motiony>0:
+                    self.y+=(self.speed*delta)*P1.get_axis(1)
+                    self.collision_check('y',old_y)
         self.right_blocked,self.left_blocked,self.down_blocked,self.up_blocked=False,False,False,False
 
     def blink_step(self,P1):
-        self.blink_startposx=self.positionx
-        self.blink_startposy=self.positiony
+        self.blink_startposx=self.x
+        self.blink_startposy=self.y
         self.focus='traverse'
         motionx=P1.get_axis(0)
         motiony=P1.get_axis(1)
         self.animating=True
+        old_x=self.x
+        old_y=self.y
         if motionx>.5:
             self.blink_start=time.time()
             self.blink_animate('right')
             if motiony>.5:
-                self.positionx+=self.blink_distance/2
-                self.positiony+=self.blink_distance/2
+                self.x+=self.blink_distance/2
+                self.collision_check('x',old_x)
+                self.y+=self.blink_distance/2
+                self.collision_check('y',old_y)
             elif motiony<-.5:
-                self.positionx+=self.blink_distance/2
-                self.positiony-=self.blink_distance/2
+                self.x+=self.blink_distance/2
+                self.collision_check('x',old_x)
+                self.y-=self.blink_distance/2
+                self.collision_check('y',old_y)
             else:
-                self.positionx+=self.blink_distance
+                self.x+=self.blink_distance
+                self.collision_check('x',old_x)
         elif motionx<-.5:
             self.blink_start=time.time()
             self.blink_animate('left')
             if motiony>.5:
-                self.positionx-=self.blink_distance/2
-                self.positiony+=self.blink_distance/2
+                self.x-=self.blink_distance/2
+                self.collision_check('x',old_x)
+                self.y+=self.blink_distance/2
+                self.collision_check('y',old_y)
             elif motiony<-.5:
-                self.positionx-=self.blink_distance/2
-                self.positiony-=self.blink_distance/2
+                self.x-=self.blink_distance/2
+                self.collision_check('x',old_x)
+                self.y-=self.blink_distance/2
             else:
-                self.positionx-=self.blink_distance
+                self.x-=self.blink_distance
+                self.collision_check('x',old_x)
         elif motiony>.5:
             self.blink_start=time.time()
             self.blink_animate('down')
             if motionx>.5:
-                self.positionx+=self.blink_distance/2
-                self.positiony+=self.blink_distance/2
+                self.x+=self.blink_distance/2
+                self.collision_check('x',old_x)
+                self.y+=self.blink_distance/2
+                self.collision_check('y',old_y)
             elif motionx<-.5:
-                self.positionx-=self.blink_distance/2
-                self.positiony+=self.blink_distance/2
+                self.x-=self.blink_distance/2
+                self.collision_check('x',old_x)
+                self.y+=self.blink_distance/2
+                self.collision_check('y',old_y)
             else:
-                self.positiony+=self.blink_distance
+                self.y+=self.blink_distance
+                self.collision_check('y',old_y)
         elif motiony<-.5:
             self.blink_start=time.time()
             self.blink_animate('up')
             if motionx>.5:
-                self.positionx+=self.blink_distance/2
-                self.positiony-=self.blink_distance/2
+                self.x+=self.blink_distance/2
+                self.collision_check('x',old_x)
+                self.y-=self.blink_distance/2
+                self.collision_check('y',old_y)
             elif motionx<-.5:
-                self.positionx-=self.blink_distance/2
-                self.positiony-=self.blink_distance/2
+                self.x-=self.blink_distance/2
+                self.collision_check('x',old_x)
+                self.y-=self.blink_distance/2
+                self.collision_check('y',old_y)
             else:
-                self.positiony-=self.blink_distance
+                self.y-=self.blink_distance
+                self.collision_check('y',old_y)
 
     def scythe_slash(self,P1):
         self.aux_state.append('scythe')
@@ -472,43 +502,43 @@ class PlayerOne(pygame.sprite.Sprite):
         elif self.dpad_timestamp>time.time():
             relic=self.relics
             try:
-                canvas.blit(relic[0].transparent,(self.positionx-self.relics[0].rect[2],
-                self.positiony))#left
+                canvas.blit(relic[0].transparent,(self.x-self.relics[0].rect[2],
+                self.y))#left
             except IndexError:
                 pass
             try:
-                canvas.blit(relic[1].transparent,(self.positionx,
-                self.positiony-self.relics[0].rect[3]))#up
+                canvas.blit(relic[1].transparent,(self.x,
+                self.y-self.relics[0].rect[3]))#up
             except IndexError:
                 pass
             try:
-                canvas.blit(relic[2].transparent,(self.positionx+32,
-                self.positiony))#right
+                canvas.blit(relic[2].transparent,(self.x+32,
+                self.y))#right
             except IndexError:
                 pass
             try:
-                canvas.blit(relic[3].transparent,(self.positionx,
-                self.positiony+32))#down
+                canvas.blit(relic[3].transparent,(self.x,
+                self.y+32))#down
             except IndexError:
                 pass
             try:
-                canvas.blit(relic[4].transparent,(self.positionx-self.relics[0].rect[2],
-                self.positiony-self.relics[0].rect[3]))#upleft
+                canvas.blit(relic[4].transparent,(self.x-self.relics[0].rect[2],
+                self.y-self.relics[0].rect[3]))#upleft
             except IndexError:
                 pass
             try:
-                canvas.blit(relic[5].transparent,(self.positionx+32,
-                self.positiony-self.relics[5].rect[3]))#upright
+                canvas.blit(relic[5].transparent,(self.x+32,
+                self.y-self.relics[5].rect[3]))#upright
             except IndexError:
                 pass
             try:
-                canvas.blit(relic[7].transparent,(self.positionx-self.relics[0].rect[2],
-                self.positiony+32))#downleft
+                canvas.blit(relic[7].transparent,(self.x-self.relics[0].rect[2],
+                self.y+32))#downleft
             except IndexError:
                 pass
             try:
-                canvas.blit(relic[6].transparent,(self.positionx+32,
-                self.positiony+32))#downright
+                canvas.blit(relic[6].transparent,(self.x+32,
+                self.y+32))#downright
             except IndexError:
                 pass
         ##########controls##########
@@ -518,8 +548,8 @@ class PlayerOne(pygame.sprite.Sprite):
             elif P1.get_hat(0) == (0,1):
                 canvas.blit(self.d_pad_up,self.rect.topleft)
                 try:
-                    canvas.blit(relic[1].image,(self.positionx,
-                    self.positiony-self.relics[0].rect[3]))#up
+                    canvas.blit(relic[1].image,(self.x,
+                    self.y-self.relics[0].rect[3]))#up
                     if P1.get_button(4):
                         self.aux_state.append('relic')
                         comfunc.clean_list(self.aux_state,'dpad')
@@ -531,8 +561,8 @@ class PlayerOne(pygame.sprite.Sprite):
             elif P1.get_hat(0) == (1,1):
                 canvas.blit(self.d_pad_up_right,self.rect.topleft)
                 try:
-                    canvas.blit(relic[5].image,(self.positionx+32,
-                    self.positiony-self.relics[5].rect[3]))#upright
+                    canvas.blit(relic[5].image,(self.x+32,
+                    self.y-self.relics[5].rect[3]))#upright
                     if P1.get_button(4):
                         self.aux_state.append('relic')
                         comfunc.clean_list(self.aux_state,'dpad')
@@ -544,8 +574,8 @@ class PlayerOne(pygame.sprite.Sprite):
             elif P1.get_hat(0) == (1,0):
                 canvas.blit(self.d_pad_right,self.rect.topleft)
                 try:
-                    canvas.blit(relic[2].image,(self.positionx+32,
-                    self.positiony))#right
+                    canvas.blit(relic[2].image,(self.x+32,
+                    self.y))#right
                     if P1.get_button(4):
                         self.aux_state.append('relic')
                         comfunc.clean_list(self.aux_state,'dpad')
@@ -557,8 +587,8 @@ class PlayerOne(pygame.sprite.Sprite):
             elif P1.get_hat(0) == (1,-1):
                 canvas.blit(self.d_pad_down_right,self.rect.topleft)
                 try:
-                    canvas.blit(relic[6].image,(self.positionx+32,
-                    self.positiony+32))#downright
+                    canvas.blit(relic[6].image,(self.x+32,
+                    self.y+32))#downright
                     if P1.get_button(4):
                         self.aux_state.append('relic')
                         comfunc.clean_list(self.aux_state,'dpad')
@@ -570,8 +600,8 @@ class PlayerOne(pygame.sprite.Sprite):
             elif P1.get_hat(0) == (0,-1):
                 canvas.blit(self.d_pad_down,self.rect.topleft)
                 try:
-                    canvas.blit(relic[3].image,(self.positionx,
-                    self.positiony+32))#down
+                    canvas.blit(relic[3].image,(self.x,
+                    self.y+32))#down
                     if P1.get_button(4):
                         self.aux_state.append('relic')
                         comfunc.clean_list(self.aux_state,'dpad')
@@ -583,8 +613,8 @@ class PlayerOne(pygame.sprite.Sprite):
             elif P1.get_hat(0) == (-1,-1):
                 canvas.blit(self.d_pad_down_left,self.rect.topleft)
                 try:
-                    canvas.blit(relic[7].image,(self.positionx-self.relics[0].rect[2],
-                    self.positiony+32))#downleft
+                    canvas.blit(relic[7].image,(self.x-self.relics[0].rect[2],
+                    self.y+32))#downleft
                     if P1.get_button(4):
                         self.aux_state.append('relic')
                         comfunc.clean_list(self.aux_state,'dpad')
@@ -596,8 +626,8 @@ class PlayerOne(pygame.sprite.Sprite):
             elif P1.get_hat(0) == (-1,0):
                 canvas.blit(self.d_pad_left,self.rect.topleft)
                 try:
-                    canvas.blit(relic[0].image,(self.positionx-self.relics[0].rect[2],
-                    self.positiony))
+                    canvas.blit(relic[0].image,(self.x-self.relics[0].rect[2],
+                    self.y))
                     if P1.get_button(4):
                         self.aux_state.append('relic')
                         comfunc.clean_list(self.aux_state,'dpad')
@@ -609,8 +639,8 @@ class PlayerOne(pygame.sprite.Sprite):
             elif P1.get_hat(0) == (-1,1):
                 canvas.blit(self.d_pad_up_left,self.rect.topleft)
                 try:
-                    canvas.blit(relic[4].image,(self.positionx-self.relics[0].rect[2],
-                    self.positiony-self.relics[0].rect[3]))#upleft
+                    canvas.blit(relic[4].image,(self.x-self.relics[0].rect[2],
+                    self.y-self.relics[0].rect[3]))#upleft
                     if P1.get_button(4):
                         self.aux_state.append('relic')
                         comfunc.clean_list(self.aux_state,'dpad')
@@ -732,7 +762,7 @@ class PlayerOne(pygame.sprite.Sprite):
                     self.relic_select(P1)
 
     def draw(self):
-        canvas.blit(self.image,(self.positionx,self.positiony))
+        canvas.blit(self.image,(self.x,self.y))
 
     def focus_switch(self,P1,delta):
         self.traverse(P1,delta)
@@ -771,7 +801,7 @@ class PlayerOne(pygame.sprite.Sprite):
         self.mana_bar()
 
     def update(self,P1,delta):
-        self.last_pos=self.positionx,self.positiony
+        self.last_pos=self.x,self.y
         if 'blockade' not in self.aux_state:
             self.focus_switch(P1,delta)
         self.action(P1)

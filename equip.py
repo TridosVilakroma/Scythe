@@ -329,8 +329,8 @@ class Eagle(Relic):
                         self.ghost_angle=10
                         self.ghost_shrink=.9
                         self.ghost_image=player.image.copy()
-                        player.positionx=self.exit_portal.rect.left
-                        player.positiony=self.exit_portal.rect.top
+                        player.x=self.exit_portal.rect.left
+                        player.y=self.exit_portal.rect.top
                     if self.ghost_time>time_stamp:
                         ghost_alpha = comfunc.sine_pulse(1,250,128)
                         self.ghost_angle+=1
@@ -736,7 +736,7 @@ class Lynx(Relic):
             if self.last_blink_time<time.time()-.25:
                 if P1.get_button(0) and player.mp>player.blink_mp_cost:
                     self.blinked_lynx_flag=True
-                    self.ghostpos=(player.positionx,player.positiony)
+                    self.ghostpos=(player.x,player.y)
                     self.last_blink_time=time.time()
             if self.blinked_lynx_flag:
                 blink_path=(self.ghostpos,player.rect.center)

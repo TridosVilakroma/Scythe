@@ -26,6 +26,14 @@ def dead_zone(controller,joy_stick=False,tolerance=.3,single_axis=False):
         else:
             return True
 
+def vector(obj1,obj2):
+    """returns a normalized vector pointing from obj1 to obj2"""
+    direction_vector=pygame.Vector2(obj2.rect.centerx-obj1.rect.centerx,obj2.rect.centery-obj1.rect.centery)
+    try:
+        return direction_vector.normalize()
+    except ValueError:
+        return direction_vector
+
 
 def move(rect_center,speed,angle):
     x = rect_center[0] + (speed*math.cos(math.radians(angle)))

@@ -58,7 +58,8 @@ for i in range(4):
     demo_enemies.add(start_scarecrow)
     start_vine=enemies.Omnivine(randint(50,950),randint(50,450))
     demo_enemies.add(start_vine)
-
+scyman=player.PlayerOne(0,0)
+enemies.player=scyman
 scarecrows=pygame.sprite.Group()
 player.scarecrows=scarecrows
 player.structures=structures
@@ -102,7 +103,7 @@ class GameElements():
         if self.loading:
             self.loading=False
             #player binding
-            scyman=player.PlayerOne(0,0)#500,250
+            #500,250
         for event in pygame.event.get():
             comfunc.quit(event)
             if event.type == pygame.KEYDOWN:
@@ -370,13 +371,13 @@ class GameElements():
             comfunc.quit(event)
 
         
-        enemies.player1pos=(scyman.positionx,scyman.positiony)
+        enemies.player1pos=(scyman.x,scyman.y)
         
         screen.blit(grass_clump,(randx,randy))
         enemies.spawned_loot.draw(screen)
         scyman.update(P1,delta)
         for i in scarecrows:
-            i.update(screen,scyman)
+            i.update(screen,scyman,delta)
         pygame.display.flip()
 
     def map_loader(self):
@@ -392,11 +393,11 @@ class GameElements():
         self.canvas=self.canvas_original.copy()
         player.canvas=self.canvas
         enemies.canvas=self.canvas
-        enemies.player1pos=(scyman.positionx,scyman.positiony)
+        enemies.player1pos=(scyman.x,scyman.y)
         enemies.spawned_loot.draw(self.canvas)
         scyman.update(P1,delta)
         for i in scarecrows:
-            i.update(self.canvas,scyman)
+            i.update(self.canvas,scyman,delta)
         structures.draw(self.canvas)
         screen.blit(self.canvas,(self.canvas_movement()))
         if scyman.hp <=0:

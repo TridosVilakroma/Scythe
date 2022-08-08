@@ -7,18 +7,18 @@ screen=None
 canvas=None
 enemies=[]
 player1pos=None
+player=None
 attacks=[]
 spawned_loot=pygame.sprite.Group()
 
 class Scarecrow(pygame.sprite.Sprite):
     def __init__(self,x,y):
         super().__init__()
+        self.delta=time.time()
         self.image = pygame.image.load('media\deco\scarecrow.png').convert_alpha()
         # self.x=randint(0,968)
         # self.y=randint(0,468)
-        self.x=x
-        self.y=y
-        self.rect=pygame.Rect(self.x,self.y,self.image.get_width(),self.image.get_height())
+        self.rect=pygame.Rect(x,y,self.image.get_width(),self.image.get_height())
         self.pos=pygame.math.Vector2((self.rect.center))
         self.hp = (randint(10,25)+75)
         self.hp_ratio=self.rect.width/self.hp
@@ -29,8 +29,20 @@ class Scarecrow(pygame.sprite.Sprite):
         self.timer_wheel_step=0
         self.image_loader()
         self.mask=pygame.mask.from_surface(self.image)
-        
-   
+
+    @property
+    def x(self):
+        return self.rect.x
+    @x.setter
+    def x(self,value):
+        self.rect.x=value
+    @property
+    def y(self):
+        return self.rect.y
+    @y.setter
+    def y(self,value):
+        self.rect.y=value
+
     def image_loader(self):
         self.trap_net=pygame.image.load(r'media\relics\fox\fox_net.png').convert_alpha()
         self.timer_wheel_img=[]
@@ -70,7 +82,7 @@ class Scarecrow(pygame.sprite.Sprite):
         self.timer_wheel_img.append(pygame.image.load(r'media\twirl\twirl33.png'))
         self.small_straw=pygame.image.load(r'media\deco\small_straw.png')
         self.straw_stalk=pygame.image.load(r'media\deco\straw_stalk.png')
-   
+
     def loot_dropper(self):
         random_loot=randint(1,7)
         try:
@@ -80,10 +92,10 @@ class Scarecrow(pygame.sprite.Sprite):
             popped=equip.equip_matrix[1].pop(random_loot)
         except KeyError:
             pass
-            
+
     def collision_check(self):
         pass
-   
+
     def damage(self,damage):
         self.hp-=max(0,damage-self.defense)
         if self.hp<0:
@@ -92,7 +104,7 @@ class Scarecrow(pygame.sprite.Sprite):
         self.aux_state.append('timerwheel')
         self.hpbar_ref_timer=time.time()+3
         self.health_bar()
-   
+
     def trap(self,duration):
         if 'trap' not in self.aux_state:
             self.trap_start=time.time()+duration
@@ -145,7 +157,7 @@ class Scarecrow(pygame.sprite.Sprite):
             pygame.draw.rect(canvas,GREEN,health,0,1)
         else:
             comfunc.clean_list(self.aux_state,'health')
-   
+
     def timer_wheel(self):
         if int(self.timer_wheel_step)<=len(self.timer_wheel_img)-1:
             canvas.blit(self.timer_wheel_img[self.timer_wheel_step],self.rect.center)
@@ -156,7 +168,7 @@ class Scarecrow(pygame.sprite.Sprite):
             self.dust_pos=player1pos
             self.timer_wheel_step=0
             comfunc.clean_list(self.aux_state,'timerwheel')
-   
+
     def dust(self):
         if self.dust_start>=time.time()-.6:
             canvas.blit(self.small_straw,self.dust_pos)
@@ -235,27 +247,25 @@ class Scarecrow(pygame.sprite.Sprite):
             self.trap(self.trap_duration)
         if 'dust_particles' in self.aux_state:
             self.dust_particles.update(canvas)
-   
+
     def blit(self):
         canvas.blit(self.image,(self.x,self.y))
 
-    def update(self,canvas,player):
+    def update(self,canvas,player,delta):
+        self.delta=delta
         self.pos=pygame.math.Vector2((self.rect.center))
         self.blit()
         self.vitality()
         self.auxillary(canvas,player)
-        
+
 
 class Omnivine(pygame.sprite.Sprite):
     def __init__(self,x,y):
         super().__init__()
+        self.delta=time.time()
         self.image = pygame.image.load('media\enemies\omnivine_walk\sprite_0.png').convert_alpha()
         self.mask=pygame.mask.from_surface(self.image)
-        # self.x=randint(0,968)
-        # self.y=randint(0,468)
-        self.x=x
-        self.y=y
-        self.rect=pygame.Rect(self.x,self.y,self.image.get_width(),self.image.get_height())
+        self.rect=pygame.Rect(x,y,self.image.get_width(),self.image.get_height())
         self.pos=pygame.math.Vector2((self.rect.center))
         self.hp = randint(10,25)+50
         self.hp_ratio=self.rect.width/self.hp
@@ -270,9 +280,23 @@ class Omnivine(pygame.sprite.Sprite):
         self.bullet_speed=2.5
         self.chance_to_shoot=1,750 #chance is one in the second int
         self.bullet_air_time=3.25
-        self.dest=pygame.math.Vector2(0,0)
+        self.dest=pygame.math.Vector2(x,y)
         self.vector=pygame.math.Vector2(0,0)
-   
+        self.speed=40
+
+    @property
+    def x(self):
+        return self.rect.x
+    @x.setter
+    def x(self,value):
+        self.rect.x=value
+    @property
+    def y(self):
+        return self.rect.y
+    @y.setter
+    def y(self,value):
+        self.rect.y=value
+
     def image_loader(self):
         self.trap_net=pygame.image.load(r'media\relics\fox\fox_net.png').convert_alpha()
         self.neutral_stance= pygame.image.load('media\enemies\omnivine_walk\sprite_0.png').convert_alpha()
@@ -335,7 +359,7 @@ class Omnivine(pygame.sprite.Sprite):
 
     def collision_check(self):
         pass
-   
+
     def damage(self,damage):
         self.hp-=max(0,damage-self.defense)
         if self.hp<0:
@@ -344,7 +368,7 @@ class Omnivine(pygame.sprite.Sprite):
         self.aux_state.append('timerwheel')
         self.hpbar_ref_timer=time.time()+3
         self.health_bar()
-    
+
     def trap(self,duration):
         if 'trap' not in self.aux_state:
             self.trap_start=time.time()+duration
@@ -429,7 +453,7 @@ class Omnivine(pygame.sprite.Sprite):
             pygame.draw.rect(canvas,GREEN,health,0,1)
         else:
             comfunc.clean_list(self.aux_state,'health')
-   
+
     def timer_wheel(self):
         if int(self.timer_wheel_step)<=len(self.timer_wheel_img)-1:
             canvas.blit(self.timer_wheel_img[self.timer_wheel_step],self.rect.center)
@@ -440,7 +464,7 @@ class Omnivine(pygame.sprite.Sprite):
             self.shoot_pos=player1pos
             self.timer_wheel_step=0
             comfunc.clean_list(self.aux_state,'timerwheel')
-   
+
     def shoot(self):
         if self.shoot_start>=time.time()-.2:
             self.image=self.shoot0
@@ -455,7 +479,7 @@ class Omnivine(pygame.sprite.Sprite):
             self.image=self.neutral_stance
             comfunc.clean_list(self.aux_state,'shoot')
             comfunc.clean_list(self.aux_state,'singleton')
-   
+
     def bullet_trajectory(self):
         if 'switch' not in self.aux_state:
             self.bullet_time_stamp=time.time()+self.bullet_air_time
@@ -516,42 +540,39 @@ class Omnivine(pygame.sprite.Sprite):
             self.rect=pygame.Rect(self.x,self.y,self.image.get_width(),self.image.get_height())
 
     def traverse(self):
-        prox=(abs(player1pos[0]-self.rect.center[0]),abs(player1pos[1]-self.rect.center[1]))
-        aggro_prox=200
-        max_prox=50
-        if prox[0]<=aggro_prox and prox[1]<=aggro_prox:
+        self_vector=pygame.Vector2(self.rect.center)
+        player_vector=pygame.Vector2(player.rect.center)
+        aggro_prox=350
+        max_prox=100
+        min_prox=95
+        if self_vector.distance_to(player_vector)<min_prox:
                 self.current_sprite+=self.animate_speed
                 if int(self.current_sprite)>=len(self.traverse_sprites):
                     self.current_sprite=0
                 self.image=self.traverse_sprites[int(self.current_sprite)]
                 if 'trap' not in self.aux_state:
-                    if player1pos[1]==self.y:
-                        if player1pos[0]-max_prox>self.x:
-                            self.x+=.5
-                        elif player1pos[0]+max_prox<self.x:
-                            self.x-=.5
-                    if player1pos[1]!=self.y:
-                        if player1pos[0]-max_prox>self.x:
-                            self.x+=.375
-                        elif player1pos[0]+max_prox<self.x:
-                            self.x-=.375
-                    if player1pos[0]==self.x:
-                        if player1pos[1]-max_prox>self.y:
-                            self.y+=.5
-                        elif player1pos[1]+max_prox<self.y:
-                            self.y-=.5
-                    if player1pos[0]!=self.x:
-                        if player1pos[1]-max_prox>self.y:
-                            self.y+=.375
-                        elif player1pos[1]+max_prox<self.y:
-                            self.y-=.375
-                self.rect=pygame.Rect(self.x,self.y,self.image.get_width(),self.image.get_height())
+                    v=comfunc.vector(player,self)
+                    if v.length_squared()>0:
+                        v.scale_to_length((self.speed*.9)*self.delta)
+                    self.dest+=v
+        elif self_vector.distance_to(player_vector)<aggro_prox:
+            if self_vector.distance_to(player_vector)>max_prox:
+                self.current_sprite+=self.animate_speed
+                if int(self.current_sprite)>=len(self.traverse_sprites):
+                    self.current_sprite=0
+                self.image=self.traverse_sprites[int(self.current_sprite)]
+                if 'trap' not in self.aux_state:
+                    v=comfunc.vector(self,player)
+                    if v.length_squared()>0:
+                        v.scale_to_length(self.speed*self.delta)
+                    self.dest+=v
+        self.rect.center=self.dest
 
     def vitality(self):
         if self.hp <= 0:
             self.loot_dropper()
             self.kill()
-  
+
     def auxillary(self,canvas,player):
         if 'health' in self.aux_state:
             self.health_bar()
@@ -579,13 +600,14 @@ class Omnivine(pygame.sprite.Sprite):
         
         if 'chain' in self.aux_state:
             self.chain_lightning(canvas,player)
-   
+
     def blit(self):
         canvas.blit(self.image,(self.x,self.y))
 
-    def update(self,canvas,player):
+    def update(self,canvas,player,delta):
+        self.delta=delta
         self.pos=pygame.Vector2((self.rect.center))
         self.blit()
         self.vitality()
         self.auxillary(canvas,player)
-        
+
