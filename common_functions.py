@@ -132,3 +132,8 @@ def surf_blur(surface,strength):
                 temp=pygame.transform.smoothscale(temp,(x*2,y*2))
                 temp=pygame.transform.smoothscale(temp,(x,y))
     return temp
+
+
+'''project global variables'''
+
+paused_time=0

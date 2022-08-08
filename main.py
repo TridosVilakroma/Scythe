@@ -96,6 +96,7 @@ class GameElements():
         self.main_loaded=False
         self.save_select_loaded=False
         self.save_slot=0
+        self.paused_time=0
 
     def start_screen(self):
         global P1,scyman
@@ -148,6 +149,7 @@ class GameElements():
 
     def pause(self):
         global delta_ref
+        _time=time.time()
         while True:
             if not self.paused:
                 self.paused=True
@@ -164,6 +166,7 @@ class GameElements():
                     if P1.get_button(7):
                         self.paused=False
                         delta_ref=time.time()
+                        comfunc.paused_time+=delta_ref-_time
                         return
 
     def main_menu(self):
@@ -535,6 +538,7 @@ player.canvas=game.canvas
 enemies.canvas=game.canvas
 delta_ref=time.time()
 while True:
+    print(comfunc.paused_time,time.time())
     # if pygame.joystick.get_count()==0:
     #     game.focus='start'
     #     game.switch=True
@@ -544,5 +548,8 @@ while True:
     #     delta_ref=delta_ref=time.time()
     #     scyman.hitlag=False
     delta=time.time()-delta_ref
+    comfunc.paused_time-=delta
+    if comfunc.paused_time<0:
+        comfunc.paused_time=0
     delta_ref=time.time()
     game.focus_switch()

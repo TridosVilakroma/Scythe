@@ -240,7 +240,7 @@ class PlayerOne(pygame.sprite.Sprite):
             self.image=self.walkdownsprites[int(self.current_sprite)]
 
     def blink_ghost(self):
-        if self.blink_start>time.time()-.25:
+        if self.blink_start>time.time()-.25-comfunc.paused_time:
             self.ghost.set_alpha(50)
             self.ghost_trail=self.image.copy()
             self.ghost_trail.set_alpha(150)
@@ -297,7 +297,7 @@ class PlayerOne(pygame.sprite.Sprite):
 
     def mini_health_bar(self):
         time_stamp=time.time()
-        if time_stamp<self.hpbar_ref_timer:
+        if time_stamp<self.hpbar_ref_timer-comfunc.paused_time:
             health_bar_thickness=3
             outline=pygame.Rect(self.rect.left-1,self.rect.top-health_bar_thickness-1,self.rect.width+2,5)
             health=pygame.Rect(self.rect.left,self.rect.top-health_bar_thickness,self.hp*self.mini_hp_ratio,health_bar_thickness)
@@ -453,7 +453,7 @@ class PlayerOne(pygame.sprite.Sprite):
     def scythe_animate(self,P1):
         time_stamp=time.time()
         
-        if time_stamp<self.scythe_time_ref+.2:
+        if time_stamp<self.scythe_time_ref+.2-comfunc.paused_time:
 
             scythe,position=comfunc.pivot(self.scythe.original_image,self.rect.center,
             (16,42),con.joy_angle(P1,(0,1)))
@@ -499,7 +499,7 @@ class PlayerOne(pygame.sprite.Sprite):
         if 'dpad' not in self.aux_state:
             self.aux_state.append('dpad')
             self.dpad_timestamp=time.time()+.5
-        elif self.dpad_timestamp>time.time():
+        elif self.dpad_timestamp>time.time()-comfunc.paused_time:
             relic=self.relics
             try:
                 canvas.blit(relic[0].transparent,(self.x-self.relics[0].rect[2],
@@ -733,7 +733,7 @@ class PlayerOne(pygame.sprite.Sprite):
         self.image=self.walkdownsprites[0]
 
     def action(self,P1):
-        time_stamp=time.time()
+        time_stamp=time.time()-comfunc.paused_time
         if P1.get_button(1):
             pass
         if P1.get_button(0):
@@ -792,9 +792,6 @@ class PlayerOne(pygame.sprite.Sprite):
         if 'dpad' in self.aux_state:
             self.relic_select(P1)
         self.collide()
-
-        # self.health_bar()
-        # self.mana_bar()
 
     def update_gui(self):
         self.health_bar()

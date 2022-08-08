@@ -110,7 +110,7 @@ class Scarecrow(pygame.sprite.Sprite):
             self.trap_start=time.time()+duration
             self.aux_state.append('trap')
             self.trap_duration=duration
-        if self.trap_start>time.time():
+        if self.trap_start>time.time()-comfunc.paused_time:
             canvas.blit(self.trap_net,self.rect.topleft)
         else:
             comfunc.clean_list(self.aux_state,'trap')
@@ -124,7 +124,7 @@ class Scarecrow(pygame.sprite.Sprite):
             (self.pos[1]-20,self.pos[1]),
             [RED,PALE_YELLOW,PALE_YELLOW,PALE_YELLOW,BRIGHT_YELLOW,BRIGHT_YELLOW,BRIGHT_YELLOW,BRIGHT_YELLOW],
             2,'burst_emit20','halo_wave',square=True)
-        if self.stun_start>time.time():
+        if self.stun_start>time.time()-comfunc.paused_time:
             self.stun_particles.update(canvas)
         else:
             comfunc.clean_list(self.aux_state,'stun')
@@ -133,7 +133,7 @@ class Scarecrow(pygame.sprite.Sprite):
         if 'bleed' not in self.aux_state:
             self.bleed_start=time.time()
         self.aux_state.append('bleed')
-        if self.bleed_start>time.time()-5:
+        if self.bleed_start>time.time()-5-comfunc.paused_time:
             self.hp-=.05
             self.hpbar_ref_timer=time.time()+3
             self.health_bar()
@@ -146,7 +146,7 @@ class Scarecrow(pygame.sprite.Sprite):
         self.health_bar()
 
     def health_bar(self):
-        time_stamp=time.time()
+        time_stamp=time.time()-comfunc.paused_time
         if time_stamp<self.hpbar_ref_timer:
             health_bar_thickness=3
             outline=pygame.Rect(self.rect.left-1,self.rect.top-health_bar_thickness-1,self.rect.width+2,5)
@@ -170,19 +170,19 @@ class Scarecrow(pygame.sprite.Sprite):
             comfunc.clean_list(self.aux_state,'timerwheel')
 
     def dust(self):
-        if self.dust_start>=time.time()-.6:
+        if self.dust_start>=time.time()-.6-comfunc.paused_time:
             canvas.blit(self.small_straw,self.dust_pos)
             self.aux_state.append('dust_particles')
             self.dust_particles=particles.ParticleEmitter(0,
             (self.dust_pos[0]+16,self.dust_pos[0]+16),(self.dust_pos[1]+32,self.dust_pos[1]+32),
             [PALE_YELLOW,WORN_YELLOW,BRIGHT_YELLOW,BROWN],1,
             'explode_up','move_to_dest','fast_shrink','shrink')
-        elif self.dust_start>=time.time()-1.2:
+        elif self.dust_start>=time.time()-1.2-comfunc.paused_time:
             canvas.blit(self.straw_stalk,self.dust_pos)
             dust_rect=pygame.Rect((self.dust_pos),(32,32))
             attacks.append((.75,dust_rect))
             
-        elif self.dust_start>=time.time()-1.3:
+        elif self.dust_start>=time.time()-1.3-comfunc.paused_time:
             canvas.blit(self.small_straw,self.dust_pos)
 
         else:
@@ -208,7 +208,7 @@ class Scarecrow(pygame.sprite.Sprite):
                     'implode','move_to_dest_fast','fast_shrink','shrink')
 
                     i.damage(8)
-        if self.chain_start>time.time()-1.5:
+        if self.chain_start>time.time()-1.5-comfunc.paused_time:
             self.hp-=.25
             self.hpbar_ref_timer=time.time()+3
             self.health_bar()
@@ -374,7 +374,7 @@ class Omnivine(pygame.sprite.Sprite):
             self.trap_start=time.time()+duration
             self.aux_state.append('trap')
             self.trap_duration=duration
-        if self.trap_start>time.time():
+        if self.trap_start>time.time()-comfunc.paused_time:
             canvas.blit(self.trap_net,self.rect.topleft)
         else:
             comfunc.clean_list(self.aux_state,'trap')
@@ -388,7 +388,7 @@ class Omnivine(pygame.sprite.Sprite):
             (self.pos[1]-20,self.pos[1]),
             [RED,PALE_YELLOW,PALE_YELLOW,PALE_YELLOW,BRIGHT_YELLOW,BRIGHT_YELLOW,BRIGHT_YELLOW,BRIGHT_YELLOW],
             2,'burst_emit20','halo_wave',square=True)
-        if self.stun_start>time.time():
+        if self.stun_start>time.time()-comfunc.paused_time:
             self.stun_particles.update(canvas)
         else:
             comfunc.clean_list(self.aux_state,'stun')
@@ -397,7 +397,7 @@ class Omnivine(pygame.sprite.Sprite):
         if 'bleed' not in self.aux_state:
             self.bleed_start=time.time()
             self.aux_state.append('bleed')
-        if self.bleed_start>time.time()-5:
+        if self.bleed_start>time.time()-5-comfunc.paused_time:
             self.hp-=.05
             self.hpbar_ref_timer=time.time()+3
             self.health_bar()
@@ -423,7 +423,7 @@ class Omnivine(pygame.sprite.Sprite):
                     'implode','move_to_dest_fast','fast_shrink','shrink')
 
                     i.damage(8)
-        if self.chain_start>time.time()-1.5:
+        if self.chain_start>time.time()-1.5-comfunc.paused_time:
             self.hp-=.25
             self.hpbar_ref_timer=time.time()+3
             self.health_bar()
@@ -442,7 +442,7 @@ class Omnivine(pygame.sprite.Sprite):
         self.health_bar()
 
     def health_bar(self):
-        time_stamp=time.time()
+        time_stamp=time.time()-comfunc.paused_time
         if time_stamp<self.hpbar_ref_timer:
             health_bar_thickness=3
             outline=pygame.Rect(self.rect.left-1,self.rect.top-health_bar_thickness-1,self.rect.width+2,5)
@@ -466,11 +466,11 @@ class Omnivine(pygame.sprite.Sprite):
             comfunc.clean_list(self.aux_state,'timerwheel')
 
     def shoot(self):
-        if self.shoot_start>=time.time()-.2:
+        if self.shoot_start>=time.time()-.2-comfunc.paused_time:
             self.image=self.shoot0
-        elif self.shoot_start>=time.time()-1.2:
+        elif self.shoot_start>=time.time()-1.2-comfunc.paused_time:
             self.image=self.shoot1
-        elif self.shoot_start>=time.time()-2:
+        elif self.shoot_start>=time.time()-2-comfunc.paused_time:
             self.image=self.shoot2
             if not 'singleton' in self.aux_state:
                 self.aux_state.append('bullet')
@@ -497,7 +497,7 @@ class Omnivine(pygame.sprite.Sprite):
                 comfunc.clean_list(self.aux_state,'switch')
                 comfunc.clean_list(self.aux_state,'bullet')
                 
-            if self.bullet_time_stamp<time.time():
+            if self.bullet_time_stamp<time.time()-comfunc.paused_time:
                 comfunc.clean_list(self.aux_state,'switch')
                 comfunc.clean_list(self.aux_state,'bullet')
         if 'switch' in self.aux_state:
