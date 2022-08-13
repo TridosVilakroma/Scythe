@@ -384,13 +384,15 @@ class GameElements():
 
     def map_loader(self):
         if not self.level_loaded:
-            structures.empty()
+            structures.empty() 
             scarecrows.empty()
             self.level_data,self.game_data=lev.load_level(self.current_level)
             self.level_loaded=True
-            self.canvas_original,enemy_container,collidable_structures=lev.create_canvas(self.level_data,self.game_data)
+            self.canvas_original,enemy_container,collidable_structures,player_pos=lev.create_canvas(self.level_data,self.game_data)
             structures.add(collidable_structures)
             scarecrows.add(enemy_container)
+            scyman.x,scyman.y=player_pos
+        print(scyman.x,scyman.y,scyman.rect.center)
         screen.blit(back_ground,(0,0))
         self.canvas=self.canvas_original.copy()
         player.canvas=self.canvas
@@ -455,24 +457,24 @@ class GameElements():
 
     def save_game(self):
         player_data={
-            1:[],
-            2:[],
-            3:[],
-            4:[]
+            1:[i.io_name for i in scyman.relics],
+            2:[i.io_name for i in scyman.armor],
+            3:[i.io_name for i in scyman.weapons],
+            4:[i.io_name for i in scyman.tools]
         }
-        for i in scyman.relics:
-            player_data[1].append(i.io_name)
-        for i in scyman.armor:
-            player_data[2].append(i.io_name)
-        for i in scyman.weapons:
-            player_data[3].append(i.io_name)
-        for i in scyman.tools:
-            player_data[4].append(i.io_name)
+        # for i in scyman.relics:
+        #     player_data[1].append(i.io_name)
+        # for i in scyman.armor:
+        #     player_data[2].append(i.io_name)
+        # for i in scyman.weapons:
+        #     player_data[3].append(i.io_name)
+        # for i in scyman.tools:
+        #     player_data[4].append(i.io_name)
         equipment_data={
-            1:[]
+            1:[i.io_name for i in equip.equip]
         }
-        for i in equip.equip:
-            equipment_data[1].append(i.io_name)
+        # for i in equip.equip:
+        #     equipment_data[1].append(i.io_name)
         enemy_data={
         }
         for index,i in enumerate(enemies.spawned_loot,start=1):

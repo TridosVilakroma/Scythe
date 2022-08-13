@@ -11,6 +11,17 @@ down key- Decrease level counter. (output in console)
 
 number keys- Change the currently equiped tileset you are working with.(output in console)
 
+	1-Standard tiles
+	2-Road tiles
+	3-Structures
+	4-
+	5-
+	6-
+	7-
+	8-Player starting position
+	9-Enemies
+	0-
+
 enter key- Save current screen as a level, into a file of "current level counter"
 
 space bar key- Load a file of "current level counter", onto screen.

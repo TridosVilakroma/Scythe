@@ -56,15 +56,15 @@ bot_right=pygame.image.load(r'media\tile\edge\botright.png').convert_alpha()
 
 collidable_structures=pygame.sprite.Group()
 enemy_container=pygame.sprite.Group()
+player_pos=(16,16)
 
 def load_level(level):
     collidable_structures.empty()
     enemy_container.empty()
     if path.exists(f'levels\level{level}_data'):
-        pickle_in = open(f'levels\level{level}_data', 'rb')
-        coupled_data = pickle.load(pickle_in)
-        world_data,game_data = coupled_data[0],coupled_data[1]
-        pickle_in.close()
+        with open(f'levels\level{level}_data', 'rb') as read_file:
+            coupled_data = pickle.load(read_file)
+            world_data,game_data = coupled_data[0],coupled_data[1]
         return world_data,game_data
 
 class Structure(pygame.sprite.Sprite):
@@ -89,12 +89,13 @@ def spawn(enemy_type,row,col):
 
 
 def create_canvas(world_data,game_data):
+    global player_pos
     canvas = pygame.Surface((canvas_width,canvas_height), pygame.SRCALPHA)
     for row in range(cells):
         for col in range(cells):
             if world_data[row][col] > 0:
-        ########world_data
-                #tiles
+    ############world_data
+            #####tiles
                 if world_data[row][col] == 1:
                     #dirt blocks
                     img = pygame.transform.scale(dirt_img1, (tile_size, tile_size))
@@ -119,7 +120,7 @@ def create_canvas(world_data,game_data):
                     #stone blocks
                     img = pygame.transform.scale(stone_img1, (tile_size, tile_size))
                     canvas.blit(img, (col * tile_size, row * tile_size))
-                #roads
+            #####roads
                 if world_data[row][col] == 7:
                     #horizontal road
                     img = pygame.transform.scale(horzroad, (tile_size, tile_size))
@@ -172,10 +173,14 @@ def create_canvas(world_data,game_data):
                     #left dead end road
                     img = pygame.transform.scale(leftend, (tile_size, tile_size))
                     canvas.blit(img, (col * tile_size, row * tile_size))
-        ########game_data 
+    ############game_data
+
+        ########player
+                if game_data[row][col] == 1000:
+                    player_pos=(col * tile_size,row * tile_size)
         ########enemies
                 if game_data[row][col] == 200:
-                    #scarecrow 
+                    #scarecrow
                     spawn('Scarecrow',row,col)
                 if game_data[row][col] == 201:
                     #omnivine
@@ -219,4 +224,4 @@ def create_canvas(world_data,game_data):
                     #bottom right edge
                     img = pygame.transform.scale(bot_right, (tile_size, tile_size))
                     canvas.blit(img, (col * tile_size, row * tile_size))
-    return canvas,enemy_container,collidable_structures
+    return canvas,enemy_container,collidable_structures,player_pos
