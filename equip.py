@@ -3,6 +3,7 @@ import common_functions as comfunc
 import controller as con
 from pygame.sprite import collide_mask, collide_rect, spritecollide
 from color_palette import *
+import Time
 
 scarecrows=None#variable overwritten in main to add enemy access here
 
@@ -53,28 +54,28 @@ class Skunk(Relic):
         self.io_name='Skunk'
         self.name='Mephitidae_relic'
         mana_drain=.13
-        self.image=pygame.image.load(r'media\relics\mephitidae_relic.png')
+        self.image=pygame.image.load(r'media\relics\mephitidae_relic.png').convert_alpha()
         self.transparent=self.image.copy()
         self.transparent.fill((255, 255, 255, 128), None, pygame.BLEND_RGBA_MULT)
-        self.shape_shifted=pygame.image.load(r'media\relics\skunk\skunk_neutral.png')
+        self.shape_shifted=pygame.image.load(r'media\relics\skunk\skunk_neutral.png').convert_alpha()
         super().__init__(mana_drain,self.image)
         self.defense=0
         self.speed=200
         self.scythe_attack=0
         self.hp_regen=0
         self.attack_count=0
-        self.last_hit=time.time()
+        self.last_hit=Time.game_clock()
         self.cloud=False
-        self.cloud_start=time.time()-3
+        self.cloud_start=Time.game_clock()-3
 
     def attack(self,screen,hits,player,P1):
-        time_stamp=time.time()
+        time_stamp=Time.game_clock()
         if time_stamp>self.last_hit+.15:
             self.attack_count+=1
             for i in hits:
                 i.damage(1.75)
                 player.hp+=1.75
-                self.last_hit=time.time()
+                self.last_hit=Time.game_clock()
             if self.attack_count>=2:
                 for i in hits:
                     i.bleed()
@@ -83,7 +84,7 @@ class Skunk(Relic):
 
     def special_attack(self,screen,player):
         if not self.cloud_cooldown:
-            self.cloud_start=time.time()
+            self.cloud_start=Time.game_clock()
             self.cloud_pos=pygame.Vector2(self.rect.center)
             self.cloud_cooldown=True
 
@@ -91,7 +92,7 @@ class Skunk(Relic):
         pass
 
     def passives(self,screen,scarecrows,player,P1):
-        if self.cloud_start>time.time()-3:
+        if self.cloud_start>Time.game_clock()-3:
             pygame.draw.circle(screen,PURPLE,self.cloud_pos,85,1)
             for i in scarecrows:
                 if i.pos.distance_to(self.cloud_pos)<85:
@@ -116,36 +117,36 @@ class Fox(Relic):
         self.io_name='Fox'
         self.name='vulpes_relic'
         mana_drain=.15
-        self.image=pygame.image.load(r'media\relics\vulpes_relic.png')
+        self.image=pygame.image.load(r'media\relics\vulpes_relic.png').convert_alpha()
         self.transparent=self.image.copy()
         self.transparent.fill((255, 255, 255, 128), None, pygame.BLEND_RGBA_MULT)
-        self.shape_shifted=pygame.image.load(r'media\relics\fox\fox_neutral.png')
-        self.fox_mine=comfunc.ItemSprite(pygame.image.load(r'media\relics\fox\fox_mine.png'))
-        self.fox_arrow=pygame.image.load(r'media\relics\fox\fox_arrow.png')
+        self.shape_shifted=pygame.image.load(r'media\relics\fox\fox_neutral.png').convert_alpha()
+        self.fox_mine=comfunc.ItemSprite(pygame.image.load(r'media\relics\fox\fox_mine.png').convert_alpha())
+        self.fox_arrow=pygame.image.load(r'media\relics\fox\fox_arrow.png').convert_alpha()
         super().__init__(mana_drain,self.image)
         self.defense=0
         self.speed=235
         self.scythe_attack=0
         self.hp_regen=0
-        self.last_hit=time.time()
-        self.mine_cooldown=time.time()
+        self.last_hit=Time.game_clock()
+        self.mine_cooldown=Time.game_clock()
         self.mine=False
         self.arrows=pygame.sprite.Group()
-        self.arrow_delay=time.time()
+        self.arrow_delay=Time.game_clock()
         
     def attack(self,screen,hits,player,P1):
-        time_stamp=time.time()
+        time_stamp=Time.game_clock()
         if time_stamp>self.last_hit+.3:
             for i in hits:
                 i.trap(15)
                 i.damage(0)
                 player.mp+=7.5
-                self.last_hit=time.time()
+                self.last_hit=Time.game_clock()
 
     def special_attack(self,screen,player):
         if not self.mine_cooldown:
             self.mine=True
-            self.mine_start=time.time()
+            self.mine_start=Time.game_clock()
             self.mine_pos=pygame.Vector2(self.rect.center)
             self.mine_cooldown=True
             self.fox_mine.rect[0]=(self.mine_pos[0]-self.fox_mine.image.get_width()/2)
@@ -157,19 +158,19 @@ class Fox(Relic):
         arrow.rect.center=origin
         arrow.velocity_x,arrow.velocity_y=pygame.math.Vector2((arrow.speed*delta)*(P1.get_axis(3)*8),
         (arrow.speed*delta)*(P1.get_axis(4)*8))
-        if len(self.arrows)<30 and self.arrow_delay<time.time():
+        if len(self.arrows)<30 and self.arrow_delay<Time.game_clock():
             self.arrows.add(arrow)
-            self.arrow_delay=time.time()+.2
+            self.arrow_delay=Time.game_clock()+.2
 
     def passives(self,screen,scarecrows,player,P1):
-        if self.mine and self.mine_start>time.time()-10:
+        if self.mine and self.mine_start>Time.game_clock()-10:
             self.nuked=True
             screen.blit(self.fox_mine.image,(self.mine_pos[0]-self.fox_mine.image.get_width()/2,
             self.mine_pos[1]-self.fox_mine.image.get_height()/2))
             for i in pygame.sprite.spritecollide(self.fox_mine,scarecrows,False,collide_mask):
-                self.mine_start=time.time()-10
+                self.mine_start=Time.game_clock()-10
                 
-        elif self.mine and self.mine_start>time.time()-10.5:
+        elif self.mine and self.mine_start>Time.game_clock()-10.5:
             pygame.draw.circle(screen,RED,self.mine_pos,45,1)
             if self.nuked==True:
                 self.nuked=False
@@ -198,7 +199,7 @@ class Fox(Relic):
                 self.speed=150
                 self.origin=origin
                 self.image=image
-                self.life_time=time.time()+2
+                self.life_time=Time.game_clock()+2
                 self.rotated_image=pygame.transform.rotozoom(self.image,con.joy_angle(P1,(3,4))*-1,1)
                 self.velocity_x=0
                 self.velocity_y=0
@@ -219,25 +220,25 @@ class Eagle(Relic):
         self.io_name='Eagle'
         self.name='aeetus_relic'
         mana_drain=.18
-        self.image=pygame.image.load(r'media\relics\aeetos_relic.png')
+        self.image=pygame.image.load(r'media\relics\aeetos_relic.png').convert_alpha()
         self.transparent=self.image.copy()
         self.transparent.fill((255, 255, 255, 128), None, pygame.BLEND_RGBA_MULT)
-        self.shape_shifted=pygame.image.load(r'media\relics\eagle\eagle_neutral.png')
-        self.eagle_feather=pygame.image.load(r'media\relics\eagle\eagle_feather.png')
+        self.shape_shifted=pygame.image.load(r'media\relics\eagle\eagle_neutral.png').convert_alpha()
+        self.eagle_feather=pygame.image.load(r'media\relics\eagle\eagle_feather.png').convert_alpha()
         super().__init__(mana_drain,self.image)
         self.defense=1
         self.speed=170
         self.scythe_attack=0
         self.hp_regen=0
         self.feathers=pygame.sprite.Group()
-        self.feather_delay=time.time()
-        self.entry_portal=self.Portal(pygame.image.load(r'media\relics\eagle\portal_0.png'),PINK_PURPLE,PURPLE,DARK_PURPLE)
-        self.exit_portal=self.Portal(pygame.image.load(r'media\relics\eagle\portal_1.png'),GREEN,DARK_GREEN,LIGHT_GREEN)
-        self.entry_portal_cooldown=time.time()
-        self.entry_portal_lifetime=time.time()+30
-        self.exit_portal_cooldown=time.time()
-        self.exit_portal_lifetime=time.time()+30
-        self.ghost_time=time.time()
+        self.feather_delay=Time.game_clock()
+        self.entry_portal=self.Portal(pygame.image.load(r'media\relics\eagle\portal_0.png').convert_alpha(),PINK_PURPLE,PURPLE,DARK_PURPLE)
+        self.exit_portal=self.Portal(pygame.image.load(r'media\relics\eagle\portal_1.png').convert_alpha(),GREEN,DARK_GREEN,LIGHT_GREEN)
+        self.entry_portal_cooldown=Time.game_clock()
+        self.entry_portal_lifetime=Time.game_clock()+30
+        self.exit_portal_cooldown=Time.game_clock()
+        self.exit_portal_lifetime=Time.game_clock()+30
+        self.ghost_time=Time.game_clock()
         self.ghost_angle=10
         self.ghost_shrink=.9
 
@@ -247,7 +248,7 @@ class Eagle(Relic):
                 self.speed=150
                 self.origin=origin
                 self.image=image
-                self.life_time=time.time()+.5
+                self.life_time=Time.game_clock()+.5
                 self.rotated_image=pygame.transform.rotozoom(self.image,con.joy_angle(P1,(3,4))*-1,1)
                 self.velocity_x=0
                 self.velocity_y=0
@@ -259,10 +260,10 @@ class Eagle(Relic):
             self.particle_colors=particle_colors
             
     def attack(self,screen,hits,player,P1):
-        time_stamp=time.time()
+        time_stamp=Time.game_clock()
         if self.entry_portal_cooldown<time_stamp:
-            self.entry_portal_lifetime=time.time()+30
-            self.entry_portal_cooldown=time.time()+3
+            self.entry_portal_lifetime=Time.game_clock()+30
+            self.entry_portal_cooldown=Time.game_clock()+3
             self.entry_portal.active=True
             self.entry_portal.rect.center=self.rect.center
             
@@ -271,10 +272,10 @@ class Eagle(Relic):
             'fire_fly','move_to_dest','shrink','slow_emit')
 
     def special_attack(self,screen,player):
-        time_stamp=time.time()
+        time_stamp=Time.game_clock()
         if self.exit_portal_cooldown<time_stamp:
-            self.exit_portal_lifetime=time.time()+30
-            self.exit_portal_cooldown=time.time()+3
+            self.exit_portal_lifetime=Time.game_clock()+30
+            self.exit_portal_cooldown=Time.game_clock()+3
             self.exit_portal.active=True
             self.exit_portal.rect.center=self.rect.center
 
@@ -288,19 +289,19 @@ class Eagle(Relic):
         feather.rect.center=origin
         feather.velocity_x,feather.velocity_y=pygame.math.Vector2((feather.speed*delta)*(P1.get_axis(3)*3),
         (feather.speed*delta)*(P1.get_axis(4)*3))
-        if len(self.feathers)<30 and self.feather_delay<time.time():
+        if len(self.feathers)<30 and self.feather_delay<Time.game_clock():
             if player.hp<=50:
                 feather.velocity_x,feather.velocity_y=pygame.math.Vector2((feather.speed*delta)*(P1.get_axis(3)*4),
                 (feather.speed*delta)*(P1.get_axis(4)*4))
                 feather.life_time+=.5
                 self.feathers.add(feather)
-                self.feather_delay=time.time()+.3
+                self.feather_delay=Time.game_clock()+.3
             else:
                 self.feathers.add(feather)
-                self.feather_delay=time.time()+.5
+                self.feather_delay=Time.game_clock()+.5
 
     def passives(self,screen,scarecrows,player,P1):
-        time_stamp=time.time()
+        time_stamp=Time.game_clock()
         if player.active_relic.name=='aeetus_relic':
             mana_regen=False
             hp_regen=False
@@ -325,7 +326,7 @@ class Eagle(Relic):
                 screen.blit(self.entry_portal_transparent,self.entry_portal.rect)
                 if self.exit_portal.active:
                     if self.entry_portal.rect.colliderect(player):
-                        self.ghost_time=time.time()+1.2
+                        self.ghost_time=Time.game_clock()+1.2
                         self.ghost_angle=10
                         self.ghost_shrink=.9
                         self.ghost_image=player.image.copy()
@@ -383,10 +384,10 @@ class Bear(Relic):
         self.io_name='Bear'
         self.name='Ursidae_relic'
         mana_drain=.125
-        self.image=pygame.image.load(r'media\relics\Ursidae_relic.png')
+        self.image=pygame.image.load(r'media\relics\Ursidae_relic.png').convert_alpha()
         self.transparent=self.image.copy()
         self.transparent.fill((255, 255, 255, 128), None, pygame.BLEND_RGBA_MULT)
-        self.shape_shifted=pygame.image.load(r'media\relics\bear\bear_0.png')
+        self.shape_shifted=pygame.image.load(r'media\relics\bear\bear_0.png').convert_alpha()
         super().__init__(mana_drain, self.image)
         self.defense=3
         self.speed=120
@@ -396,7 +397,7 @@ class Bear(Relic):
         self.rage_colors=(RED,RED,RED,RED,RED,DARK_RED,DARK_RED,DEEP_RED,ORANGE)
 
     def attack(self,screen,hits,player,P1):
-        time_stamp=time.time()
+        time_stamp=Time.game_clock()
         if time_stamp>player.slash_time_ref:
                     player.slash_time_ref=time_stamp+player.slash_cooldown
                     player.focus='slash'
@@ -414,7 +415,7 @@ class Bear(Relic):
     def passives(self,screen,scarecrows,player,P1):
         if player.recieved_damage:
             self.rage_mode=True
-            self.rage_timer=time.time()+5
+            self.rage_timer=Time.game_clock()+5
             self.rage_particles=particles.ParticleEmitter(.025,(self.rect.left,self.rect.right),
             (self.rect.top,self.rect.top),self.rage_colors,2,
             'ascend','fast_shrink','fast_emit','random_growth','vert_wave')
@@ -426,7 +427,7 @@ class Bear(Relic):
             self.rage_particles.update(screen)
 
 
-            if self.rage_timer<time.time():
+            if self.rage_timer<Time.game_clock():
                 self.rage_mode=False
                 player.speed=120
                 player.defense=3
@@ -449,21 +450,21 @@ class Lion(Relic):
         self.io_name='Lion'
         self.name='Panthera_relic'
         mana_drain=.095
-        self.image=pygame.image.load(r'media\relics\panthera_relic.png')
+        self.image=pygame.image.load(r'media\relics\panthera_relic.png').convert_alpha()
         self.transparent=self.image.copy()
         self.transparent.fill((255, 255, 255, 128), None, pygame.BLEND_RGBA_MULT)
-        self.shape_shifted=pygame.image.load(r'media\relics\lion\lion_0.png')
+        self.shape_shifted=pygame.image.load(r'media\relics\lion\lion_0.png').convert_alpha()
         super().__init__(mana_drain, self.image)
         self.defense=0
         self.speed=160
         self.scythe_attack=0
         self.hp_regen=0
-        self.last_hit=time.time()
-        self.chain_timer=time.time()-3
-        self.roar_start=time.time()-3
+        self.last_hit=Time.game_clock()
+        self.chain_timer=Time.game_clock()-3
+        self.roar_start=Time.game_clock()-3
 
     def attack(self,screen,hits,player,P1):
-        time_stamp=time.time()
+        time_stamp=Time.game_clock()
         if time_stamp>self.last_hit+.35:
             for i in hits:
                 i.damage(3)
@@ -479,7 +480,7 @@ class Lion(Relic):
     def special_attack(self,screen,player):
         if player.mp>10:
             if not self.roar_cooldown:
-                self.roar_start=time.time()
+                self.roar_start=Time.game_clock()
                 self.roar_cooldown=True
                 player.mp-=10
 
@@ -487,11 +488,11 @@ class Lion(Relic):
         pass
 
     def passives(self,screen,scarecrows,player,P1):
-        if self.roar_start>time.time()-.5:
-            sine=math.sin(time.time()*5)
-            cosine=math.cos(time.time()*5)
-            reverse_sine=math.sin(time.time()*-5)
-            reverse_cosine=math.cos(time.time()*-5)
+        if self.roar_start>Time.game_clock()-.5:
+            sine=math.sin(Time.game_clock()*5)
+            cosine=math.cos(Time.game_clock()*5)
+            reverse_sine=math.sin(Time.game_clock()*-5)
+            reverse_cosine=math.cos(Time.game_clock()*-5)
             self.roar_pos=pygame.Vector2(player.rect.center)
             pygame.draw.circle(screen,BRIGHT_YELLOW,self.roar_pos,100,1)
             pygame.draw.circle(screen,PALE_YELLOW,self.roar_pos,sine*100,1)
@@ -522,27 +523,27 @@ class Turtle(Relic):
         self.io_name='Turtle'
         self.name='Testudinidae_relic'
         mana_drain=.115
-        self.image=pygame.image.load(r'media\relics\Testudinidae_relic.png')
+        self.image=pygame.image.load(r'media\relics\Testudinidae_relic.png').convert_alpha()
         self.transparent=self.image.copy()
         self.transparent.fill((255, 255, 255, 128), None, pygame.BLEND_RGBA_MULT)
-        self.shape_shifted=pygame.image.load(r'media\relics\turtle\turtle.png')
+        self.shape_shifted=pygame.image.load(r'media\relics\turtle\turtle.png').convert_alpha()
         super().__init__(mana_drain, self.image)
         self.defense=3
         self.speed=100
         self.scythe_attack=0
         self.hp_regen=.01
-        self.last_hit=time.time()
+        self.last_hit=Time.game_clock()
         self.blockaded=False
         self.pushback=False
-        self.pushback_start=time.time()
+        self.pushback_start=Time.game_clock()
 
     def attack(self,screen,hits,player,P1):
-        time_stamp=time.time()
+        time_stamp=Time.game_clock()
         if time_stamp>self.last_hit+2:
             for i in hits:
                 i.damage(20)
                 i.stun(1)
-                self.last_hit=time.time()
+                self.last_hit=Time.game_clock()
 
     def special_attack(self,screen,player):
         if 'blockade' not in player.aux_state:
@@ -571,10 +572,10 @@ class Turtle(Relic):
             player.shield+=.5
             self.blockaded=False
             self.pushback=True
-            self.pushback_start=time.time()
+            self.pushback_start=Time.game_clock()
 
         if self.pushback==True:
-            timestamp=time.time()
+            timestamp=Time.game_clock()
             if self.pushback_start>timestamp-.5:
                 pygame.draw.circle(screen,RED,self.rect.center,85,1)
                 pygame.draw.circle(screen,BRIGHT_YELLOW,self.rect.center,(timestamp-self.pushback_start)*50,1)
@@ -588,8 +589,8 @@ class Turtle(Relic):
 
         if P1.get_button(1) and self.blockaded==True:
             player.mp-=.02
-            sine=math.sin(time.time())*4
-            cosine=math.cos(time.time())*4
+            sine=math.sin(Time.game_clock())*4
+            cosine=math.cos(Time.game_clock())*4
             pygame.draw.circle(screen,RED,self.rect.center,85,2)
             pygame.draw.circle(screen,DARK_RED,self.rect.center,60+sine,1)
             pygame.draw.circle(screen,DARK_RED,self.rect.center,40+cosine*2,1)
@@ -620,36 +621,36 @@ class Wolf(Relic):
         self.io_name='Wolf'
         self.name='Canidae_relic'
         mana_drain=.115
-        self.image=pygame.image.load(r'media\relics\canidae_relic.png')
+        self.image=pygame.image.load(r'media\relics\canidae_relic.png').convert_alpha()
         self.transparent=self.image.copy()
         self.transparent.fill((255, 255, 255, 128), None, pygame.BLEND_RGBA_MULT)
-        self.shape_shifted=pygame.image.load(r'media\relics\wolf\wolf.png')
+        self.shape_shifted=pygame.image.load(r'media\relics\wolf\wolf.png').convert_alpha()
         super().__init__(mana_drain, self.image)
         self.defense=1
         self.speed=150
         self.scythe_attack=0
         self.hp_regen=0
-        self.last_hit=time.time()
-        self.counter_store_cooldown=time.time()
+        self.last_hit=Time.game_clock()
+        self.counter_store_cooldown=Time.game_clock()
         self.counter_store=False
         self.stored_energy=0
         self.countered=False
 
     def attack(self,screen,hits,player,P1):
-        time_stamp=time.time()
+        time_stamp=Time.game_clock()
         if time_stamp>self.last_hit+.3:
             for i in hits:
                 i.damage(10)
                 if self.stored_energy:
                     i.damage(self.stored_energy)
                     self.stored_energy=0
-                self.last_hit=time.time()
+                self.last_hit=Time.game_clock()
 
     def special_attack(self,screen,player):
-        if time.time()>self.counter_store_cooldown:
+        if Time.game_clock()>self.counter_store_cooldown:
             if player.mp>15:
                 player.mp-=15
-                self.counter_store_cooldown=time.time()+1
+                self.counter_store_cooldown=Time.game_clock()+1
                 player.incoming_damage_tracked=True
                 player.shield-=1
                 self.counter_store=True
@@ -659,7 +660,7 @@ class Wolf(Relic):
 
     def passives(self,screen,scarecrows,player,P1):
             if self.counter_store==True:
-                if self.counter_store_cooldown>time.time()+.85:
+                if self.counter_store_cooldown>Time.game_clock()+.85:
                    self.stored_energy+=(sum(player.incoming_damage)*2)
                    if player.incoming_damage:
                        self.countered=True
@@ -689,27 +690,27 @@ class Lynx(Relic):
         self.io_name='Lynx'
         self.name='Felidae_relic'
         mana_drain=.125
-        self.image=pygame.image.load(r'media\relics\felidae_relic.png')
+        self.image=pygame.image.load(r'media\relics\felidae_relic.png').convert_alpha()
         self.transparent=self.image.copy()
         self.transparent.fill((255, 255, 255, 128), None, pygame.BLEND_RGBA_MULT)
-        self.shape_shifted=pygame.image.load(r'media\relics\lynx\lynx.png')
+        self.shape_shifted=pygame.image.load(r'media\relics\lynx\lynx.png').convert_alpha()
         super().__init__(mana_drain, self.image)
         self.defense=0
         self.speed=300
         self.scythe_attack=0
         self.hp_regen=0
-        self.last_hit=time.time()
+        self.last_hit=Time.game_clock()
         self.attack_flag=False
         self.blink_hit_counter=0
         self.blinked_lynx_flag=False
-        self.last_blink_time=time.time()
+        self.last_blink_time=Time.game_clock()
 
     def attack(self,screen,hits,player,P1):
         if self.attack_flag==False and P1.get_button(2):
             self.attack_flag=True
             for i in hits:
                 i.damage(5)
-                if player.blink_start>time.time()-.5:
+                if player.blink_start>Time.game_clock()-.5:
                     player.mp+=5
 
 
@@ -720,7 +721,7 @@ class Lynx(Relic):
         pass
 
     def passives(self,screen,scarecrows,player,P1):
-        timestamp=time.time()
+        timestamp=Time.game_clock()
         if self.attack_flag==True and not P1.get_button(2):
             self.attack_flag=False
         if player.active_relic.name =='Felidae_relic':
@@ -733,11 +734,11 @@ class Lynx(Relic):
             else:
                 player.invulnerable=False
 
-            if self.last_blink_time<time.time()-.25:
+            if self.last_blink_time<Time.game_clock()-.25:
                 if P1.get_button(0) and player.mp>player.blink_mp_cost:
                     self.blinked_lynx_flag=True
                     self.ghostpos=(player.x,player.y)
-                    self.last_blink_time=time.time()
+                    self.last_blink_time=Time.game_clock()
             if self.blinked_lynx_flag:
                 blink_path=(self.ghostpos,player.rect.center)
                 pygame.draw.line(screen,GREY_BLUE,self.ghostpos,player.rect.center,5)

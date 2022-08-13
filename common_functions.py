@@ -1,5 +1,5 @@
 import pygame, sys, math,time
-
+import Time
 def quit(event):
         if event.type == pygame.QUIT:
             pygame.quit()
@@ -34,6 +34,13 @@ def vector(obj1,obj2):
     except ValueError:
         return direction_vector
 
+def vector_from_coords(obj1_xy,obj2_xy):
+    """returns a normalized vector pointing from obj1_xy to obj2_xy"""
+    direction_vector=pygame.Vector2(obj2_xy[0]-obj1_xy[0],obj2_xy[1]-obj1_xy[1])
+    try:
+        return direction_vector.normalize()
+    except ValueError:
+        return direction_vector
 
 def move(rect_center,speed,angle):
     x = rect_center[0] + (speed*math.cos(math.radians(angle)))
@@ -66,7 +73,7 @@ def item_decay(nested_list):
     '''
     filtered_list=[]
     for i in nested_list:
-        if i[0].life_time >= time.time():
+        if i[0].life_time >= Time.game_clock():
             filtered_list.append(i)
     return filtered_list
 
@@ -76,7 +83,7 @@ def sprite_decay(group):
     '''
     filtered_group=pygame.sprite.Group()
     for i in group:
-        if i.life_time >= time.time():
+        if i.life_time >= Time.game_clock():
             filtered_group.add(i)
     return filtered_group
 
@@ -102,7 +109,7 @@ def sine_pulse(speed,amplitude,lower_limit):
     lower_limit- set the lowest float the pulse will reach(must be >=0)
     '''
     amplitude-=lower_limit
-    t=(time.time()*speed) 
+    t=(Time.game_clock()*speed) 
     pulse=abs(math.sin(t)*amplitude)
     pulse+=lower_limit
     return pulse
@@ -113,7 +120,7 @@ def cosine_pulse(speed,amplitude,lower_limit):
     lower_limit- set the lowest float the pulse will reach(must be >=0)
     '''
     amplitude-=lower_limit
-    t=(time.time()*speed) 
+    t=(Time.game_clock()*speed) 
     pulse=abs(math.cos(t)*amplitude)
     pulse+=lower_limit
     return pulse
@@ -133,7 +140,3 @@ def surf_blur(surface,strength):
                 temp=pygame.transform.smoothscale(temp,(x,y))
     return temp
 
-
-'''project global variables'''
-
-paused_time=0

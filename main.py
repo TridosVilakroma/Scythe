@@ -1,4 +1,17 @@
-import pygame, time, random, sys,text,enemies,equip,gui
+import Time,pygame
+Time.init()
+pygame.init()
+screen_width = 1000
+screen_height = 500
+canvas_width = 3000
+canvas_height = 1500
+clock = pygame.time.Clock()
+screen = pygame.display.set_mode((screen_width,screen_height))
+canvas = pygame.Surface((canvas_width,canvas_height))
+pygame.display.set_caption('Scythe')
+
+
+import time, random, sys,text,enemies,equip,gui
 from sprite_animation import Spritesheet
 from pygame.constants import JOYAXISMOTION, JOYBUTTONDOWN, JOYBUTTONUP, JOYHATMOTION, MOUSEBUTTONDOWN,MOUSEBUTTONUP
 import common_functions as comfunc
@@ -9,42 +22,36 @@ from random import randint
 import controller as con
 from save_data import data_IO as dio
 
-screen_width = 1000
-screen_height = 500
-canvas_width = 3000
-canvas_height = 1500
-pygame.init()
-clock = pygame.time.Clock()
-screen = pygame.display.set_mode((screen_width,screen_height))
-canvas = pygame.Surface((canvas_width,canvas_height))
-pygame.display.set_caption('Scythe')
+
 player.screen = screen
 enemies.screen=screen
+
+
 #image loading
-corner_flair=pygame.image.load("media\Corner_flair.png")
+corner_flair=pygame.image.load("media\Corner_flair.png").convert_alpha()
 botright_corner_bush=pygame.transform.rotate(corner_flair,90)
-back_ground=pygame.image.load(r"levels\bg.jpg")
+back_ground=pygame.image.load(r"levels\bg.jpg").convert_alpha()
 back_ground=pygame.transform.scale(back_ground,(screen_width,screen_height))
 windy_cloud=Spritesheet('media\windy_cloud\wc.png',[0,30],True)
-grass_clump=pygame.image.load('media\deco\grass_clump.png')
+grass_clump=pygame.image.load('media\deco\grass_clump.png').convert_alpha()
 relic=equip.equip_matrix[1][randint(1,3)].image
 randx=randint(0,1000)
 randy=randint(0,500)
 #button loading
-start_button=gui.Button(pygame.image.load(r'media\gui\main_menu\buttonLong_beige.png'),
-    pygame.image.load(r'media\gui\main_menu\buttonLong_beige_pressed.png'),(720,100),'->Play<-','save_select')
-multiplayer_button=gui.Button(pygame.image.load(r'media\gui\main_menu\buttonLong_beige.png'),
-    pygame.image.load(r'media\gui\main_menu\buttonLong_beige_pressed.png'),(720,180),'Multiplayer')
-settings_button=gui.Button(pygame.image.load(r'media\gui\main_menu\buttonLong_beige.png'),
-    pygame.image.load(r'media\gui\main_menu\buttonLong_beige_pressed.png'),(720,260),'Settings')
-credits_button=gui.Button(pygame.image.load(r'media\gui\main_menu\buttonLong_beige.png'),
-    pygame.image.load(r'media\gui\main_menu\buttonLong_beige_pressed.png'),(720,340),'Credits')
-save_button_1=gui.Button(pygame.image.load(r'media\gui\main_menu\panel_beige.png'),
-    pygame.image.load(r'media\gui\main_menu\panelInset_beige.png'),(300,250),'File 1','map_loader',True)
-save_button_2=gui.Button(pygame.image.load(r'media\gui\main_menu\panel_beige.png'),
-    pygame.image.load(r'media\gui\main_menu\panelInset_beige.png'),(500,250),'File 2','map_loader',True)
-save_button_3=gui.Button(pygame.image.load(r'media\gui\main_menu\panel_beige.png'),
-    pygame.image.load(r'media\gui\main_menu\panelInset_beige.png'),(700,250),'File 3','map_loader',True)
+start_button=gui.Button(pygame.image.load(r'media\gui\main_menu\buttonLong_beige.png').convert_alpha(),
+    pygame.image.load(r'media\gui\main_menu\buttonLong_beige_pressed.png').convert_alpha(),(720,100),'->Play<-','save_select')
+multiplayer_button=gui.Button(pygame.image.load(r'media\gui\main_menu\buttonLong_beige.png').convert_alpha(),
+    pygame.image.load(r'media\gui\main_menu\buttonLong_beige_pressed.png').convert_alpha(),(720,180),'Multiplayer')
+settings_button=gui.Button(pygame.image.load(r'media\gui\main_menu\buttonLong_beige.png').convert_alpha(),
+    pygame.image.load(r'media\gui\main_menu\buttonLong_beige_pressed.png').convert_alpha(),(720,260),'Settings')
+credits_button=gui.Button(pygame.image.load(r'media\gui\main_menu\buttonLong_beige.png').convert_alpha(),
+    pygame.image.load(r'media\gui\main_menu\buttonLong_beige_pressed.png').convert_alpha(),(720,340),'Credits')
+save_button_1=gui.Button(pygame.image.load(r'media\gui\main_menu\panel_beige.png').convert_alpha(),
+    pygame.image.load(r'media\gui\main_menu\panelInset_beige.png').convert_alpha(),(300,250),'File 1','map_loader',True)
+save_button_2=gui.Button(pygame.image.load(r'media\gui\main_menu\panel_beige.png').convert_alpha(),
+    pygame.image.load(r'media\gui\main_menu\panelInset_beige.png').convert_alpha(),(500,250),'File 2','map_loader',True)
+save_button_3=gui.Button(pygame.image.load(r'media\gui\main_menu\panel_beige.png').convert_alpha(),
+    pygame.image.load(r'media\gui\main_menu\panelInset_beige.png').convert_alpha(),(700,250),'File 3','map_loader',True)
 
 #structure group
 structures=pygame.sprite.Group()
@@ -87,7 +94,6 @@ class GameElements():
         self.switch = False
         self.loading=True
         self.level_loaded=False
-        self.paused=False
         self.current_level=1
         self.canvas=canvas
         self.canvas_pos=pygame.math.Vector2(0,0)
@@ -96,7 +102,6 @@ class GameElements():
         self.main_loaded=False
         self.save_select_loaded=False
         self.save_slot=0
-        self.paused_time=0
 
     def start_screen(self):
         global P1,scyman
@@ -110,6 +115,7 @@ class GameElements():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     self.focus='map_loader'
+                    Time.start_clock()
             elif event.type == MOUSEBUTTONDOWN:
                 self.focus='main'
                 # if P1:
@@ -149,24 +155,24 @@ class GameElements():
 
     def pause(self):
         global delta_ref
-        _time=time.time()
+        Time.stop_clock()
+        self.pause_background=screen.copy()
+        self.pause_background=comfunc.surf_blur(self.pause_background,2)
+        screen.blit(self.pause_background,(0,0))
+        screen.blit(pause_text.text_obj,
+            ((screen_width/2 -pause_text.text_obj.get_width()/2,
+            screen_height/2 -pause_text.text_obj.get_height()/2)))
+        pygame.display.flip()
         while True:
-            if not self.paused:
-                self.paused=True
-                self.pause_background=screen.copy()
-                self.pause_background=comfunc.surf_blur(self.pause_background,2)
-            screen.blit(self.pause_background,(0,0))
-            screen.blit(pause_text.text_obj,
-                ((screen_width/2 -pause_text.text_obj.get_width()/2,
-                screen_height/2 -pause_text.text_obj.get_height()/2)))
-            pygame.display.flip()
+            Time.update()
+            clock.tick(60)
+            print(clock.get_fps())
             for event in pygame.event.get():
                 comfunc.quit(event)
                 if event.type == JOYBUTTONDOWN:
                     if P1.get_button(7):
-                        self.paused=False
+                        Time.start_clock()
                         delta_ref=time.time()
-                        comfunc.paused_time+=delta_ref-_time
                         return
 
     def main_menu(self):
@@ -373,14 +379,14 @@ class GameElements():
         for event in pygame.event.get():
             comfunc.quit(event)
 
-        
+
         enemies.player1pos=(scyman.x,scyman.y)
-        
+
         screen.blit(grass_clump,(randx,randy))
         enemies.spawned_loot.draw(screen)
-        scyman.update(P1,delta)
+        scyman.update(P1,Time.delta())
         for i in scarecrows:
-            i.update(screen,scyman,delta)
+            i.update(screen,scyman,Time.delta())
         pygame.display.flip()
 
     def map_loader(self):
@@ -398,9 +404,9 @@ class GameElements():
         enemies.canvas=self.canvas
         enemies.player1pos=(scyman.x,scyman.y)
         enemies.spawned_loot.draw(self.canvas)
-        scyman.update(P1,delta)
+        scyman.update(P1,Time.delta())
         for i in scarecrows:
-            i.update(self.canvas,scyman,delta)
+            i.update(self.canvas,scyman,Time.delta())
         structures.draw(self.canvas)
         screen.blit(self.canvas,(self.canvas_movement()))
         if scyman.hp <=0:
@@ -527,29 +533,20 @@ class GameElements():
         elif self.focus == 'save_select':
             self.save_select()
         elif self.focus == 'play':
+            Time.start_clock()
             self.game_play()
         elif self.focus=='gameover':
             self.game_over()
         elif self.focus=='map_loader':
             self.map_loader()
-   
+        elif self.focus=='pause':
+            self.pause()
+
 game = GameElements(canvas)
 player.canvas=game.canvas
 enemies.canvas=game.canvas
 delta_ref=time.time()
 while True:
-    print(comfunc.paused_time,time.time())
-    # if pygame.joystick.get_count()==0:
-    #     game.focus='start'
-    #     game.switch=True
     clock.tick(60)
-    # if scyman.hitlag:
-    #     pygame.time.wait(40)
-    #     delta_ref=delta_ref=time.time()
-    #     scyman.hitlag=False
-    delta=time.time()-delta_ref
-    comfunc.paused_time-=delta
-    if comfunc.paused_time<0:
-        comfunc.paused_time=0
-    delta_ref=time.time()
+    Time.update()
     game.focus_switch()
