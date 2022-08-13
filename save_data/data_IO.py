@@ -2,13 +2,11 @@ import sys,pickle
 from os import path
 
 def save(data,slot):
-    pickle_out = open(rf'save_data\file{slot}_data', 'wb')
-    pickle.dump(data, pickle_out)
-    pickle_out.close()
+    with open(rf'save_data\file{slot}_data', 'wb') as write_file:
+        pickle.dump(data, write_file)
 
 def load(slot):
         if path.exists(rf'save_data\file{slot}_data'):
-            pickle_in = open(rf'save_data\file{slot}_data', 'rb')
-            data = pickle.load(pickle_in)
-            pickle_in.close()
+            with open(rf'save_data\file{slot}_data', 'rb') as read_file:
+                data = pickle.load(read_file)
             return data
