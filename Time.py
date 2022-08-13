@@ -19,7 +19,7 @@ def init():
     TimeVariables.game_time_ref=now
     TimeVariables.delta=now
     TimeVariables.delta_ref=now
-    TimeVariables._game_clock_running=False
+    TimeVariables._game_clock_running=True
 def update():
     '''handles basic updating functions on a per-frame basis
     independent of processor speed.
