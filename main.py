@@ -115,7 +115,6 @@ class GameElements():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     self.focus='map_loader'
-                    Time.start_clock()
             elif event.type == MOUSEBUTTONDOWN:
                 self.focus='main'
                 # if P1:
@@ -269,8 +268,6 @@ class GameElements():
                                 self.button_focus=len(self.button_order)-1
                 elif comfunc.dead_zone(P1,single_axis=1,tolerance=.85):
                     self.reset_joystick_needed=False
-
-
         pygame.display.flip()
 
     def save_select(self):
@@ -367,9 +364,6 @@ class GameElements():
                                 self.button_focus=len(self.button_order)-1
                 elif comfunc.dead_zone(P1,single_axis=0,tolerance=.85):
                     self.reset_joystick_needed=False
-
-
-
         pygame.display.flip()
 
     def game_play(self):
@@ -378,7 +372,6 @@ class GameElements():
             self.focus='gameover'
         for event in pygame.event.get():
             comfunc.quit(event)
-
 
         enemies.player1pos=(scyman.x,scyman.y)
 
@@ -454,7 +447,9 @@ class GameElements():
         pygame.display.flip()
 
     def reset(self):
-        self.loading=True
+        global scyman
+        scyman=player.PlayerOne(0,0)
+        enemies.player=scyman
         self.level_loaded=False
         self.focus='main'
 
@@ -524,7 +519,6 @@ class GameElements():
         except TypeError:
             self.save_game()
 
-
     def focus_switch(self):
         if self.focus == 'start':
             self.start_screen()
@@ -533,7 +527,6 @@ class GameElements():
         elif self.focus == 'save_select':
             self.save_select()
         elif self.focus == 'play':
-            Time.start_clock()
             self.game_play()
         elif self.focus=='gameover':
             self.game_over()
