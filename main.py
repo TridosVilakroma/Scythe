@@ -382,7 +382,7 @@ class GameElements():
             i.update(screen,scyman,Time.delta())
         pygame.display.flip()
 
-    def map_loader(self):
+    def map_loader(self):   
         if not self.level_loaded:
             structures.empty() 
             scarecrows.empty()
@@ -394,6 +394,9 @@ class GameElements():
             scyman.x,scyman.y=player_pos
             scyman.x_precise,scyman.y_precise=player_pos
         screen.blit(back_ground,(0,0))
+        if not scarecrows:
+            self.current_level+=1
+            self.level_loaded=False
         self.canvas=self.canvas_original.copy()
         player.canvas=self.canvas
         enemies.canvas=self.canvas

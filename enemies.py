@@ -24,6 +24,7 @@ class Scarecrow(pygame.sprite.Sprite):
         self.defense = 0#randint(0,3)
         self.damage_ref_timer=Time.game_clock()
         self.hpbar_ref_timer=Time.game_clock()
+        self.hit_flash=Time.game_clock()
         self.aux_state=[]
         self.timer_wheel_step=0
         self.image_loader()
@@ -44,6 +45,8 @@ class Scarecrow(pygame.sprite.Sprite):
 
     def image_loader(self):
         self.trap_net=pygame.image.load(r'media\relics\fox\fox_net.png').convert_alpha()
+        self.norm_image=pygame.image.load('media\deco\scarecrow.png').convert_alpha()
+        self.white=pygame.image.load('media\deco\scarecrow-white.png').convert_alpha()
         self.timer_wheel_img=[]
         self.timer_wheel_img.append(pygame.image.load(r'media\twirl\twirl00.png').convert_alpha())
         self.timer_wheel_img.append(pygame.image.load(r'media\twirl\twirl01.png').convert_alpha())
@@ -80,7 +83,7 @@ class Scarecrow(pygame.sprite.Sprite):
         self.timer_wheel_img.append(pygame.image.load(r'media\twirl\twirl32.png').convert_alpha())
         self.timer_wheel_img.append(pygame.image.load(r'media\twirl\twirl33.png').convert_alpha())
         self.small_straw=pygame.image.load(r'media\deco\small_straw.png').convert_alpha()
-        self.straw_stalk=pygame.image.load(r'media\deco\straw_stalk.png').convert_alpha().convert_alpha()
+        self.straw_stalk=pygame.image.load(r'media\deco\straw_stalk.png').convert_alpha()
 
     def loot_dropper(self):
         random_loot=randint(1,7)
@@ -102,6 +105,7 @@ class Scarecrow(pygame.sprite.Sprite):
         self.aux_state.append('health')
         self.aux_state.append('timerwheel')
         self.hpbar_ref_timer=Time.game_clock()+3
+        self.hit_flash=Time.game_clock()+.1
         self.health_bar()
 
     def trap(self,duration):
@@ -248,6 +252,7 @@ class Scarecrow(pygame.sprite.Sprite):
             self.dust_particles.update(canvas)
 
     def blit(self):
+        self.image=self.norm_image if self.hit_flash<Time.game_clock() else self.white
         canvas.blit(self.image,(self.x,self.y))
 
     def update(self,canvas,player,delta):
@@ -271,6 +276,7 @@ class Omnivine(pygame.sprite.Sprite):
         self.defense = randint(0,3)
         self.damage_ref_timer=Time.game_clock()
         self.hpbar_ref_timer=Time.game_clock()
+        self.hit_flash=Time.game_clock()
         self.aux_state=[]
         self.timer_wheel_step=0
         self.image_loader()
@@ -332,6 +338,7 @@ class Omnivine(pygame.sprite.Sprite):
         self.neutral_stance= pygame.image.load('media\enemies\omnivine_walk\sprite_0.png').convert_alpha()
         self.timer_wheel_img=[]
         self.traverse_sprites=[]
+        self.traverse_white=[]
         self.timer_wheel_img.append(pygame.image.load(r'media\twirl\twirl00.png').convert_alpha())
         self.timer_wheel_img.append(pygame.image.load(r'media\twirl\twirl01.png').convert_alpha())
         self.timer_wheel_img.append(pygame.image.load(r'media\twirl\twirl02.png').convert_alpha())
@@ -373,6 +380,13 @@ class Omnivine(pygame.sprite.Sprite):
         self.shoot0=pygame.image.load(r'media\enemies\ominvine_shoot\sprite_0.png').convert_alpha()
         self.shoot1=pygame.image.load(r'media\enemies\ominvine_shoot\sprite_1.png').convert_alpha()
         self.shoot2=pygame.image.load(r'media\enemies\ominvine_shoot\sprite_2.png').convert_alpha()
+        self.traverse_white.append(pygame.image.load(r'media\enemies\omnivine_white\sprite_0.png').convert_alpha())
+        self.traverse_white.append(pygame.image.load(r'media\enemies\omnivine_white\sprite_1.png').convert_alpha())
+        self.traverse_white.append(pygame.image.load(r'media\enemies\omnivine_white\sprite_2.png').convert_alpha())
+        self.traverse_white.append(pygame.image.load(r'media\enemies\omnivine_white\sprite_3.png').convert_alpha())
+        self.shoot0_white=pygame.image.load(r'media\enemies\omnivine_white\sprite_4.png').convert_alpha()
+        self.shoot1_white=pygame.image.load(r'media\enemies\omnivine_white\sprite_5.png').convert_alpha()
+        self.shoot2_white=pygame.image.load(r'media\enemies\omnivine_white\sprite_6.png').convert_alpha()
 
     def loot_dropper(self):
         random_loot=randint(1,7)
@@ -396,6 +410,7 @@ class Omnivine(pygame.sprite.Sprite):
         self.aux_state.append('health')
         self.aux_state.append('timerwheel')
         self.hpbar_ref_timer=Time.game_clock()+3
+        self.hit_flash=Time.game_clock()+.1
         self.health_bar()
 
     def trap(self,duration):
@@ -495,16 +510,30 @@ class Omnivine(pygame.sprite.Sprite):
 
     def shoot(self):
         if self.shoot_start>=Time.game_clock()-.2:
-            self.image=self.shoot0
+            if self.hit_flash>Time.game_clock():
+                self.image=self.shoot0_white
+            else:
+                self.image=self.shoot0
         elif self.shoot_start>=Time.game_clock()-1.2:
-            self.image=self.shoot1
+            if self.hit_flash>Time.game_clock():
+                self.image=self.shoot1_white
+            else:
+                self.image=self.shoot1
         elif self.shoot_start>=Time.game_clock()-2:
-            if self.image!=self.shoot2:
+            if self.image==self.shoot2 or self.image==self.shoot2_white:
+                pass
+            else:
                 bullet=self.Bullet(self.rect.center,self.delta)
                 self.bullets.add(bullet)
-            self.image=self.shoot2
+            if self.hit_flash>Time.game_clock():
+                self.image=self.shoot2_white
+            else:
+                self.image=self.shoot2
         else:
-            self.image=self.neutral_stance
+            if self.hit_flash>Time.game_clock():
+                self.image=self.shoot0_white
+            else:
+                self.image=self.neutral_stance
             comfunc.clean_list(self.aux_state,'shoot')
 
     def demo(self):
@@ -547,11 +576,12 @@ class Omnivine(pygame.sprite.Sprite):
         aggro_prox=350
         max_prox=100
         min_prox=95
+        self.sprite_set=self.traverse_sprites if self.hit_flash<Time.game_clock() else self.traverse_white
         if self_vector.distance_to(player_vector)<min_prox:
                 self.current_sprite+=self.animate_speed
-                if int(self.current_sprite)>=len(self.traverse_sprites):
+                if int(self.current_sprite)>=len(self.sprite_set):
                     self.current_sprite=0
-                self.image=self.traverse_sprites[int(self.current_sprite)]
+                self.image=self.sprite_set[int(self.current_sprite)]
                 if 'trap' not in self.aux_state:
                     v=comfunc.vector(player,self)
                     if v.length_squared()>0:
@@ -560,9 +590,9 @@ class Omnivine(pygame.sprite.Sprite):
         elif self_vector.distance_to(player_vector)<aggro_prox:
             if self_vector.distance_to(player_vector)>max_prox:
                 self.current_sprite+=self.animate_speed
-                if int(self.current_sprite)>=len(self.traverse_sprites):
+                if int(self.current_sprite)>=len(self.sprite_set):
                     self.current_sprite=0
-                self.image=self.traverse_sprites[int(self.current_sprite)]
+                self.image=self.sprite_set[int(self.current_sprite)]
                 if 'trap' not in self.aux_state:
                     v=comfunc.vector(self,player)
                     if v.length_squared()>0:
