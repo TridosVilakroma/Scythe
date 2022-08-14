@@ -59,6 +59,8 @@ class PlayerOne(pygame.sprite.Sprite):
         self.active_relic=equip.FakeRelic()
         self.scythe=self.Scythe(self.scythe_image,self.rect.center)
         self.hitlag=False
+        self.x_precise=self.x
+        self.y_precise=self.y
 
     @property
     def x(self):
@@ -195,16 +197,20 @@ class PlayerOne(pygame.sprite.Sprite):
                 if pygame.sprite.collide_mask(self,i):
                     if xy=='x':
                         self.x=old_pos
+                        self.x_precise=old_pos
                     elif xy=='y':
                         self.y=old_pos
+                        self.y_precise=old_pos
                     break
         for i in scarecrows:
             if self.rect.colliderect(i):
                 if pygame.sprite.collide_mask(self,i):
                     if xy=='x':
                         self.x=old_pos
+                        self.x_precise=old_pos
                     elif xy=='y':
                         self.y=old_pos
+                        self.y_precise=old_pos
                     break
 
     def animate_switch(self):
@@ -338,7 +344,7 @@ class PlayerOne(pygame.sprite.Sprite):
     def traverse(self,P1,delta):
         motionx=P1.get_axis(0)
         motiony=P1.get_axis(1)
-        directions=['up','right','down','left']
+        #directions=['up','right','down','left']
         angle=con.joy_angle(P1,(0,1))% 360
         up=0
         right=90
@@ -356,20 +362,24 @@ class PlayerOne(pygame.sprite.Sprite):
             self.animate_switch()
             self.traverse_animate()
             if not comfunc.dead_zone(P1,single_axis=0):
-                old_x=self.x
+                old_x=self.x_precise
                 if motionx>0:
-                    self.x+=(self.speed*delta)*P1.get_axis(0)
+                    self.x_precise+=(self.speed*delta)*P1.get_axis(0)
+                    self.x=self.x_precise
                     self.collision_check('x',old_x)
                 if motionx<0:
-                    self.x+=(self.speed*delta)*P1.get_axis(0)
+                    self.x_precise+=(self.speed*delta)*P1.get_axis(0)
+                    self.x=self.x_precise
                     self.collision_check('x',old_x)
             if not comfunc.dead_zone(P1,single_axis=1):
-                old_y=self.y
+                old_y=self.y_precise
                 if motiony<0:
-                    self.y+=(self.speed*delta)*P1.get_axis(1)
+                    self.y_precise+=(self.speed*delta)*P1.get_axis(1)
+                    self.y=self.y_precise
                     self.collision_check('y',old_y)
                 if motiony>0:
-                    self.y+=(self.speed*delta)*P1.get_axis(1)
+                    self.y_precise+=(self.speed*delta)*P1.get_axis(1)
+                    self.y=self.y_precise
                     self.collision_check('y',old_y)
         self.right_blocked,self.left_blocked,self.down_blocked,self.up_blocked=False,False,False,False
 
@@ -380,70 +390,91 @@ class PlayerOne(pygame.sprite.Sprite):
         motionx=P1.get_axis(0)
         motiony=P1.get_axis(1)
         self.animating=True
-        old_x=self.x
-        old_y=self.y
+        old_x=self.x_precise
+        old_y=self.y_precise
         if motionx>.5:
             self.blink_start=Time.game_clock()
             self.blink_animate('right')
             if motiony>.5:
-                self.x+=self.blink_distance/2
+                self.x_precise+=self.blink_distance/2
+                self.x=self.x_precise
                 self.collision_check('x',old_x)
-                self.y+=self.blink_distance/2
+                self.y_precise+=self.blink_distance/2
+                self.y=self.y_precise
                 self.collision_check('y',old_y)
             elif motiony<-.5:
-                self.x+=self.blink_distance/2
+                self.x_precise+=self.blink_distance/2
+                self.x=self.x_precise
                 self.collision_check('x',old_x)
-                self.y-=self.blink_distance/2
+                self.y_precise-=self.blink_distance/2
+                self.y=self.y_precise
                 self.collision_check('y',old_y)
             else:
-                self.x+=self.blink_distance
+                self.x_precise+=self.blink_distance
+                self.x=self.x_precise
                 self.collision_check('x',old_x)
         elif motionx<-.5:
             self.blink_start=Time.game_clock()
             self.blink_animate('left')
             if motiony>.5:
-                self.x-=self.blink_distance/2
+                self.x_precise-=self.blink_distance/2
+                self.x=self.x_precise
                 self.collision_check('x',old_x)
-                self.y+=self.blink_distance/2
+                self.y_precise+=self.blink_distance/2
+                self.y=self.y_precise
                 self.collision_check('y',old_y)
             elif motiony<-.5:
-                self.x-=self.blink_distance/2
+                self.x_precise-=self.blink_distance/2
+                self.x=self.x_precise
                 self.collision_check('x',old_x)
-                self.y-=self.blink_distance/2
+                self.y_precise-=self.blink_distance/2
+                self.y=self.y_precise
+                self.collision_check('y',old_y)
             else:
-                self.x-=self.blink_distance
+                self.x_precise-=self.blink_distance
+                self.x=self.x_precise
                 self.collision_check('x',old_x)
         elif motiony>.5:
             self.blink_start=Time.game_clock()
             self.blink_animate('down')
             if motionx>.5:
-                self.x+=self.blink_distance/2
+                self.x_precise+=self.blink_distance/2
+                self.x=self.x_precise
                 self.collision_check('x',old_x)
-                self.y+=self.blink_distance/2
+                self.y_precise+=self.blink_distance/2
+                self.y=self.y_precise
                 self.collision_check('y',old_y)
             elif motionx<-.5:
-                self.x-=self.blink_distance/2
+                self.x_precise-=self.blink_distance/2
+                self.x=self.x_precise
                 self.collision_check('x',old_x)
-                self.y+=self.blink_distance/2
+                self.y_precise+=self.blink_distance/2
+                self.y=self.y_precise
                 self.collision_check('y',old_y)
             else:
-                self.y+=self.blink_distance
+                self.y_precise+=self.blink_distance
+                self.y=self.y_precise
                 self.collision_check('y',old_y)
         elif motiony<-.5:
             self.blink_start=Time.game_clock()
             self.blink_animate('up')
             if motionx>.5:
-                self.x+=self.blink_distance/2
+                self.x_precise+=self.blink_distance/2
+                self.x=self.x_precise
                 self.collision_check('x',old_x)
-                self.y-=self.blink_distance/2
+                self.y_precise-=self.blink_distance/2
+                self.y=self.y_precise
                 self.collision_check('y',old_y)
             elif motionx<-.5:
-                self.x-=self.blink_distance/2
+                self.x_precise-=self.blink_distance/2
+                self.x=self.x_precise
                 self.collision_check('x',old_x)
-                self.y-=self.blink_distance/2
+                self.y_precise-=self.blink_distance/2
+                self.y=self.y_precise
                 self.collision_check('y',old_y)
             else:
-                self.y-=self.blink_distance
+                self.y_precise-=self.blink_distance
+                self.y=self.y_precise
                 self.collision_check('y',old_y)
 
     def scythe_slash(self,P1):
@@ -453,9 +484,8 @@ class PlayerOne(pygame.sprite.Sprite):
 
     def scythe_animate(self,P1):
         time_stamp=Time.game_clock()
-        
-        if time_stamp<self.scythe_time_ref+.2:
 
+        if time_stamp<self.scythe_time_ref+.2:
             scythe,position=comfunc.pivot(self.scythe.original_image,self.rect.center,
             (16,42),con.joy_angle(P1,(0,1)))
             self.scythe.image=scythe
@@ -465,7 +495,7 @@ class PlayerOne(pygame.sprite.Sprite):
             hit_list=pygame.sprite.spritecollide(self.scythe,scarecrows,False,collide_mask)
             if hit_list:
                 self.hitlag=True
-         
+
             if self.scythe_attack_flag[0]==0:
                 self.scythe_attack_flag[0]=1
                 for i in hit_list:
@@ -679,7 +709,7 @@ class PlayerOne(pygame.sprite.Sprite):
         relic.rect.center=self.rect.center
         self.mp-=relic.mana_drain
         if P1.get_button(2):
-            hits=pygame.sprite.spritecollide(self,scarecrows,False)
+            hits=pygame.sprite.spritecollide(self,scarecrows,False,collided=pygame.sprite.collide_rect_ratio(1.15))
             if hits:
                 self.hitlag=True
             relic.attack(canvas,hits,self,P1)

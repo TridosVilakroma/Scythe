@@ -392,7 +392,7 @@ class GameElements():
             structures.add(collidable_structures)
             scarecrows.add(enemy_container)
             scyman.x,scyman.y=player_pos
-        print(scyman.x,scyman.y,scyman.rect.center)
+            scyman.x_precise,scyman.y_precise=player_pos
         screen.blit(back_ground,(0,0))
         self.canvas=self.canvas_original.copy()
         player.canvas=self.canvas
