@@ -26,6 +26,7 @@ class PlayerOne(pygame.sprite.Sprite):
         self.recieved_damage=False
         self.invulnerable=False
         self.hpbar_ref_timer=Time.game_clock()
+        self.hit_flash=Time.game_clock()
         self.mp=100
         self.mp_ratio=960/self.mp
         self.defense=0
@@ -97,16 +98,16 @@ class PlayerOne(pygame.sprite.Sprite):
         self.d_pad_down_left=pygame.image.load(r'media\gui\dpad\dpad_downleft.png').convert_alpha()
         self.d_pad_left=pygame.image.load(r'media\gui\dpad\dpad_left.png').convert_alpha()
         self.d_pad_up_left=pygame.image.load(r'media\gui\dpad\dpad_upleft.png').convert_alpha()
-        self.walkrightsprites.append(pygame.image.load('media\scyman_walk\scymanwalk0.png').convert_alpha())
-        self.walkrightsprites.append(pygame.image.load('media\scyman_walk\scymanwalk1.png').convert_alpha())
-        self.walkrightsprites.append(pygame.image.load('media\scyman_walk\scymanwalk2.png').convert_alpha())
-        self.walkrightsprites.append(pygame.image.load('media\scyman_walk\scymanwalk3.png').convert_alpha())
-        self.walkleftsprites.append(pygame.image.load('media\scyman_walk\left_walk\left_walk0.png').convert_alpha())
-        self.walkleftsprites.append(pygame.image.load('media\scyman_walk\left_walk\left_walk1.png').convert_alpha())
-        self.walkleftsprites.append(pygame.image.load('media\scyman_walk\left_walk\left_walk0.png').convert_alpha())
-        self.walkleftsprites.append(pygame.image.load('media\scyman_walk\left_walk\left_walk2.png').convert_alpha())
-        self.blinkrightsprites.append(pygame.image.load('media\scyman_walk\\blink\\rightblink1.png').convert_alpha())
-        self.blinkleftsprites.append(pygame.image.load('media\scyman_walk\\blink\leftblink2.png').convert_alpha())
+        self.walkrightsprites.append(pygame.image.load(r'media\scyman_walk\scymanwalk0.png').convert_alpha())
+        self.walkrightsprites.append(pygame.image.load(r'media\scyman_walk\scymanwalk1.png').convert_alpha())
+        self.walkrightsprites.append(pygame.image.load(r'media\scyman_walk\scymanwalk2.png').convert_alpha())
+        self.walkrightsprites.append(pygame.image.load(r'media\scyman_walk\scymanwalk3.png').convert_alpha())
+        self.walkleftsprites.append(pygame.image.load(r'media\scyman_walk\left_walk\left_walk0.png').convert_alpha())
+        self.walkleftsprites.append(pygame.image.load(r'media\scyman_walk\left_walk\left_walk1.png').convert_alpha())
+        self.walkleftsprites.append(pygame.image.load(r'media\scyman_walk\left_walk\left_walk0.png').convert_alpha())
+        self.walkleftsprites.append(pygame.image.load(r'media\scyman_walk\left_walk\left_walk2.png').convert_alpha())
+        self.blinkrightsprites.append(pygame.image.load(r'media\scyman_walk\\blink\\rightblink1.png').convert_alpha())
+        self.blinkleftsprites.append(pygame.image.load(r'media\scyman_walk\\blink\leftblink2.png').convert_alpha())
         self.blinkdownsprites.append(pygame.image.load(r'media\scyman_walk\blink\downblink.png').convert_alpha())
         self.blinkupsprites.append(pygame.image.load(r'media\scyman_walk\blink\upblink.png').convert_alpha())
         self.walkupsprites.append(pygame.image.load(r'media\scyman_walk\up_walk\upwalk0.png').convert_alpha())
@@ -117,6 +118,22 @@ class PlayerOne(pygame.sprite.Sprite):
         self.walkdownsprites.append(pygame.image.load(r'media\scyman_walk\down_walk\walkdown1.png').convert_alpha())
         self.walkdownsprites.append(pygame.image.load(r'media\scyman_walk\down_walk\walkdown2.png').convert_alpha())
         self.walkdownsprites.append(pygame.image.load(r'media\scyman_walk\down_walk\walkdown3.png').convert_alpha())
+        self.walkrightsprites_white.append(pygame.image.load(r'media\scyman_walk\right_white\scymanwalk0_white.png').convert_alpha())
+        self.walkrightsprites_white.append(pygame.image.load(r'media\scyman_walk\right_white\scymanwalk1_white.png').convert_alpha())
+        self.walkrightsprites_white.append(pygame.image.load(r'media\scyman_walk\right_white\scymanwalk2_white.png').convert_alpha())
+        self.walkrightsprites_white.append(pygame.image.load(r'media\scyman_walk\right_white\scymanwalk3_white.png').convert_alpha())
+        self.walkleftsprites_white.append(pygame.image.load(r'media\scyman_walk\left_white\left_walk0_white.png').convert_alpha())
+        self.walkleftsprites_white.append(pygame.image.load(r'media\scyman_walk\left_white\left_walk1_white.png').convert_alpha())
+        self.walkleftsprites_white.append(pygame.image.load(r'media\scyman_walk\left_white\left_walk0_white.png').convert_alpha())
+        self.walkleftsprites_white.append(pygame.image.load(r'media\scyman_walk\left_white\left_walk2_white.png').convert_alpha())
+        self.walkupsprites_white.append(pygame.image.load(r'media\scyman_walk\up_white\upwalk0_white.png').convert_alpha())
+        self.walkupsprites_white.append(pygame.image.load(r'media\scyman_walk\up_white\upwalk1_white.png').convert_alpha())
+        self.walkupsprites_white.append(pygame.image.load(r'media\scyman_walk\up_white\upwalk0_white.png').convert_alpha())
+        self.walkupsprites_white.append(pygame.image.load(r'media\scyman_walk\up_white\upwalk2_white.png').convert_alpha())
+        self.walkdownsprites_white.append(pygame.image.load(r'media\scyman_walk\down_white\walkdown0_white.png').convert_alpha())
+        self.walkdownsprites_white.append(pygame.image.load(r'media\scyman_walk\down_white\walkdown1_white.png').convert_alpha())
+        self.walkdownsprites_white.append(pygame.image.load(r'media\scyman_walk\down_white\walkdown2_white.png').convert_alpha())
+        self.walkdownsprites_white.append(pygame.image.load(r'media\scyman_walk\down_white\walkdown3_white.png').convert_alpha())
         self.scythe_image=pygame.image.load(r'media\player_equip\wooden_scythe.png').convert_alpha()
         self.scytheright=pygame.transform.rotozoom(self.scythe_image,-90,1)
         self.scytherightup=pygame.transform.rotozoom(self.scythe_image,-45,1)
@@ -149,6 +166,10 @@ class PlayerOne(pygame.sprite.Sprite):
         self.walkleftsprites =[]
         self.walkdownsprites =[]
         self.walkupsprites =[]
+        self.walkrightsprites_white =[]
+        self.walkleftsprites_white =[]
+        self.walkdownsprites_white =[]
+        self.walkupsprites_white =[]
         self.blinkrightsprites =[]
         self.blinkleftsprites =[]
         self.blinkdownsprites=[]
@@ -217,34 +238,38 @@ class PlayerOne(pygame.sprite.Sprite):
         self.animating=True   
 
     def traverse_animate(self):
+        right_sprite_set=self.walkrightsprites if self.hit_flash<Time.game_clock() else self.walkrightsprites_white
+        down_sprite_set=self.walkdownsprites if self.hit_flash<Time.game_clock() else self.walkdownsprites_white
+        left_sprite_set=self.walkleftsprites if self.hit_flash<Time.game_clock() else self.walkleftsprites_white
+        up_sprite_set=self.walkupsprites if self.hit_flash<Time.game_clock() else self.walkupsprites_white
         if self.direction=='right':
             if self.animating==True:
                 self.current_sprite+=self.animate_speed
-                if int(self.current_sprite)>=len(self.walkrightsprites):
-                    self.current_sprite=0
                 self.animating=False
-            self.image=self.walkrightsprites[int(self.current_sprite)]
+            if int(self.current_sprite)>=len(right_sprite_set):
+                self.current_sprite=0
+            self.image=right_sprite_set[int(self.current_sprite)]
         if self.direction=='left':
             if self.animating==True:
                 self.current_sprite+=self.animate_speed
-                if int(self.current_sprite)>=len(self.walkleftsprites):
-                    self.current_sprite=0
                 self.animating=False
-            self.image=self.walkleftsprites[int(self.current_sprite)]
+            if int(self.current_sprite)>=len(left_sprite_set):
+                self.current_sprite=0
+            self.image=left_sprite_set[int(self.current_sprite)]
         if self.direction=='up':
             if self.animating==True:
                 self.current_sprite+=self.animate_speed
-                if int(self.current_sprite)>=len(self.walkupsprites):
-                    self.current_sprite=0
                 self.animating=False
-            self.image=self.walkupsprites[int(self.current_sprite)]
+            if int(self.current_sprite)>=len(up_sprite_set):
+                self.current_sprite=0
+            self.image=up_sprite_set[int(self.current_sprite)]
         if self.direction=='down':
             if self.animating==True:
                 self.current_sprite+=self.animate_speed
-                if int(self.current_sprite)>=len(self.walkdownsprites):
-                    self.current_sprite=0
                 self.animating=False
-            self.image=self.walkdownsprites[int(self.current_sprite)]
+            if int(self.current_sprite)>=len(down_sprite_set):
+                self.current_sprite=0
+            self.image=down_sprite_set[int(self.current_sprite)]
 
     def blink_ghost(self):
         if self.blink_start>Time.game_clock()-.25:
@@ -331,6 +356,7 @@ class PlayerOne(pygame.sprite.Sprite):
     def damage(self):
         for i in attacks:
             if i[1].colliderect(self.rect):
+                self.hit_flash=Time.game_clock()+.1
                 self.aux_state.append('health')
                 self.hpbar_ref_timer=Time.game_clock()+3
                 if self.incoming_damage_tracked:
@@ -360,7 +386,7 @@ class PlayerOne(pygame.sprite.Sprite):
             self.direction='left'
         if not comfunc.dead_zone(P1,(0,1)):
             self.animate_switch()
-            self.traverse_animate()
+            #self.traverse_animate()
             if not comfunc.dead_zone(P1,single_axis=0):
                 old_x=self.x_precise
                 if motionx>0:
@@ -822,6 +848,7 @@ class PlayerOne(pygame.sprite.Sprite):
         if 'dpad' in self.aux_state:
             self.relic_select(P1)
         self.collide()
+        self.traverse_animate()
 
     def update_gui(self):
         self.health_bar()
