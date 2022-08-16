@@ -98,10 +98,10 @@ class GameElements():
         self.canvas=canvas
         self.canvas_pos=pygame.math.Vector2(0,0)
         self.screen_top_left=pygame.math.Vector2(0,0)
-        self.canvas_pos=pygame.math.Vector2(0,0)
         self.main_loaded=False
         self.save_select_loaded=False
         self.save_slot=0
+        self.game_over_blur=0
 
     def start_screen(self):
         global P1,scyman
@@ -382,9 +382,9 @@ class GameElements():
             i.update(screen,scyman,Time.delta())
         pygame.display.flip()
 
-    def map_loader(self):   
+    def map_loader(self):
         if not self.level_loaded:
-            structures.empty() 
+            structures.empty()
             scarecrows.empty()
             self.level_data,self.game_data=lev.load_level(self.current_level)
             self.level_loaded=True
@@ -407,12 +407,12 @@ class GameElements():
             i.update(self.canvas,scyman,Time.delta())
         structures.draw(self.canvas)
         screen.blit(self.canvas,(self.canvas_movement()))
-        if scyman.hp <=0:
+        scyman.update_gui(screen,self)
+        if scyman.dead:
             self.blur=screen.copy().convert_alpha()
             self.alpha=150
             self.blur.set_alpha(self.alpha)
             self.focus='gameover'
-        scyman.update_gui()
         for event in pygame.event.get():
             comfunc.quit(event)
             if event.type==JOYBUTTONDOWN:
@@ -436,18 +436,26 @@ class GameElements():
         return self.canvas_pos
 
     def game_over(self):
-        screen.fill(DEEP_RED)
-        screen.blit(self.blur,(0,0))
-        self.blur=comfunc.surf_blur(self.blur,1)
-        self.blur.set_alpha(self.alpha)
-        self.alpha-=.30
-        
+        screen.blit(back_ground,(0,0))
+        if self.game_over_blur<40:
+            self.game_over_blur+=1
+            for i in scarecrows:
+                i.update(self.canvas,scyman,Time.delta())
+            structures.draw(self.canvas)
+            screen.blit(self.canvas,(self.canvas_movement()))
+            scyman.update_gui(screen,self)
+            self.blur=screen.copy().convert_alpha()
+            self.blur=comfunc.surf_blur(self.blur,min(self.game_over_blur,10))
         for event in pygame.event.get():
             comfunc.quit(event)
             if event.type==JOYBUTTONDOWN:
                 self.reset()
             if event.type==MOUSEBUTTONDOWN:
                 self.reset()
+        screen.fill(DEEP_RED)
+        self.blur.set_alpha(self.alpha)
+        screen.blit(self.blur,(0,0))
+        self.alpha-=self.game_over_blur*.075
         screen.blit(game_over_text.text_obj,((screen_width/2 -game_over_text.text_obj.get_width()/2,screen_height/4 -game_over_text.text_obj.get_height()/2)))
         pygame.display.flip()
 
@@ -541,6 +549,7 @@ class GameElements():
             self.pause()
 
 game = GameElements(canvas)
+player.game=game
 player.canvas=game.canvas
 enemies.canvas=game.canvas
 delta_ref=time.time()

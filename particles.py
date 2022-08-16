@@ -16,11 +16,12 @@ class ParticleEmitter():
             self.motion_styles.append(i)
         self.particles=[]
         self.explode_catalyst=True
+        self.explode_dest_catalyst=True
         self.implode_catalyst=True
         self.explode_up_catalyst=True
         self.lightning_bolt_catalyst=True
         self.burst_emit20_catalyst=True
-        
+        self.burst_emit200_catalyst=True
 
     class Particle():
         def __init__(self,pos,color,size):
@@ -41,8 +42,8 @@ class ParticleEmitter():
             return False   
 
     def randomize_pos(self,x_range,y_range):
-        x=randint(x_range[0],x_range[1])
-        y=randint(y_range[0],y_range[1])
+        x=randint(x_range[0],x_range[1]) if x_range[0]!=x_range[1] else x_range[0]
+        y=randint(y_range[0],y_range[1]) if y_range[0]!=y_range[1] else y_range[0]
         return (x,y)
 
     def randomize_color(self,colors):
@@ -112,6 +113,16 @@ class ParticleEmitter():
             self.shake()
         if 'burst_emit20' in self.motion_styles:
             self.burst_emit20()
+        if 'burst_emit200' in self.motion_styles:
+            self.burst_emit200()
+        if 'explode_dest' in self.motion_styles:
+            self.explode_dest()
+        if 'move_emiter' in self.motion_styles:
+            self.move_emiter()
+        if 'move_out' in self.motion_styles:
+            self.move_out()
+        if 'move_out_fast' in self.motion_styles:
+            self.move_out_fast()
 
 
     def shrink(self):
@@ -121,7 +132,7 @@ class ParticleEmitter():
     def fast_shrink(self):
         for i in self.particles:
             i.size-=.025
-   
+
     def fast_decay(self):
         for i in self.particles:
             chance=randint(1,8)
@@ -156,7 +167,7 @@ class ParticleEmitter():
     def slow_emit(self):
         if self.limiter(1):
             self.create_particle()
-    
+
     def fast_emit(self):
         if self.limiter(2):
             self.create_particle()
@@ -165,6 +176,12 @@ class ParticleEmitter():
         if self.burst_emit20_catalyst:
             self.burst_emit20_catalyst=False
             for i in range(20):
+                self.create_particle()
+
+    def burst_emit200(self):
+        if self.burst_emit200_catalyst:
+            self.burst_emit200_catalyst=False
+            for i in range(200):
                 self.create_particle()
 
     def lightning_bolt(self):
@@ -229,6 +246,14 @@ class ParticleEmitter():
                 randint_b=randint(int(i.pos[1]-50),int(i.pos[1]+50))
                 i.dest=pygame.math.Vector2(randint_a,randint_b)
 
+    def explode_dest(self):
+        if self.explode_dest_catalyst:
+            self.explode_dest_catalyst=False
+            for i in self.particles:
+                randint_a=randint(int(i.pos[0]-50),int(i.pos[0]+50))
+                randint_b=randint(int(i.pos[1]-50),int(i.pos[1]+50))
+                i.dest=pygame.math.Vector2(randint_a,randint_b)
+
     def implode(self):
         if self.implode_catalyst:
             self.implode_catalyst=False
@@ -258,6 +283,30 @@ class ParticleEmitter():
                 randint_b=randint(int(i.pos[1]-75),int(i.pos[1]+5))
                 i.dest=pygame.math.Vector2(randint_a,randint_b)
 
+    def move_out(self):
+        for i in self.particles:
+            if i.dest!=(0,0):
+                i.vector_length=pygame.math.Vector2(i.dest-i.pos)
+                if i.vector_length.length() !=0:
+                    i.pos+=(i.dest-i.pos)*i.speed
+                    i.dest+=(i.dest-i.pos)*i.speed
+                else:
+                    i.dest=pygame.math.Vector2(0,0)
+
+    def move_out_fast(self):
+        for i in self.particles:
+            if i.dest!=(0,0):
+                i.vector_length=pygame.math.Vector2(i.dest-i.pos)
+                if i.vector_length.length() !=0:
+                    i.pos+=(i.dest-i.pos)*i.speed*2
+                    i.dest+=(i.dest-i.pos)*i.speed*2.5
+                else:
+                    i.dest=pygame.math.Vector2(0,0)
+
+    def move_emiter(self):
+        self.particles=[]
+        self.motion_styles.remove('move_emiter')
+        self.behavior
 
     def update(self,canvas):
         self.behavior()

@@ -2,11 +2,12 @@ from pygame.constants import JOYBUTTONDOWN
 import pygame,time,math
 from pygame.sprite import collide_mask
 import common_functions as comfunc
-import enemies,equip
+import enemies,equip,particles
 from color_palette import *
 import controller as con
 import Time
 
+game=None#variable overwritten in main to allow blit access from this module
 screen=None#variable overwritten in main to allow blit access from this module
 canvas=None#variable overwritten in main to allow blit access from this module
 scarecrows=None#variable overwritten in main to add enemy access here
@@ -17,7 +18,9 @@ class PlayerOne(pygame.sprite.Sprite):
     def __init__(self,pos_x, pos_y):
         super().__init__()
         self.list_init()
-        self.hp=100
+        self.hp=10
+        self.dead=False
+        self.dying=False
         self.hp_ratio=960/self.hp
         self.mini_hp_ratio=32/self.hp
         self.hp_regen=0
@@ -199,14 +202,14 @@ class PlayerOne(pygame.sprite.Sprite):
     def collide(self):
         collision_tolerence=10
         #screen boundaries
-        if self.x<32:
-            self.x=32
-        if self.x>2936:
-            self.x=2936
-        if self.y<32:
-            self.y=32
-        if self.y>1436:
-            self.y=1436
+        if self.x_precise<32:
+            self.x_precise=32
+        if self.x_precise>2936:
+            self.x_precise=2936
+        if self.y_precise<32:
+            self.y_precise=32
+        if self.y_precise>1436:
+            self.y_precise=1436
         #collision between player and equipment
         self.interactables.clear()
         for i in pygame.sprite.spritecollide(self,enemies.spawned_loot,False):
@@ -365,7 +368,47 @@ class PlayerOne(pygame.sprite.Sprite):
                 self.hp-=max(0,((i[0]-self.defense)*self.shield))
                 self.hp_lost=abs(self.hp_before_damage-self.hp)
                 self.recieved_damage=True
+                if self.hp<=0 and not self.dying:
+                    self.dying=True
+                    self.time_of_death=Time.game_clock()
+                    self.hit_flash=Time.game_clock()+.3
+                    self.death_particles=[]
+                    self.death_particles.append(particles.ParticleEmitter(
+                        0,
+                        (self.rect.centerx,self.rect.centerx),
+                        (self.rect.centery,self.rect.centery),
+                        [DARK_RED,DEEP_RED,RED],
+                        1,
+                        'explode','move_out_fast'))
+                    self.death_particles.append(particles.ParticleEmitter(
+                        0,
+                        (self.rect.centerx,self.rect.centerx),
+                        (self.rect.centery,self.rect.centery),
+                        [PALE_YELLOW,WORN_YELLOW,BRIGHT_YELLOW,BROWN],
+                        1,
+                        'explode','move_out_fast'))
+                    self.death_particles.append(particles.ParticleEmitter(
+                        0,
+                        (self.rect.centerx,self.rect.centerx),
+                        (self.rect.centery,self.rect.centery),
+                        [RED,DARK_LEATHER,LEATHER,BROWN],
+                        1,
+                        'halo_wave','burst_emit200','move_out_fast','explode_dest'))
             comfunc.clean_list(attacks,i)
+
+    def death_animation(self,screen,game):
+        self.hp=0
+        if self.time_of_death>Time.game_clock()-.3:
+            screen.fill(BLACK)
+            radius=450+(self.time_of_death-Time.game_clock())*1400
+            pygame.draw.circle(screen,WHITE,(pygame.Vector2(game.canvas_pos)+pygame.Vector2(self.rect.center)),radius,1)
+            screen.blit(self.image,(pygame.Vector2(game.canvas_pos)+pygame.Vector2(self.x,self.y)))
+        else:
+            for i in self.death_particles:
+                i.update(canvas)
+            screen.blit(canvas,(game.canvas_movement()))
+            if Time.game_clock()-self.time_of_death>1.4:
+                self.dead=True
 
     def traverse(self,P1,delta):
         motionx=P1.get_axis(0)
@@ -850,13 +893,19 @@ class PlayerOne(pygame.sprite.Sprite):
         self.collide()
         self.traverse_animate()
 
-    def update_gui(self):
+    def update_gui(self,screen,game):
+        if self.dying:
+            self.death_animation(screen,game)
         self.health_bar()
         self.mana_bar()
 
     def update(self,P1,delta):
-        self.last_pos=self.x,self.y
-        if 'blockade' not in self.aux_state:
-            self.focus_switch(P1,delta)
-        self.action(P1)
-        self.auxillary(P1,delta)
+        if self.dying:
+            self.traverse_animate()
+            self.draw()
+        else:
+            self.last_pos=self.x,self.y
+            if 'blockade' not in self.aux_state:
+                self.focus_switch(P1,delta)
+            self.action(P1)
+            self.auxillary(P1,delta)
