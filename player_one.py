@@ -368,36 +368,37 @@ class PlayerOne(pygame.sprite.Sprite):
                 self.hp-=max(0,((i[0]-self.defense)*self.shield))
                 self.hp_lost=abs(self.hp_before_damage-self.hp)
                 self.recieved_damage=True
-                if self.hp<=0 and not self.dying:
-                    self.dying=True
-                    self.time_of_death=Time.game_clock()
-                    self.hit_flash=Time.game_clock()+.3
-                    self.death_particles=[]
-                    self.death_particles.append(particles.ParticleEmitter(
-                        0,
-                        (self.rect.centerx,self.rect.centerx),
-                        (self.rect.centery,self.rect.centery),
-                        [DARK_RED,DEEP_RED,RED],
-                        1,
-                        'explode','move_out_fast'))
-                    self.death_particles.append(particles.ParticleEmitter(
-                        0,
-                        (self.rect.centerx,self.rect.centerx),
-                        (self.rect.centery,self.rect.centery),
-                        [PALE_YELLOW,WORN_YELLOW,BRIGHT_YELLOW,BROWN],
-                        1,
-                        'explode','move_out_fast'))
-                    self.death_particles.append(particles.ParticleEmitter(
-                        0,
-                        (self.rect.centerx,self.rect.centerx),
-                        (self.rect.centery,self.rect.centery),
-                        [RED,DARK_LEATHER,LEATHER,BROWN],
-                        1,
-                        'halo_wave','burst_emit200','move_out_fast','explode_dest'))
+                self.hp=self.hp if self.hp>0 else 0
             comfunc.clean_list(attacks,i)
 
     def death_animation(self,screen,game):
-        self.hp=0
+        if not self.dying:
+            self.dying=True
+            game.focus='gameover'
+            self.time_of_death=Time.game_clock()
+            self.hit_flash=Time.game_clock()+.3
+            self.death_particles=[]
+            self.death_particles.append(particles.ParticleEmitter(
+                0,
+                (self.rect.centerx,self.rect.centerx),
+                (self.rect.centery,self.rect.centery),
+                [DARK_RED,DEEP_RED,RED],
+                1,
+                'explode','move_out_fast'))
+            self.death_particles.append(particles.ParticleEmitter(
+                0,
+                (self.rect.centerx,self.rect.centerx),
+                (self.rect.centery,self.rect.centery),
+                [PALE_YELLOW,WORN_YELLOW,BRIGHT_YELLOW,BROWN],
+                1,
+                'explode','move_out_fast'))
+            self.death_particles.append(particles.ParticleEmitter(
+                0,
+                (self.rect.centerx,self.rect.centerx),
+                (self.rect.centery,self.rect.centery),
+                [RED,DARK_LEATHER,LEATHER,BROWN],
+                1,
+                'halo_wave','burst_emit200','move_out_fast','explode_dest'))
         if self.time_of_death>Time.game_clock()-.3:
             screen.fill(BLACK)
             radius=450+(self.time_of_death-Time.game_clock())*1400
@@ -894,13 +895,13 @@ class PlayerOne(pygame.sprite.Sprite):
         self.traverse_animate()
 
     def update_gui(self,screen,game):
-        if self.dying:
+        if self.hp<=0:
             self.death_animation(screen,game)
         self.health_bar()
         self.mana_bar()
 
     def update(self,P1,delta):
-        if self.dying:
+        if self.hp<=0:
             self.traverse_animate()
             self.draw()
         else:
