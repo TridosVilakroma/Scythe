@@ -65,6 +65,7 @@ class PlayerOne(pygame.sprite.Sprite):
         self.hitlag=False
         self.x_precise=self.x
         self.y_precise=self.y
+        self.rect_ratio=pygame.sprite.collide_rect_ratio(.65)
 
     @property
     def x(self):
@@ -217,25 +218,23 @@ class PlayerOne(pygame.sprite.Sprite):
 
     def collision_check(self,xy,old_pos):
         for i in structures:
-            if self.rect.colliderect(i):
-                if pygame.sprite.collide_mask(self,i):
-                    if xy=='x':
-                        self.x=old_pos
-                        self.x_precise=old_pos
-                    elif xy=='y':
-                        self.y=old_pos
-                        self.y_precise=old_pos
-                    break
+            if self.rect.colliderect(i.hit_box):
+                if xy=='x':
+                    self.x=old_pos
+                    self.x_precise=old_pos
+                elif xy=='y':
+                    self.y=old_pos
+                    self.y_precise=old_pos
+                break
         for i in scarecrows:
-            if self.rect.colliderect(i):
-                if pygame.sprite.collide_mask(self,i):
-                    if xy=='x':
-                        self.x=old_pos
-                        self.x_precise=old_pos
-                    elif xy=='y':
-                        self.y=old_pos
-                        self.y_precise=old_pos
-                    break
+            if self.rect.colliderect(i.hit_box):
+                if xy=='x':
+                    self.x=old_pos
+                    self.x_precise=old_pos
+                elif xy=='y':
+                    self.y=old_pos
+                    self.y_precise=old_pos
+                break
 
     def animate_switch(self):
         self.animating=True   

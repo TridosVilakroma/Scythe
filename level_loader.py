@@ -75,6 +75,12 @@ class Structure(pygame.sprite.Sprite):
         self.rect=tile.get_rect()
         self.rect.x=x
         self.rect.y=y
+    @property
+    def hit_box(self):
+        bound_rect=self.image.get_bounding_rect()
+        bound_rect[0]=bound_rect[0]+self.rect.x
+        bound_rect[1]=bound_rect[1]+self.rect.y
+        return (bound_rect)
 
 
 def build(img,row,col):

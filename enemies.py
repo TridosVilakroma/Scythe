@@ -44,6 +44,12 @@ class Scarecrow(pygame.sprite.Sprite):
     @y.setter
     def y(self,value):
         self.rect.y=value
+    @property
+    def hit_box(self):
+        bound_rect=self.image.get_bounding_rect()
+        bound_rect[0]=bound_rect[0]+self.x
+        bound_rect[1]=bound_rect[1]+self.y
+        return (bound_rect)
 
     def image_loader(self):
         self.trap_net=pygame.image.load(r'media\relics\fox\fox_net.png').convert_alpha()
@@ -344,6 +350,12 @@ class Omnivine(pygame.sprite.Sprite):
     @y.setter
     def y(self,value):
         self.rect.y=value
+    @property
+    def hit_box(self):
+        bound_rect=self.image.get_bounding_rect()
+        bound_rect[0]=bound_rect[0]+self.x
+        bound_rect[1]=bound_rect[1]+self.y
+        return (bound_rect)
 
     class Bullet(pygame.sprite.Sprite):
         def __init__(self,pos,delta) -> None:
