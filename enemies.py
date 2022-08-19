@@ -6,6 +6,7 @@ import Time
 
 screen=None
 canvas=None
+game=None
 enemies=[]
 player1pos=None
 player=None
@@ -29,6 +30,7 @@ class Scarecrow(pygame.sprite.Sprite):
         self.timer_wheel_step=0
         self.image_loader()
         self.mask=pygame.mask.from_surface(self.image)
+        self.dying=False
 
     @property
     def x(self):
@@ -102,11 +104,12 @@ class Scarecrow(pygame.sprite.Sprite):
         self.hp-=max(0,damage-self.defense)
         if self.hp<0:
             self.hp=0
-        self.aux_state.append('health')
-        self.aux_state.append('timerwheel')
-        self.hpbar_ref_timer=Time.game_clock()+3
-        self.hit_flash=Time.game_clock()+.1
-        self.health_bar()
+        else:
+            self.aux_state.append('health')
+            self.aux_state.append('timerwheel')
+            self.hpbar_ref_timer=Time.game_clock()+3
+            self.hit_flash=Time.game_clock()+.1
+            self.health_bar()
 
     def trap(self,duration):
         if 'trap' not in self.aux_state:
@@ -229,6 +232,44 @@ class Scarecrow(pygame.sprite.Sprite):
             self.loot_dropper()
             self.kill()
 
+    def death_animation(self):
+        self.image=self.white
+        if not self.dying:
+            self.dying=True
+            self.time_of_death=Time.game_clock()
+            self.hit_flash=Time.game_clock()+.2
+            self.death_particles=[]
+            self.death_particles.append(particles.ParticleEmitter(
+                0,
+                (self.rect.centerx,self.rect.centerx),
+                (self.rect.centery,self.rect.centery),
+                [RED,BRIGHT_YELLOW,BROWN],
+                1,
+                'explode_up','move_to_dest','shrink','move_out'))
+            self.death_particles.append(particles.ParticleEmitter(
+                0,
+                (self.rect.centerx,self.rect.centerx),
+                (self.rect.centery,self.rect.centery),
+                [PALE_YELLOW,WORN_YELLOW,BRIGHT_YELLOW,BROWN],
+                1,
+                'explode_up','move_to_dest','fast_shrink','shrink'))
+            self.death_particles.append(particles.ParticleEmitter(
+                0,
+                (self.rect.centerx,self.rect.centerx),
+                (self.rect.centery,self.rect.centery),
+                [PALE_YELLOW,WORN_YELLOW,BRIGHT_YELLOW,BROWN],
+                1,
+                'explode','move_to_dest','fast_shrink','shrink','move_out'))
+        else:
+            if Time.game_clock()-self.time_of_death>.05:
+                radius=200-(Time.game_clock()-self.time_of_death)*463
+                pygame.draw.circle(canvas,WHITE,self.rect.center,radius,1)
+            if Time.game_clock()-self.time_of_death>.48:
+                for i in self.death_particles:
+                    i.update(canvas)
+            if Time.game_clock()-self.time_of_death>.78:
+                self.vitality()
+
     def demo(self):
             self.image=pygame.transform.smoothscale(self.image,(25,25))
 
@@ -259,8 +300,10 @@ class Scarecrow(pygame.sprite.Sprite):
         self.delta=delta
         self.pos=pygame.math.Vector2((self.rect.center))
         self.blit()
-        self.vitality()
-        self.auxillary(canvas,player)
+        if self.hp<=0:
+            self.death_animation()
+        else:
+            self.auxillary(canvas,player)
 
 
 class Omnivine(pygame.sprite.Sprite):
@@ -287,6 +330,7 @@ class Omnivine(pygame.sprite.Sprite):
         self.vector=pygame.math.Vector2(0,0)
         self.speed=40
         self.bullets=pygame.sprite.Group()
+        self.dying=False
 
     @property
     def x(self):
@@ -407,11 +451,12 @@ class Omnivine(pygame.sprite.Sprite):
         self.hp-=max(0,damage-self.defense)
         if self.hp<0:
             self.hp=0
-        self.aux_state.append('health')
-        self.aux_state.append('timerwheel')
-        self.hpbar_ref_timer=Time.game_clock()+3
-        self.hit_flash=Time.game_clock()+.1
-        self.health_bar()
+        else:
+            self.aux_state.append('health')
+            self.aux_state.append('timerwheel')
+            self.hpbar_ref_timer=Time.game_clock()+3
+            self.hit_flash=Time.game_clock()+.1
+            self.health_bar()
 
     def trap(self,duration):
         if 'trap' not in self.aux_state:
@@ -605,6 +650,47 @@ class Omnivine(pygame.sprite.Sprite):
             self.loot_dropper()
             self.kill()
 
+    def death_animation(self):
+        self.sprite_set=self.traverse_white
+        self.image=self.sprite_set[int(self.current_sprite)]
+        if not self.dying:
+            self.dying=True
+            self.time_of_death=Time.game_clock()
+            self.hit_flash=Time.game_clock()+.2
+            self.death_particles=[]
+            self.death_particles.append(particles.ParticleEmitter(
+                0,
+                (self.rect.centerx,self.rect.centerx),
+                (self.rect.centery,self.rect.centery),
+                [DARK_RED,DEEP_RED,RED,LIGHT_GREEN],
+                1,
+                'explode','move_out_fast'))
+            # self.death_particles.append(particles.ParticleEmitter(
+            #     1,
+            #     (self.rect.centerx,self.rect.centerx),
+            #     (self.rect.centery,self.rect.centery),
+            #     [FORREST_GREEN,RED,GREEN],
+            #     3,
+            #     'vine','timed_emit',
+            #     emit_time=0,
+            #     square=True))
+            # self.death_particles.append(particles.ParticleEmitter(
+            #     0,
+            #     (self.rect.centerx,self.rect.centerx),
+            #     (self.rect.centery,self.rect.centery),
+            #     [RED,DARK_LEATHER,LEATHER,BROWN,GREEN],
+            #     2,
+            #     'halo_wave','burst_emit200','move_out_fast','explode_dest','shrink'))
+        else:
+            if Time.game_clock()-self.time_of_death>.05:
+                radius=200-(Time.game_clock()-self.time_of_death)*463
+                pygame.draw.circle(canvas,WHITE,self.rect.center,radius,1)
+            if Time.game_clock()-self.time_of_death>.48:
+                for i in self.death_particles:
+                    i.update(canvas)
+            if Time.game_clock()-self.time_of_death>.78:
+                self.vitality()
+
     def auxillary(self,canvas,player):
         if 'health' in self.aux_state:
             self.health_bar()
@@ -636,8 +722,10 @@ class Omnivine(pygame.sprite.Sprite):
         self.delta=delta
         self.pos=pygame.Vector2((self.rect.center))
         self.blit()
-        self.vitality()
-        self.auxillary(canvas,player)
+        if self.hp<=0:
+            self.death_animation()
+        else:
+            self.auxillary(canvas,player)
         for i in self.bullets:
             i.update(canvas)
 

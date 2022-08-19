@@ -1,12 +1,15 @@
 import pygame,random,time,math
 from random import randint
 from color_palette import *
+import Time
 
 class ParticleEmitter():
-    def __init__(self,emit_rate,x_range,y_range,colors,size,*motion_styles,square=False):
+    def __init__(self,emit_rate,x_range,y_range,colors,size,*motion_styles,square=False,emit_time=0):
+        self.emit_time=emit_time
         self.square=square
         self.emit_rate=emit_rate
-        self.emit_limit=time.time()
+        self.emit_limit=Time.game_clock()
+        self.timer=Time.game_clock()
         self.x_range=x_range
         self.y_range=y_range
         self.colors=colors
@@ -22,6 +25,7 @@ class ParticleEmitter():
         self.lightning_bolt_catalyst=True
         self.burst_emit20_catalyst=True
         self.burst_emit200_catalyst=True
+        # self.vine_stalk_pos=[int(sum(x_range)/2),int(sum(y_range)/2)]
 
     class Particle():
         def __init__(self,pos,color,size):
@@ -32,14 +36,16 @@ class ParticleEmitter():
             self.speed=.05
             self.movement_vector=pygame.math.Vector2(0,0)
             self.unique=randint(0,10)
+            self.placed=False
+
     def limiter(self,speed):
         #emit_rate is a time interval between the return of True booleans
         time_stamp=time.time()*speed
         if time_stamp>self.emit_limit:
             self.emit_limit=time_stamp+self.emit_rate
-            return True
+            return True #create particle
         else:
-            return False   
+            return False
 
     def randomize_pos(self,x_range,y_range):
         x=randint(x_range[0],x_range[1]) if x_range[0]!=x_range[1] else x_range[0]
@@ -69,7 +75,7 @@ class ParticleEmitter():
             for i in self.particles:
                 pygame.draw.rect(canvas,i.color,(i.pos,(int(i.size),int(i.size))))
 
-        
+
     '''motion_styles is used in self.behavior() to select as many of the following 
     styles desired and apply them to each Particle object on update.
     '''
@@ -123,7 +129,21 @@ class ParticleEmitter():
             self.move_out()
         if 'move_out_fast' in self.motion_styles:
             self.move_out_fast()
+        # if 'vine' in self.motion_styles:
+        #     self.vine()
+        # if 'timed_emit' in self.motion_styles:
+        #     self.timed_emit()
 
+
+    # def vine(self):
+    #     new_particles=[i for i in self.particles if not i.placed]
+    #     for i in new_particles:
+    #         i.placed=True
+    #         i.pos=self.vine_stalk_pos
+    #         self.vine_stalk_pos[1]-=1
+    #         # if randint(0,100)<10:
+    #         #     self.branch
+    #     # self.vine_pos+=algo
 
     def shrink(self):
         for i in self.particles:
@@ -171,6 +191,11 @@ class ParticleEmitter():
     def fast_emit(self):
         if self.limiter(2):
             self.create_particle()
+
+    # def timed_emit(self):
+    #     if Time.game_clock()+self.emit_time>self.timer:
+    #         self.timer=Time.game_clock()
+    #         self.create_particle()
 
     def burst_emit20(self):
         if self.burst_emit20_catalyst:

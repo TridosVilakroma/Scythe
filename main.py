@@ -461,6 +461,8 @@ class GameElements():
         enemies.player=scyman
         self.level_loaded=False
         self.focus='main'
+        self.alpha=255
+        self.game_over_blur=0
 
     def save_game(self):
         player_data={
@@ -546,6 +548,7 @@ class GameElements():
 
 game = GameElements(canvas)
 player.game=game
+enemies.game=game
 player.canvas=game.canvas
 enemies.canvas=game.canvas
 delta_ref=time.time()
