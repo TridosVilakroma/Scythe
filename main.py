@@ -166,7 +166,6 @@ class GameElements():
         while True:
             Time.update()
             clock.tick(60)
-            print(clock.get_fps())
             for event in pygame.event.get():
                 comfunc.quit(event)
                 if event.type == JOYBUTTONDOWN:

@@ -56,7 +56,7 @@ class PlayerOne(pygame.sprite.Sprite):
         self.scythe_time_ref=Time.game_clock()
         self.slash_time_ref=Time.game_clock()
         self.slash_cooldown=.8
-        self.scythe_attack=200
+        self.scythe_attack=2
         self.scythe_attack_flag=[0,0]
         self.mask=pygame.mask.from_surface(self.image)
         self.relic_cool_down=Time.game_clock()
