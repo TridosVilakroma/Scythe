@@ -308,7 +308,6 @@ class Eagle(Relic):
             for i in scarecrows:
                 if pygame.Vector2(player.rect.center).distance_to(i.rect.center)<=150:
                     mana_regen=True
-                
             if mana_regen:
                 player.mp+=.05
             else:#if hp_regen:
@@ -325,12 +324,14 @@ class Eagle(Relic):
                 self.entry_portal_transparent.fill((255, 255, 255, alpha), None, pygame.BLEND_RGBA_MULT)
                 screen.blit(self.entry_portal_transparent,self.entry_portal.rect)
                 if self.exit_portal.active:
-                    if self.entry_portal.rect.colliderect(player):
+                    if self.entry_portal.rect.colliderect(player.precise_rect):
                         self.ghost_time=Time.game_clock()+1.2
                         self.ghost_angle=10
                         self.ghost_shrink=.9
                         self.ghost_image=player.image.copy()
+                        player.x_precise=self.exit_portal.rect.left
                         player.x=self.exit_portal.rect.left
+                        player.y_precise=self.exit_portal.rect.top
                         player.y=self.exit_portal.rect.top
                     if self.ghost_time>time_stamp:
                         ghost_alpha = comfunc.sine_pulse(1,250,128)

@@ -79,6 +79,13 @@ class PlayerOne(pygame.sprite.Sprite):
     @y.setter
     def y(self,value):
         self.rect.y=value
+    @property
+    def precise_rect(self):
+        return (self.x_precise,self.y_precise,32,32)
+    @precise_rect.setter
+    def precise_rect(self,value):
+        self.x_precise=value[0]
+        self.y_precise=value[1]
 
     class Scythe(equip.Equipment):
         def __init__(self, image,origin):
@@ -159,7 +166,7 @@ class PlayerOne(pygame.sprite.Sprite):
     def list_init(self):
         self.interactables=[]
         self.picked_up_items=[]
-        self.relics=[equip.Testudinidae_relic,equip.Felidae_relic,equip.Panthera_relic,equip.vulpes_relic]#,equip.Mephitidae_relic,equip.aeetus_relic,equip.Ursidae_relic,
+        self.relics=[equip.Testudinidae_relic,equip.Felidae_relic,equip.Panthera_relic,equip.vulpes_relic,equip.aeetus_relic]#,equip.Mephitidae_relic,equip.Ursidae_relic,
        # equip.Panthera_relic
         self.armor=[]
         self.weapons=[]
@@ -905,7 +912,6 @@ class PlayerOne(pygame.sprite.Sprite):
             self.draw()
         else:
             self.last_pos=self.x,self.y
-            if 'blockade' not in self.aux_state:
-                self.focus_switch(P1,delta)
+            self.focus_switch(P1,delta)
             self.action(P1)
             self.auxillary(P1,delta)
