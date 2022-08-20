@@ -87,8 +87,6 @@ def sprite_decay(group):
             filtered_group.add(i)
     return filtered_group
 
-
- 
 def pivot(image,screen_pivot,image_pivot, angle):
     '''image is the Surface which has to be rotated and blit
     screen_pivot is the position of the pivot on the target Surface surf (relative to the top left of surf)
@@ -139,4 +137,11 @@ def surf_blur(surface,strength):
                 temp=pygame.transform.smoothscale(temp,(x*2,y*2))
                 temp=pygame.transform.smoothscale(temp,(x,y))
     return temp
+
+def center_image(surface,image):
+    return pygame.Rect(
+        surface.get_width()/2-image.get_width()/2,
+        surface.get_height()/2-image.get_height()/2,
+        image.get_width(),
+        image.get_height())
 

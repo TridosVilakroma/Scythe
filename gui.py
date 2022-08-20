@@ -1,4 +1,4 @@
-import pygame,text
+import pygame,text,Time
 from color_palette import BLACK
 import os.path
 
@@ -48,3 +48,29 @@ class Button(pygame.sprite.Sprite):
                 temp_text=text.TextHandler('media\VecnaBold.ttf',BLACK,'New',20)
                 self.image.blit(temp_text.text_obj,(self.rect[2]/2-temp_text.rect.width/2,self.rect[3]-temp_text.rect.height*1.25))
                 self.clicked_image.blit(temp_text.text_obj,(self.rect[2]/2-temp_text.rect.width/2,self.rect[3]-temp_text.rect.height*1.25))
+class Label(pygame.sprite.Sprite):
+    def __init__(self,image,pos,text='None'):
+        super().__init__()
+        self.pos=pos
+        self.x=pos[0]
+        self.y=pos[1]
+        self.original_image=image.copy()
+        self.image=image
+        self.rect=image.get_rect()
+        self.rect.center=pos
+        self.rect.y=self.pos[1]-self.image.get_height()
+        self.depressed=False
+        self.text=text
+        self.render_text()
+
+    def render_text(self):
+        self.image=self.original_image.copy()
+        temp_text=text.TextHandler('media\VecnaBold.ttf',BLACK,self.text,35)
+        self.image.blit(temp_text.text_obj,(self.rect[2]/2-temp_text.rect.width/2,self.rect[3]/2-temp_text.rect.height/2))
+
+    def set_text(self,text):
+        self.text=text
+        self.render_text()
+
+    def draw(self,screen):
+        screen.blit(self.image,self.rect.topleft)
