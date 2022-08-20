@@ -13,6 +13,9 @@ class Equipment(pygame.sprite.Sprite):
         super().__init__()
         self.mask=pygame.mask.from_surface(image)
         self.rect=image.get_rect()
+    @property
+    def vecpos(self):
+        return pygame.Vector2(self.rect.topleft)
 
 class Relic(Equipment):
     def __init__(self,mana_drain,image):

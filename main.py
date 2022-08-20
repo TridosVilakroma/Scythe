@@ -54,19 +54,20 @@ save_button_3=gui.Button(pygame.image.load(r'media\gui\main_menu\panel_beige.png
     pygame.image.load(r'media\gui\main_menu\panelInset_beige.png').convert_alpha(),(700,250),'File 3','map_loader',True)
 #gui loading
 player_menu_bg=pygame.transform.scale(pygame.image.load(r'media\gui\main_menu\panel_beige.png').convert_alpha(),(int(screen_width*.6),int(screen_height*.75)))
+player_menu_details=gui.Label(pygame.transform.scale(pygame.image.load(r'media\gui\main_menu\panel_beigeLight.png').convert_alpha(),(310,200)),(587,280),'')
 player_menu_label=gui.Label(pygame.transform.scale(pygame.image.load(r'media\gui\main_menu\panelInset_beigeLight.png').convert_alpha(),(300,100)),(585,380),'')
 player_menu_back=gui.Button(pygame.image.load(r'media\gui\main_menu\buttonLong_beige.png').convert_alpha(),
     pygame.image.load(r'media\gui\main_menu\buttonLong_beige_pressed.png').convert_alpha(),(275,450),'Close Menu','close')
 player_menu_relic=gui.Button(pygame.image.load(r'media\gui\main_menu\buttonLong_beige.png').convert_alpha(),
-    pygame.image.load(r'media\gui\main_menu\buttonLong_beige_pressed.png').convert_alpha(),(320,130),'Relics','one')
+    pygame.image.load(r'media\gui\main_menu\buttonLong_beige_pressed.png').convert_alpha(),(320,130),'Relics','relic')
 player_menu_armor=gui.Button(pygame.image.load(r'media\gui\main_menu\buttonLong_beige.png').convert_alpha(),
-    pygame.image.load(r'media\gui\main_menu\buttonLong_beige_pressed.png').convert_alpha(),(320,180),'Armor','two')
+    pygame.image.load(r'media\gui\main_menu\buttonLong_beige_pressed.png').convert_alpha(),(320,180),'Armor','armor')
 player_menu_weapon=gui.Button(pygame.image.load(r'media\gui\main_menu\buttonLong_beige.png').convert_alpha(),
-    pygame.image.load(r'media\gui\main_menu\buttonLong_beige_pressed.png').convert_alpha(),(320,230),'Weapon','three')
+    pygame.image.load(r'media\gui\main_menu\buttonLong_beige_pressed.png').convert_alpha(),(320,230),'Weapon','weapon')
 player_menu_tool=gui.Button(pygame.image.load(r'media\gui\main_menu\buttonLong_beige.png').convert_alpha(),
-    pygame.image.load(r'media\gui\main_menu\buttonLong_beige_pressed.png').convert_alpha(),(320,280),'Tools','four')
+    pygame.image.load(r'media\gui\main_menu\buttonLong_beige_pressed.png').convert_alpha(),(320,280),'Tools','tool')
 player_menu_status=gui.Button(pygame.image.load(r'media\gui\main_menu\buttonLong_beige.png').convert_alpha(),
-    pygame.image.load(r'media\gui\main_menu\buttonLong_beige_pressed.png').convert_alpha(),(320,330),'Status','five')
+    pygame.image.load(r'media\gui\main_menu\buttonLong_beige_pressed.png').convert_alpha(),(320,330),'Status','status')
 player_menu_save=gui.Button(pygame.image.load(r'media\gui\main_menu\buttonLong_beige.png').convert_alpha(),
     pygame.image.load(r'media\gui\main_menu\buttonLong_beige_pressed.png').convert_alpha(),(320,380),'Save Game','save')
 #structure group
@@ -222,8 +223,10 @@ class GameElements():
         for i in self.player_menu_buttons:
             if i.rect.collidepoint(mouse_pos):
                 self.button_focus=self.player_menu_button_order.index(i)
+
         screen.blit(player_menu_bg,(bg_rect[0],bg_rect[1]))
         self.player_menu_buttons.draw(screen)
+        player_menu_details.draw(screen)
         player_menu_label.draw(screen)
         screen.blit(
             button_select_left.text_obj,
@@ -234,6 +237,7 @@ class GameElements():
             (self.player_menu_button_order[self.button_focus].rect.right,
             self.player_menu_button_order[self.button_focus].rect.top))
         current_button=self.player_menu_button_order[self.button_focus]
+
         for event in game.events:
             comfunc.quit(event)
             if event.type == MOUSEBUTTONDOWN:
@@ -274,11 +278,22 @@ class GameElements():
                     player_menu_label.set_text(self.button_action)
                     if self.button_action=='close':
                         comfunc.clean_list(self.aux_state,'player_menu')
+
+                    if self.button_action=='relic':
+                        player_menu_details.set_text('a really long text that doesnt wrap correctly')
+                    if self.button_action=='armor':
+                        pass
+                    if self.button_action=='weapon':
+                        pass
+                    if self.button_action=='tool':
+                        pass
+                    if self.button_action=='status':
+                        pass
                     if self.button_action=='save':
                         self.save_game()
                         player_menu_label.set_text('Game Saved!')
-
                     self.button_action=False
+
             elif event.type == JOYHATMOTION:
                 if event.__dict__['hat']==0:
                     if event.__dict__['value'][1]==-1:

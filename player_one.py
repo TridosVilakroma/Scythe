@@ -187,10 +187,16 @@ class PlayerOne(pygame.sprite.Sprite):
         self.blinkupsprites=[]
 
     def interact(self):
-        for i in self.interactables:
-            self.picked_up_items.append(i)
-        pygame.sprite.spritecollide(self,enemies.spawned_loot,True)
-        self.item_sorter()
+        for event in game.events:
+            if event.type == JOYBUTTONDOWN:
+                if event.__dict__['button']==3:
+                    closest=None
+                    if self.interactables:
+                        closest=min([i for i in self.interactables],key=lambda i:i.vecpos.distance_to((self.x,self.y)))
+                    if closest:
+                        self.picked_up_items.append(closest)
+                        self.interactables[0].kill()
+                        self.item_sorter()
 
     def item_sorter(self):
         for i in self.picked_up_items:
