@@ -49,7 +49,7 @@ class Button(pygame.sprite.Sprite):
                 self.image.blit(temp_text.text_obj,(self.rect[2]/2-temp_text.rect.width/2,self.rect[3]-temp_text.rect.height*1.25))
                 self.clicked_image.blit(temp_text.text_obj,(self.rect[2]/2-temp_text.rect.width/2,self.rect[3]-temp_text.rect.height*1.25))
 class Label(pygame.sprite.Sprite):
-    def __init__(self,image,pos,text='None'):
+    def __init__(self,image,pos,text='None',text_size=35):
         super().__init__()
         self.pos=pos
         self.x=pos[0]
@@ -61,15 +61,17 @@ class Label(pygame.sprite.Sprite):
         self.rect.y=self.pos[1]-self.image.get_height()
         self.depressed=False
         self.text=text
+        self.text_size=text_size
         self.render_text()
 
     def render_text(self):
         self.image=self.original_image.copy()
-        temp_text=text.TextHandler('media\VecnaBold.ttf',BLACK,self.text,35)
+        temp_text=text.TextHandler('media\VecnaBold.ttf',BLACK,self.text,self.text_size)
         self.image.blit(temp_text.text_obj,(self.rect[2]/2-temp_text.rect.width/2,self.rect[3]/2-temp_text.rect.height/2))
 
-    def set_text(self,text):
+    def set_text(self,text,text_size=35):
         self.text=text
+        self.text_size=text_size
         self.render_text()
 
     def draw(self,screen):

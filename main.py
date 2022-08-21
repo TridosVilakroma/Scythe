@@ -54,8 +54,8 @@ save_button_3=gui.Button(pygame.image.load(r'media\gui\main_menu\panel_beige.png
     pygame.image.load(r'media\gui\main_menu\panelInset_beige.png').convert_alpha(),(700,250),'File 3','map_loader',True)
 #gui loading
 player_menu_bg=pygame.transform.scale(pygame.image.load(r'media\gui\main_menu\panel_beige.png').convert_alpha(),(int(screen_width*.6),int(screen_height*.75)))
-player_menu_details=gui.Label(pygame.transform.scale(pygame.image.load(r'media\gui\main_menu\panel_beigeLight.png').convert_alpha(),(310,200)),(587,280),'')
-player_menu_label=gui.Label(pygame.transform.scale(pygame.image.load(r'media\gui\main_menu\panelInset_beigeLight.png').convert_alpha(),(300,100)),(585,380),'')
+player_menu_details=gui.Label(pygame.transform.scale(pygame.image.load(r'media\gui\main_menu\panel_beigeLight.png').convert_alpha(),(310,250)),(587,330),'')
+player_menu_label=gui.Label(pygame.transform.scale(pygame.image.load(r'media\gui\main_menu\panelInset_beigeLight.png').convert_alpha(),(300,50)),(585,380),'')
 player_menu_back=gui.Button(pygame.image.load(r'media\gui\main_menu\buttonLong_beige.png').convert_alpha(),
     pygame.image.load(r'media\gui\main_menu\buttonLong_beige_pressed.png').convert_alpha(),(275,450),'Close Menu','close')
 player_menu_relic=gui.Button(pygame.image.load(r'media\gui\main_menu\buttonLong_beige.png').convert_alpha(),
@@ -93,6 +93,7 @@ enemies.enemies=scarecrows
 
 #text loading
 standad_font='media\VecnaBold.ttf'
+font=pygame.font.Font(standad_font,35)
 plug_in_text=text.TextHandler(standad_font,LEATHER,'Plug In Controller',50)
 title_text =text.TextHandler(standad_font,LIGHT_LEATHER,'Scythe',150)
 press_start_text =text.TextHandler(standad_font,LEATHER,'Press Start',50)
@@ -201,6 +202,7 @@ class GameElements():
         if not self.player_menu_loaded:
             self.player_menu_loaded=True
             self.reset_joystick_needed=False
+            self.button_6_reset=False
             self.player_menu_buttons=pygame.sprite.Group()
             self.player_menu_buttons.add(player_menu_back)
             self.player_menu_buttons.add(player_menu_relic)
@@ -218,9 +220,14 @@ class GameElements():
                 player_menu_status,
                 player_menu_save]
             self.button_focus=0
+
         bg_rect=comfunc.center_image(screen,player_menu_bg)
         mouse_pos=pygame.mouse.get_pos()
         for i in self.player_menu_buttons:
+            if not self.button_focus==self.player_menu_button_order.index(i):
+                if i.depressed:
+                    i.image_swap()
+                    i.clicked()
             if i.rect.collidepoint(mouse_pos):
                 self.button_focus=self.player_menu_button_order.index(i)
 
@@ -265,33 +272,60 @@ class GameElements():
                     current_button=self.player_menu_button_order[self.button_focus]
                     current_button.image_swap()
                     current_button.clicked()
+                if event.__dict__['button']==6:
+                    if self.button_6_reset==True:
+                        self.button_focus=0
+                        current_button=self.player_menu_button_order[self.button_focus]
+                        current_button.image_swap()
+                        current_button.clicked()
+
             elif event.type == JOYBUTTONUP:
                 if event.__dict__['button']==0:
-                    current_button.image_swap()
-                    current_button.clicked()
-                    self.button_action=current_button.activate()
+                    if current_button.depressed:
+                        current_button.image_swap()
+                        current_button.clicked()
+                        self.button_action=current_button.activate()
                 if event.__dict__['button']==1:
-                    current_button.image_swap()
-                    current_button.clicked()
-                    comfunc.clean_list(self.aux_state,'player_menu')
+                    if current_button.depressed:
+                        current_button.image_swap()
+                        current_button.clicked()
+                        self.button_action=current_button.activate()
+                if event.__dict__['button']==6:
+                    if self.button_6_reset==False:
+                        self.button_6_reset=True
+                    else:
+                        if current_button.depressed:
+                            current_button.image_swap()
+                            current_button.clicked()
+                            self.button_action=current_button.activate()
+
                 if self.button_action:
                     player_menu_label.set_text(self.button_action)
+
                     if self.button_action=='close':
                         comfunc.clean_list(self.aux_state,'player_menu')
+                        self.player_menu_loaded=False
+                        player_menu_label.set_text('')
 
                     if self.button_action=='relic':
-                        player_menu_details.set_text('a really long text that doesnt wrap correctly')
+                        player_menu_label.set_text(f'Aquired {len(scyman.relics)}/8 Relics',27)
+                        player_menu_details.set_text('Will show relic info here',27)
                     if self.button_action=='armor':
-                        pass
+                        player_menu_label.set_text(f'Total Aquired Armor: {len(scyman.armor)}',27)
+                        player_menu_details.set_text('Will show armor info here',27)
                     if self.button_action=='weapon':
-                        pass
+                        player_menu_label.set_text(f'Current Weapon: Scythe',27)
+                        player_menu_details.set_text('Will show weapon info here',27)
                     if self.button_action=='tool':
-                        pass
+                        player_menu_label.set_text(f'Aquired {len(scyman.relics)}/8 Relics',27)
+                        player_menu_details.set_text('Will show tool info here',27)
                     if self.button_action=='status':
-                        pass
+                        player_menu_label.set_text(f'Aquired {len(scyman.relics)}/8 Relics',27)
+                        player_menu_details.set_text('Will show status info here',27)
                     if self.button_action=='save':
                         self.save_game()
                         player_menu_label.set_text('Game Saved!')
+                        player_menu_details.set_text(f'')
                     self.button_action=False
 
             elif event.type == JOYHATMOTION:
