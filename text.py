@@ -51,12 +51,12 @@ class TextHandler():
     def height(self):
         return self.rect.height
 
-def draw_text(surface, text, rect, color, font, aa=False, bkg=None):
+def draw_text(surface, text, color, font, aa=False, bkg=None):
     '''Draw some text into an area of a surface.
     Automatically wraps words;
     Returns any text that didn't get blitted
     '''
-    rect = pygame.Rect(rect)
+    rect = surface.get_rect()
     y = rect.top
     lineSpacing = -2
 

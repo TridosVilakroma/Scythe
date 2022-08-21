@@ -1,4 +1,4 @@
-from pygame.constants import JOYBUTTONDOWN
+from pygame.constants import JOYBUTTONDOWN,JOYBUTTONUP
 import pygame,time,math
 from pygame.sprite import collide_mask
 import common_functions as comfunc
@@ -66,6 +66,7 @@ class PlayerOne(pygame.sprite.Sprite):
         self.x_precise=self.x
         self.y_precise=self.y
         self.rect_ratio=pygame.sprite.collide_rect_ratio(.65)
+        self.lb_up=False
 
     @property
     def x(self):
@@ -663,7 +664,8 @@ class PlayerOne(pygame.sprite.Sprite):
                 try:
                     canvas.blit(relic[1].image,(self.x,
                     self.y-self.relics[0].rect[3]))#up
-                    if P1.get_button(4):
+                    if self.lb_up==True:
+                        self.lb_up=False
                         self.aux_state.append('relic')
                         comfunc.clean_list(self.aux_state,'dpad')
                         self.relic_activation_cool_down=Time.game_clock()+cool_down
@@ -676,7 +678,8 @@ class PlayerOne(pygame.sprite.Sprite):
                 try:
                     canvas.blit(relic[5].image,(self.x+32,
                     self.y-self.relics[5].rect[3]))#upright
-                    if P1.get_button(4):
+                    if self.lb_up==True:
+                        self.lb_up=False
                         self.aux_state.append('relic')
                         comfunc.clean_list(self.aux_state,'dpad')
                         self.relic_activation_cool_down=Time.game_clock()+cool_down
@@ -689,7 +692,8 @@ class PlayerOne(pygame.sprite.Sprite):
                 try:
                     canvas.blit(relic[2].image,(self.x+32,
                     self.y))#right
-                    if P1.get_button(4):
+                    if self.lb_up==True:
+                        self.lb_up=False
                         self.aux_state.append('relic')
                         comfunc.clean_list(self.aux_state,'dpad')
                         self.relic_activation_cool_down=Time.game_clock()+cool_down
@@ -702,7 +706,8 @@ class PlayerOne(pygame.sprite.Sprite):
                 try:
                     canvas.blit(relic[6].image,(self.x+32,
                     self.y+32))#downright
-                    if P1.get_button(4):
+                    if self.lb_up==True:
+                        self.lb_up=False
                         self.aux_state.append('relic')
                         comfunc.clean_list(self.aux_state,'dpad')
                         self.relic_activation_cool_down=Time.game_clock()+cool_down
@@ -715,7 +720,8 @@ class PlayerOne(pygame.sprite.Sprite):
                 try:
                     canvas.blit(relic[3].image,(self.x,
                     self.y+32))#down
-                    if P1.get_button(4):
+                    if self.lb_up==True:
+                        self.lb_up=False
                         self.aux_state.append('relic')
                         comfunc.clean_list(self.aux_state,'dpad')
                         self.relic_activation_cool_down=Time.game_clock()+cool_down
@@ -728,7 +734,8 @@ class PlayerOne(pygame.sprite.Sprite):
                 try:
                     canvas.blit(relic[7].image,(self.x-self.relics[0].rect[2],
                     self.y+32))#downleft
-                    if P1.get_button(4):
+                    if self.lb_up==True:
+                        self.lb_up=False
                         self.aux_state.append('relic')
                         comfunc.clean_list(self.aux_state,'dpad')
                         self.relic_activation_cool_down=Time.game_clock()+cool_down
@@ -741,7 +748,8 @@ class PlayerOne(pygame.sprite.Sprite):
                 try:
                     canvas.blit(relic[0].image,(self.x-self.relics[0].rect[2],
                     self.y))
-                    if P1.get_button(4):
+                    if self.lb_up==True:
+                        self.lb_up=False
                         self.aux_state.append('relic')
                         comfunc.clean_list(self.aux_state,'dpad')
                         self.relic_activation_cool_down=Time.game_clock()+cool_down
@@ -754,7 +762,8 @@ class PlayerOne(pygame.sprite.Sprite):
                 try:
                     canvas.blit(relic[4].image,(self.x-self.relics[0].rect[2],
                     self.y-self.relics[0].rect[3]))#upleft
-                    if P1.get_button(4):
+                    if self.lb_up==True:
+                        self.lb_up=False
                         self.aux_state.append('relic')
                         comfunc.clean_list(self.aux_state,'dpad')
                         self.relic_activation_cool_down=Time.game_clock()+cool_down
@@ -845,33 +854,55 @@ class PlayerOne(pygame.sprite.Sprite):
         self.image=self.walkdownsprites[0]
 
     def action(self,P1):
+        self.lb_up=False
         time_stamp=Time.game_clock()
-        if P1.get_button(1):
-            pass
-        if P1.get_button(0):
-            if time_stamp>self.blink_time_ref:
-                if self.mp>=self.blink_mp_cost:
-                    self.mp-=self.blink_mp_cost
-                    self.blink_time_ref=time_stamp+self.blink_step_cooldown
-                    self.focus ='blink'
-        if P1.get_button(2) and 'relic' not in self.aux_state:
-                if time_stamp>self.slash_time_ref:
-                    self.slash_time_ref=time_stamp+self.slash_cooldown
-                    self.focus='slash'
         if P1.get_button(4):
-            if 'relic' in self.aux_state:
-                if time_stamp>self.relic_activation_cool_down:
-                    self.deactivate_relic()
-                    self.relic_cool_down=Time.game_clock()+.5
-        if P1.get_button(3):
-            self.interact()
-        if P1.get_hat(0)[0] or P1.get_hat(0)[1]:
-            if 'relic' in self.aux_state:
-                pass
-            else:
+            if 'relic' not in self.aux_state:
                 if time_stamp>self.relic_cool_down:
                     self.dpad_timestamp=Time.game_clock()+.5
                     self.relic_select(P1)
+        for event in game.events:
+            comfunc.quit(event)
+            if event.type == JOYBUTTONDOWN:
+                if event.__dict__['button']==0:
+                    if time_stamp>self.blink_time_ref:
+                        if self.mp>=self.blink_mp_cost:
+                            self.mp-=self.blink_mp_cost
+                            self.blink_time_ref=time_stamp+self.blink_step_cooldown
+                            self.focus ='blink'
+                if event.__dict__['button']==2 and 'relic' not in self.aux_state:
+                        if time_stamp>self.slash_time_ref:
+                            self.slash_time_ref=time_stamp+self.slash_cooldown
+                            self.focus='slash'
+                if event.__dict__['button']==3:
+                    self.interact()
+                if event.__dict__['button']==4:
+                    if 'relic' in self.aux_state:
+                        if time_stamp>self.relic_activation_cool_down:
+                            self.deactivate_relic()
+                            self.relic_cool_down=Time.game_clock()+.5
+                if P1.get_hat(0)[0] or P1.get_hat(0)[1]:
+                    if 'relic' in self.aux_state:
+                        pass
+                    else:
+                        if time_stamp>self.relic_cool_down:
+                            self.dpad_timestamp=Time.game_clock()+.5
+                            self.relic_select(P1)
+            elif event.type == JOYBUTTONUP:
+                if event.__dict__['button']==0:
+                    pass
+                if event.__dict__['button']==1:
+                    pass
+                if event.__dict__['button']==2:
+                    pass
+                if event.__dict__['button']==3:
+                    pass
+                if event.__dict__['button']==4:
+                    if 'relic' not in self.aux_state:
+                        if time_stamp>self.relic_cool_down:
+                            self.lb_up=True
+                            self.dpad_timestamp=Time.game_clock()+.5
+                            self.relic_select(P1)
 
     def draw(self):
         canvas.blit(self.image,(self.x,self.y))
