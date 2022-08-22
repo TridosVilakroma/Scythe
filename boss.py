@@ -177,13 +177,14 @@ class ScareBoss(pygame.sprite.Sprite):
             self.timer_wheel_step+=1
         else:
             self.aux_state.append('dust')
-            self.dust_start=Time.game_clock()
+            self.dust_time=Time.Period()
+            # self.dust_start=Time.game_clock()
             self.dust_pos=(player1pos[0]-20,player1pos[1]-41)
             self.timer_wheel_step=0
             comfunc.clean_list(self.aux_state,'timerwheel')
 
     def dust(self):
-        if self.dust_start>=Time.game_clock()-.8:
+        if self.dust_time.frame(0,.8):
             canvas.blit(self.small_straw,self.dust_pos)
             self.aux_state.append('dust_particles')
             self.dust_particles=[]
@@ -195,12 +196,12 @@ class ScareBoss(pygame.sprite.Sprite):
             (self.dust_pos[0]+37,self.dust_pos[0]+37),(self.dust_pos[1]+75,self.dust_pos[1]+75),
             [PALE_YELLOW,WORN_YELLOW,BRIGHT_YELLOW,DARK_RED,RED],2,
             'explode','move_to_dest','fast_shrink','shrink'))
-        elif self.dust_start>=Time.game_clock()-1.6:
+        elif self.dust_time.frame(.8,1.6):
             canvas.blit(self.straw_stalk,self.dust_pos)
             dust_rect=pygame.Rect((self.dust_pos),(75,75))
             attacks.append((1.05,dust_rect))
             print(dust_rect,'\n','p',player.rect)
-        elif self.dust_start>=Time.game_clock()-1.8:
+        elif self.dust_time.frame(1.6,1.8):
             canvas.blit(self.small_straw,self.dust_pos)
 
         else:
