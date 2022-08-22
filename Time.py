@@ -8,6 +8,19 @@ import time
 class TimeVariables:pass
 
 class Period:
+    '''Creates an instance to manipulate specific isolated
+    time sectioning.
+    
+    Useful for creating an instance to track a timed event.
+
+    age() returns time since being created(in game time)
+
+    frame() returns a boolean to indicate weather you are within the timeframe
+    passed in relative to the instance creation time.
+    
+    grow() and regress() allow you to age or reverse the age of your instance
+    by the amount passed in.
+    '''
     def __init__(self) -> None:
         self.origin=game_clock()
 
