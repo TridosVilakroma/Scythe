@@ -53,7 +53,7 @@ class ScareBoss(pygame.sprite.Sprite):
 
     def image_loader(self):
         boss_sacaling=(75,75)
-        self.trap_net=pygame.image.load(r'media\relics\fox\fox_net.png').convert_alpha()
+        self.trap_net=pygame.transform.scale(pygame.image.load(r'media\relics\fox\fox_net.png'),boss_sacaling).convert_alpha()
         self.norm_image=pygame.image.load(r'media\boss\scareboss\scareboss.png').convert_alpha()
         self.white=pygame.image.load(r'media\boss\scareboss\scareboss_white.png').convert_alpha()
         self.timer_wheel_img=[]
@@ -91,8 +91,8 @@ class ScareBoss(pygame.sprite.Sprite):
         self.timer_wheel_img.append(pygame.transform.scale(pygame.image.load(r'media\twirl\twirl31.png'),boss_sacaling).convert_alpha())
         self.timer_wheel_img.append(pygame.transform.scale(pygame.image.load(r'media\twirl\twirl32.png'),boss_sacaling).convert_alpha())
         self.timer_wheel_img.append(pygame.transform.scale(pygame.image.load(r'media\twirl\twirl33.png'),boss_sacaling).convert_alpha())
-        self.small_straw=pygame.image.load(r'media\deco\small_straw.png').convert_alpha()
-        self.straw_stalk=pygame.image.load(r'media\deco\straw_stalk.png').convert_alpha()
+        self.small_straw=pygame.transform.scale(pygame.image.load(r'media\deco\small_straw.png'),boss_sacaling).convert_alpha()
+        self.straw_stalk=pygame.transform.scale(pygame.image.load(r'media\deco\straw_stalk.png'),boss_sacaling).convert_alpha()
 
     def loot_dropper(self):
         random_loot=randint(1,7)
@@ -178,24 +178,29 @@ class ScareBoss(pygame.sprite.Sprite):
         else:
             self.aux_state.append('dust')
             self.dust_start=Time.game_clock()
-            self.dust_pos=player1pos
+            self.dust_pos=(player1pos[0]-20,player1pos[1]-41)
             self.timer_wheel_step=0
             comfunc.clean_list(self.aux_state,'timerwheel')
 
     def dust(self):
-        if self.dust_start>=Time.game_clock()-.6:
+        if self.dust_start>=Time.game_clock()-.8:
             canvas.blit(self.small_straw,self.dust_pos)
             self.aux_state.append('dust_particles')
-            self.dust_particles=particles.ParticleEmitter(0,
-            (self.dust_pos[0]+16,self.dust_pos[0]+16),(self.dust_pos[1]+32,self.dust_pos[1]+32),
-            [PALE_YELLOW,WORN_YELLOW,BRIGHT_YELLOW,BROWN],1,
-            'explode_up','move_to_dest','fast_shrink','shrink')
-        elif self.dust_start>=Time.game_clock()-1.2:
+            self.dust_particles=[]
+            self.dust_particles.append(particles.ParticleEmitter(0,
+            (self.dust_pos[0]+37,self.dust_pos[0]+37),(self.dust_pos[1]+75,self.dust_pos[1]+75),
+            [PALE_YELLOW,WORN_YELLOW,BRIGHT_YELLOW,BROWN],2,
+            'explode_up_large','move_to_dest','fast_shrink','shrink'))
+            self.dust_particles.append(particles.ParticleEmitter(0,
+            (self.dust_pos[0]+37,self.dust_pos[0]+37),(self.dust_pos[1]+75,self.dust_pos[1]+75),
+            [PALE_YELLOW,WORN_YELLOW,BRIGHT_YELLOW,DARK_RED,RED],2,
+            'explode','move_to_dest','fast_shrink','shrink'))
+        elif self.dust_start>=Time.game_clock()-1.6:
             canvas.blit(self.straw_stalk,self.dust_pos)
-            dust_rect=pygame.Rect((self.dust_pos),(32,32))
-            attacks.append((.75,dust_rect))
-            
-        elif self.dust_start>=Time.game_clock()-1.3:
+            dust_rect=pygame.Rect((self.dust_pos),(75,75))
+            attacks.append((1.05,dust_rect))
+            print(dust_rect,'\n','p',player.rect)
+        elif self.dust_start>=Time.game_clock()-1.8:
             canvas.blit(self.small_straw,self.dust_pos)
 
         else:
@@ -297,7 +302,8 @@ class ScareBoss(pygame.sprite.Sprite):
         if 'trap' in self.aux_state:
             self.trap(self.trap_duration)
         if 'dust_particles' in self.aux_state:
-            self.dust_particles.update(canvas)
+            for i in self.dust_particles:
+                i.update(canvas)
 
     def blit(self):
         self.image=self.norm_image if self.hit_flash<Time.game_clock() else self.white

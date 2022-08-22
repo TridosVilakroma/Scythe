@@ -2,7 +2,7 @@ from pygame.constants import JOYBUTTONDOWN,JOYBUTTONUP
 import pygame,time,math
 from pygame.sprite import collide_mask
 import common_functions as comfunc
-import enemies,equip,particles
+import enemies,equip,particles,boss
 from color_palette import *
 import controller as con
 import Time
@@ -14,6 +14,7 @@ scarecrows=None#variable overwritten in main to add enemy access here
 structures=None#variable overwritten in main to add enemy access here
 attacks=[]
 enemies.attacks=attacks
+boss.attacks=attacks
 class PlayerOne(pygame.sprite.Sprite):
     def __init__(self,pos_x, pos_y):
         super().__init__()

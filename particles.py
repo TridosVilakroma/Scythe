@@ -111,6 +111,8 @@ class ParticleEmitter():
             self.implode()
         if 'explode_up' in self.motion_styles:
             self.explode_up()
+        if 'explode_up_large' in self.motion_styles:
+            self.explode_up_large()
         if 'fast_decay' in self.motion_styles:
             self.fast_decay()
         if 'lightning_bolt' in self.motion_styles:
@@ -306,6 +308,20 @@ class ParticleEmitter():
             for i in self.particles:
                 randint_a=randint(int(i.pos[0]-20),int(i.pos[0]+20))
                 randint_b=randint(int(i.pos[1]-75),int(i.pos[1]+5))
+                i.dest=pygame.math.Vector2(randint_a,randint_b)
+
+    def explode_up_large(self):
+        if self.explode_up_catalyst:
+            self.explode_up_catalyst=False
+            for i in range(25):
+                x_center=sum(self.x_range)/2
+                y_center=sum(self.y_range)/2
+                particle=self.Particle(pygame.math.Vector2(x_center,y_center),
+                self.randomize_color(self.colors),self.size*2)
+                self.particles.append(particle)
+            for i in self.particles:
+                randint_a=randint(int(i.pos[0]-20),int(i.pos[0]+20))
+                randint_b=randint(int(i.pos[1]-150),int(i.pos[1]+10))
                 i.dest=pygame.math.Vector2(randint_a,randint_b)
 
     def move_out(self):
