@@ -11,7 +11,7 @@ canvas = pygame.Surface((canvas_width,canvas_height))
 pygame.display.set_caption('Scythe')
 
 
-import time, random, sys,text,enemies,equip,gui
+import time, random, sys,text,enemies,equip,gui,boss
 from sprite_animation import Spritesheet
 from pygame.constants import JOYAXISMOTION, JOYBUTTONDOWN, JOYBUTTONUP, JOYHATMOTION, MOUSEBUTTONDOWN,MOUSEBUTTONUP
 import common_functions as comfunc
@@ -25,6 +25,7 @@ from save_data import data_IO as dio
 
 player.screen = screen
 enemies.screen=screen
+boss.screen=screen
 
 
 #image loading
@@ -84,11 +85,13 @@ for i in range(4):
     demo_enemies.add(start_vine)
 scyman=player.PlayerOne(0,0)
 enemies.player=scyman
+boss.player=scyman
 scarecrows=pygame.sprite.Group()
 player.scarecrows=scarecrows
 player.structures=structures
 equip.scarecrows=scarecrows
 enemies.enemies=scarecrows
+boss.enemies=scarecrows
 
 
 #text loading
@@ -317,10 +320,10 @@ class GameElements():
                         player_menu_label.set_text(f'Current Weapon: Scythe',27)
                         player_menu_details.set_text('Will show weapon info here',27)
                     if self.button_action=='tool':
-                        player_menu_label.set_text(f'Aquired {len(scyman.relics)}/8 Relics',27)
+                        player_menu_label.set_text(f'Aquired {len(scyman.tools)} Tools',27)
                         player_menu_details.set_text('Will show tool info here',27)
                     if self.button_action=='status':
-                        player_menu_label.set_text(f'Aquired {len(scyman.relics)}/8 Relics',27)
+                        player_menu_label.set_text(f'Status',27)
                         player_menu_details.set_text('Will show status info here',27)
                     if self.button_action=='save':
                         self.save_game()
@@ -572,6 +575,8 @@ class GameElements():
             scarecrows.add(enemy_container)
             scyman.x,scyman.y=player_pos
             scyman.x_precise,scyman.y_precise=player_pos
+            if self.current_level==10:
+                scarecrows.add(boss.ScareBoss(1300,500))
         screen.blit(back_ground,(0,0))
         if not scarecrows:
             self.current_level+=1
@@ -581,6 +586,9 @@ class GameElements():
         enemies.canvas=self.canvas
         enemies.player1pos=(scyman.x,scyman.y)
         enemies.spawned_loot.draw(self.canvas)
+        boss.canvas=self.canvas
+        boss.player1pos=(scyman.x,scyman.y)
+        boss.spawned_loot.draw(self.canvas)
         scyman.update(P1,Time.delta())
         for i in scarecrows:
             i.update(self.canvas,scyman,Time.delta())
@@ -736,8 +744,10 @@ class GameElements():
 game = GameElements(canvas)
 player.game=game
 enemies.game=game
+boss.game=game
 player.canvas=game.canvas
 enemies.canvas=game.canvas
+boss.canvas=game.canvas
 delta_ref=time.time()
 while True:
     game.events=pygame.event.get()
