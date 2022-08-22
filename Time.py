@@ -6,6 +6,23 @@ You must call Time.init() to set all time markers before calling Time.update().
 import time
 
 class TimeVariables:pass
+
+class Period:
+    def __init__(self) -> None:
+        self.origin=game_clock()
+
+    def age(self):
+        return game_clock()-self.origin
+
+    def frame(self,start,end):
+        return True if self.age()>=start and self.age()<end else False
+
+    def grow(self,value):
+        self.age+=value
+
+    def regress(self,value):
+        self.age-=value
+
 def init():
     '''Initializes the Time module.
 
