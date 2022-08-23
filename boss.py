@@ -1,8 +1,10 @@
 from color_palette import *
 import pygame,time,math,equip,particles
 from random import randint
+import random
 import common_functions as comfunc
 import Time
+import enemies as minions
 
 screen=None
 canvas=None
@@ -31,6 +33,9 @@ class ScareBoss(pygame.sprite.Sprite):
         self.image_loader()
         self.mask=pygame.mask.from_surface(self.image)
         self.dying=False
+        self.focus='idle'
+        self.life_time=Time.Period()
+        self.particle_emiters=[]
 
     @property
     def x(self):
@@ -172,16 +177,16 @@ class ScareBoss(pygame.sprite.Sprite):
             comfunc.clean_list(self.aux_state,'health')
 
     def timer_wheel(self):
-        if int(self.timer_wheel_step)<=len(self.timer_wheel_img)-1:
-            canvas.blit(self.timer_wheel_img[self.timer_wheel_step],self.rect.center)
-            self.timer_wheel_step+=1
-        else:
-            self.aux_state.append('dust')
-            self.dust_time=Time.Period()
-            # self.dust_start=Time.game_clock()
-            self.dust_pos=(player1pos[0]-20,player1pos[1]-41)
-            self.timer_wheel_step=0
-            comfunc.clean_list(self.aux_state,'timerwheel')
+        if 'dust' not in self.aux_state:
+            if int(self.timer_wheel_step)<=len(self.timer_wheel_img)-1:
+                canvas.blit(self.timer_wheel_img[self.timer_wheel_step],self.rect.center)
+                self.timer_wheel_step+=1
+            else:
+                self.aux_state.append('dust')
+                self.dust_time=Time.Period()
+                self.dust_pos=(player1pos[0]-20,player1pos[1]-41)
+                self.timer_wheel_step=0
+                comfunc.clean_list(self.aux_state,'timerwheel')
 
     def dust(self):
         if self.dust_time.frame(0,.8):
@@ -196,15 +201,14 @@ class ScareBoss(pygame.sprite.Sprite):
             (self.dust_pos[0]+37,self.dust_pos[0]+37),(self.dust_pos[1]+75,self.dust_pos[1]+75),
             [PALE_YELLOW,WORN_YELLOW,BRIGHT_YELLOW,DARK_RED,RED],2,
             'explode','move_to_dest','fast_shrink','shrink'))
-        elif self.dust_time.frame(.8,1.6):
+        if self.dust_time.frame(.8,1.6):
             canvas.blit(self.straw_stalk,self.dust_pos)
             dust_rect=pygame.Rect((self.dust_pos),(75,75))
             attacks.append((1.05,dust_rect))
-            print(dust_rect,'\n','p',player.rect)
-        elif self.dust_time.frame(1.6,1.8):
+        if self.dust_time.frame(1.6,1.8):
             canvas.blit(self.small_straw,self.dust_pos)
 
-        else:
+        if self.dust_time.frame(1.8):
             comfunc.clean_list(self.aux_state,'dust')
             comfunc.clean_list(self.aux_state,'dust_particles')
 
@@ -286,6 +290,29 @@ class ScareBoss(pygame.sprite.Sprite):
     def demo(self):
             self.image=pygame.transform.smoothscale(self.image,(25,25))
 
+    def time_events(self):
+        for i in self.particle_emiters:
+            if i.life_time.age()<i.duration:
+                i.update(canvas)
+            else:
+                del i
+        if self.life_time.interval(15):
+            vec=pygame.Vector2()
+            vec.from_polar((randint(175,350),randint(1,360)))
+            vec+=self.rect.center
+            enemies.add(minions.Scarecrow(vec[0],vec[1]))
+            entry_dust=particles.ParticleEmitter(0,
+            (vec[0]+16,vec[0]+16),(vec[1]+32,vec[1]+32),
+            [PALE_YELLOW,WORN_YELLOW,BRIGHT_YELLOW,DARK_RED,RED],1,
+            'explode_up','move_to_dest','fast_shrink','shrink')
+            entry_dust.life_time=Time.Period()
+            entry_dust.duration=1.5
+            self.particle_emiters.append(entry_dust)
+
+    def focus_switch(self):
+        if self.focus=='idle':
+            self.time_events()
+
     def auxillary(self,canvas,player):
         if 'health' in self.aux_state:
             self.health_bar()
@@ -317,4 +344,5 @@ class ScareBoss(pygame.sprite.Sprite):
         if self.hp<=0:
             self.death_animation()
         else:
+            self.focus_switch()
             self.auxillary(canvas,player)
