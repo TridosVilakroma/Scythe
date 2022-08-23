@@ -27,14 +27,26 @@ class Period:
     def age(self):
         return game_clock()-self.origin
 
-    def frame(self,start,end):
-        return True if self.age()>=start and self.age()<end else False
+    def frame(self,start,end=None):
+        if end:
+            return True if self.age()>=start and self.age()<end else False
+        else:
+            return True if self.age()>=start else False
 
     def grow(self,value):
         self.age+=value
 
     def regress(self,value):
         self.age-=value
+
+    def interval(self,frequency,precision=.02):
+        '''return boolean on call;True at given interval(seconds)
+
+        only returns true within the precision range; due to the clock being 
+        slightly unprecise it may miss an interval if the precision is too small.
+        multiple Trues may be returned if the precision is left too large.
+        '''
+        return True if self.age()%frequency<=precision else False
 
 def init():
     '''Initializes the Time module.
