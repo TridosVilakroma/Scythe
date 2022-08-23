@@ -171,15 +171,16 @@ class Scarecrow(pygame.sprite.Sprite):
             comfunc.clean_list(self.aux_state,'health')
 
     def timer_wheel(self):
-        if int(self.timer_wheel_step)<=len(self.timer_wheel_img)-1:
-            canvas.blit(self.timer_wheel_img[self.timer_wheel_step],self.rect.center)
-            self.timer_wheel_step+=1
-        else:
-            self.aux_state.append('dust')
-            self.dust_start=Time.game_clock()
-            self.dust_pos=player1pos
-            self.timer_wheel_step=0
-            comfunc.clean_list(self.aux_state,'timerwheel')
+        if 'dust' not in self.aux_state:
+            if int(self.timer_wheel_step)<=len(self.timer_wheel_img)-1:
+                canvas.blit(self.timer_wheel_img[self.timer_wheel_step],self.rect.center)
+                self.timer_wheel_step+=1
+            else:
+                self.aux_state.append('dust')
+                self.dust_start=Time.game_clock()
+                self.dust_pos=player1pos
+                self.timer_wheel_step=0
+                comfunc.clean_list(self.aux_state,'timerwheel')
 
     def dust(self):
         if self.dust_start>=Time.game_clock()-.6:
