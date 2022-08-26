@@ -575,8 +575,6 @@ class GameElements():
             scarecrows.add(enemy_container)
             scyman.x,scyman.y=player_pos
             scyman.x_precise,scyman.y_precise=player_pos
-            if self.current_level in (5,10):
-                scarecrows.add(boss.ScareBoss(1300,500))
         screen.blit(back_ground,(0,0))
         if not scarecrows:
             self.current_level+=1
