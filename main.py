@@ -203,6 +203,7 @@ class GameElements():
 
     def player_menu(self):
         if not self.player_menu_loaded:
+            self.player_menu_tween_size=25
             self.player_menu_loaded=True
             self.reset_joystick_needed=False
             self.button_6_reset=False
@@ -234,19 +235,25 @@ class GameElements():
             if i.rect.collidepoint(mouse_pos):
                 self.button_focus=self.player_menu_button_order.index(i)
 
-        screen.blit(player_menu_bg,(bg_rect[0],bg_rect[1]))
-        self.player_menu_buttons.draw(screen)
-        player_menu_details.draw(screen)
-        player_menu_label.draw(screen)
-        screen.blit(
-            button_select_left.text_obj,
-            (self.player_menu_button_order[self.button_focus].rect.left-button_select_left.width,
-            self.player_menu_button_order[self.button_focus].rect.top))
-        screen.blit(
-            button_select_right.text_obj,
-            (self.player_menu_button_order[self.button_focus].rect.right,
-            self.player_menu_button_order[self.button_focus].rect.top))
-        current_button=self.player_menu_button_order[self.button_focus]
+        tween_size=self.player_menu_tween_size
+        if tween_size<350:
+            self.player_menu_tween_size+=tween_size*Time.delta()*(tween_size*.3)
+            x,y=int(tween_size*1.65),int(tween_size)
+            screen.blit(pygame.transform.scale(player_menu_bg,(x,y)),(int(bg_rect[0]),int(bg_rect[1])))
+        else:
+            screen.blit(player_menu_bg,(bg_rect[0],bg_rect[1]))
+            self.player_menu_buttons.draw(screen)
+            player_menu_details.draw(screen)
+            player_menu_label.draw(screen)
+            screen.blit(
+                button_select_left.text_obj,
+                (self.player_menu_button_order[self.button_focus].rect.left-button_select_left.width,
+                self.player_menu_button_order[self.button_focus].rect.top))
+            screen.blit(
+                button_select_right.text_obj,
+                (self.player_menu_button_order[self.button_focus].rect.right,
+                self.player_menu_button_order[self.button_focus].rect.top))
+            current_button=self.player_menu_button_order[self.button_focus]
 
         for event in game.events:
             comfunc.quit(event)
