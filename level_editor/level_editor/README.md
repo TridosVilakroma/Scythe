@@ -20,7 +20,7 @@ number keys- Change the currently equiped tileset you are working with.(output i
 	7-
 	8-Player starting position
 	9-Enemies
-	0-
+	0-Bosses (a bosses bottom right corner is placed on the clicked tile)
 
 enter key- Save current screen as a level, into a file of "current level counter"
 

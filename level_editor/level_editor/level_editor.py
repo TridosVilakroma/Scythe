@@ -28,7 +28,8 @@ scyman=pygame.image.load(r'media\scyman_walk\down_walk\walkdown0.png')
 #enemies
 scarecrow = pygame.image.load(r'media\deco\scarecrow.png')
 omnivine = pygame.image.load(r'media\enemies\ominvine.png')
-
+#Bosses
+scareboss=pygame.image.load(r'media\boss\scareboss\scareboss.png')
 #tiles
 dirt_img1 = pygame.image.load(r'media\tile\tiles\dirt1.png')
 dirt_img2 = pygame.image.load(r'media\tile\tiles\dirt2.png')
@@ -254,6 +255,11 @@ class world_edit():
                         #omnivine
                         img = pygame.transform.scale(omnivine, (tile_size, tile_size))
                         screen.blit(img, (col * tile_size, row * tile_size))
+                #####bosses
+                    if game_data[row][col] == 800:
+                        #scareboss
+                        img = pygame.transform.scale(scareboss, (tile_size*3, tile_size*3))
+                        screen.blit(img, ((col-2) * tile_size, (row-2) * tile_size))
                 #####player
                     if game_data[row][col] == 1000:
                         #scyman
@@ -336,6 +342,12 @@ class world_edit():
                     self.tileset_first=200
                     self.tileset_last=202
                     print('Enemies selected')
+                if event.key == pygame.K_0:
+                    #boss placement
+                    self.data_set=game_data
+                    self.tileset_first=800
+                    self.tileset_last=801
+                    print('Bosses selected')
 
     def save_level(self):
         pickle_out = open(f'levels\level{self.level}_data', 'wb')

@@ -1,4 +1,4 @@
-import pickle,pygame,enemies
+import pickle,pygame,enemies,boss
 from pygame.locals import *
 from os import path
 
@@ -89,10 +89,12 @@ def build(img,row,col):
 
 
 def spawn(enemy_type,row,col):
-        enemy=eval(f'enemies.{enemy_type}({col * tile_size},{row * tile_size})')
-        enemy_container.add(enemy)
+    enemy=eval(f'enemies.{enemy_type}({col * tile_size},{row * tile_size})')
+    enemy_container.add(enemy)
 
-
+def summon(boss_type,row,col):
+    boss=eval(f'boss.{boss_type}({col * tile_size},{row * tile_size})')
+    enemy_container.add(boss)
 
 def create_canvas(world_data,game_data):
     global player_pos
@@ -184,6 +186,10 @@ def create_canvas(world_data,game_data):
         ########player
                 if game_data[row][col] == 1000:
                     player_pos=(col * tile_size,row * tile_size)
+        ########bosses
+                if game_data[row][col] == 800:
+                    #scareboss
+                    summon('ScareBoss',row-2,col-2)
         ########enemies
                 if game_data[row][col] == 200:
                     #scarecrow
