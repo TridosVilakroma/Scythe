@@ -575,7 +575,7 @@ class GameElements():
             scarecrows.add(enemy_container)
             scyman.x,scyman.y=player_pos
             scyman.x_precise,scyman.y_precise=player_pos
-            if self.current_level==10:
+            if self.current_level in (5,10):
                 scarecrows.add(boss.ScareBoss(1300,500))
         screen.blit(back_ground,(0,0))
         if not scarecrows:
@@ -584,9 +584,12 @@ class GameElements():
         self.canvas=self.canvas_original.copy()
         player.canvas=self.canvas
         enemies.canvas=self.canvas
-        enemies.player1pos=(scyman.x,scyman.y)
-        enemies.spawned_loot.draw(self.canvas)
         boss.canvas=self.canvas
+        enemies.player1pos=(scyman.x,scyman.y)
+        for i in scarecrows:
+            if hasattr(i,'early_blit'):
+                i.early_blit()
+        enemies.spawned_loot.draw(self.canvas)
         boss.player1pos=(scyman.x,scyman.y)
         boss.spawned_loot.draw(self.canvas)
         scyman.update(P1,Time.delta())

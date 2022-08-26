@@ -36,6 +36,10 @@ class ScareBoss(pygame.sprite.Sprite):
         self.focus='idle'
         self.life_time=Time.Period()
         self.particle_emiters=[]
+        self.animate_speed=.09
+        self.power_ring_current_sprite=0
+        self.power_ring_alpha=0
+        self.dust_ring_radius=100
 
     @property
     def x(self):
@@ -62,6 +66,7 @@ class ScareBoss(pygame.sprite.Sprite):
         self.norm_image=pygame.image.load(r'media\boss\scareboss\scareboss.png').convert_alpha()
         self.white=pygame.image.load(r'media\boss\scareboss\scareboss_white.png').convert_alpha()
         self.timer_wheel_img=[]
+        self.power_ring_images=[]
         self.timer_wheel_img.append(pygame.transform.scale(pygame.image.load(r'media\twirl\twirl00.png'),boss_sacaling).convert_alpha())
         self.timer_wheel_img.append(pygame.transform.scale(pygame.image.load(r'media\twirl\twirl01.png') ,boss_sacaling).convert_alpha())
         self.timer_wheel_img.append(pygame.transform.scale(pygame.image.load(r'media\twirl\twirl02.png') ,boss_sacaling).convert_alpha())
@@ -98,6 +103,9 @@ class ScareBoss(pygame.sprite.Sprite):
         self.timer_wheel_img.append(pygame.transform.scale(pygame.image.load(r'media\twirl\twirl33.png'),boss_sacaling).convert_alpha())
         self.small_straw=pygame.transform.scale(pygame.image.load(r'media\deco\small_straw.png'),boss_sacaling).convert_alpha()
         self.straw_stalk=pygame.transform.scale(pygame.image.load(r'media\deco\straw_stalk.png'),boss_sacaling).convert_alpha()
+        self.power_ring_images.append(pygame.image.load(r'media\boss\scareboss\power_ring\power_ring-1.png').convert_alpha())
+        self.power_ring_images.append(pygame.image.load(r'media\boss\scareboss\power_ring\power_ring2.png').convert_alpha())
+        self.power_ring_images.append(pygame.image.load(r'media\boss\scareboss\power_ring\power_ring-3.png').convert_alpha())
 
     def loot_dropper(self):
         random_loot=randint(1,7)
@@ -188,6 +196,22 @@ class ScareBoss(pygame.sprite.Sprite):
                 self.timer_wheel_step=0
                 comfunc.clean_list(self.aux_state,'timerwheel')
 
+    def power_ring_animation(self,fade='in'):
+        if 'dust_ring' not in self.aux_state:
+            if fade=='in':
+                self.power_ring_alpha+=25.5*Time.delta()
+            elif fade=='out':
+                self.power_ring_alpha-=510*Time.delta()
+            if self.power_ring_alpha>=255:
+                self.power_ring_alpha=0
+                self.dust_ring_time=Time.Period()
+                self.aux_state.append('dust_ring')
+            elif  self.power_ring_alpha<0:
+                self.power_ring_alpha=0
+        self.power_ring_current_sprite+=self.animate_speed
+        if int(self.power_ring_current_sprite)>=len(self.power_ring_images):
+            self.power_ring_current_sprite=0
+
     def dust(self):
         if self.dust_time.frame(0,.8):
             canvas.blit(self.small_straw,self.dust_pos)
@@ -211,6 +235,39 @@ class ScareBoss(pygame.sprite.Sprite):
         if self.dust_time.frame(1.8):
             comfunc.clean_list(self.aux_state,'dust')
             comfunc.clean_list(self.aux_state,'dust_particles')
+
+    def dust_ring(self):
+        if self.dust_ring_time.frame(0,.8):
+            self.dust_ring_particles=[]
+            for i in range(10):
+                canvas.blit(self.small_straw,comfunc.move((self.x+10,self.y+10),self.dust_ring_radius,i*40))
+                x,y=comfunc.move((self.x+10,self.y+10),self.dust_ring_radius,i*40)
+                self.dust_ring_particles.append(particles.ParticleEmitter(0,
+                (x+37,x+37),(y+75,y+75),
+                [PALE_YELLOW,WORN_YELLOW,BRIGHT_YELLOW,BROWN],2,
+                'explode_up_large','move_to_dest','fast_shrink','shrink'))
+                self.dust_ring_particles.append(particles.ParticleEmitter(0,
+                (x+37,x+37),(y+75,y+75),
+                [PALE_YELLOW,WORN_YELLOW,BRIGHT_YELLOW,DARK_RED,RED],2,
+                'explode','move_to_dest','fast_shrink','shrink'))
+        if self.dust_ring_time.frame(.8,1.6):
+            self.aux_state.append('dust_ring_particles')
+            for i in range(10):
+                canvas.blit(self.straw_stalk,comfunc.move((self.x+10,self.y+10),self.dust_ring_radius,i*40))
+                dust_rect=pygame.Rect((comfunc.move((self.x+10,self.y+10),self.dust_ring_radius,i*40)),(75,75))
+                attacks.append((1.05,dust_rect))
+        if self.dust_ring_time.frame(1.6,1.8):
+            for i in range(10):
+                canvas.blit(self.small_straw,comfunc.move((self.x+10,self.y+10),self.dust_ring_radius,i*40))
+
+        if self.dust_ring_time.frame(1.8):
+            if self.dust_ring_radius>150:
+                self.dust_ring_radius=100
+                comfunc.clean_list(self.aux_state,'dust_ring')
+                comfunc.clean_list(self.aux_state,'dust_particles')
+            else:
+                self.dust_ring_time=Time.Period()
+                self.dust_ring_radius+=25
 
     def chain_lightning(self,canvas,player):
         if 'chain' not in self.aux_state:
@@ -291,11 +348,13 @@ class ScareBoss(pygame.sprite.Sprite):
             self.image=pygame.transform.smoothscale(self.image,(25,25))
 
     def time_events(self):
+        #particle emiters
         for i in self.particle_emiters:
             if i.life_time.age()<i.duration:
                 i.update(canvas)
             else:
                 del i
+        #scarcrow spawning
         if self.life_time.interval(15):
             vec=pygame.Vector2()
             vec.from_polar((randint(175,350),randint(1,360)))
@@ -308,6 +367,11 @@ class ScareBoss(pygame.sprite.Sprite):
             entry_dust.life_time=Time.Period()
             entry_dust.duration=1.5
             self.particle_emiters.append(entry_dust)
+        #dust rings
+        if pygame.Vector2(self.rect.center).distance_to(pygame.Vector2(player.rect.center))<250:
+            self.power_ring_animation()
+        else:
+            self.power_ring_animation(fade='out')
 
     def focus_switch(self):
         if self.focus=='idle':
@@ -323,6 +387,8 @@ class ScareBoss(pygame.sprite.Sprite):
                 self.timer_wheel()
         if 'dust' in self.aux_state:
             self.dust()
+        if 'dust_ring' in self.aux_state:
+            self.dust_ring()
         if 'bleed' in self.aux_state:
             self.bleed()
         if 'chain' in self.aux_state:
@@ -332,10 +398,18 @@ class ScareBoss(pygame.sprite.Sprite):
         if 'dust_particles' in self.aux_state:
             for i in self.dust_particles:
                 i.update(canvas)
+        if 'dust_ring_particles' in self.aux_state:
+            for i in self.dust_ring_particles:
+                i.update(canvas)
 
     def blit(self):
         self.image=self.norm_image if self.hit_flash<Time.game_clock() else self.white
         canvas.blit(self.image,(self.x,self.y))
+
+    def early_blit(self):
+        self.power_ring=self.power_ring_images[int(self.power_ring_current_sprite)]
+        self.power_ring.set_alpha(self.power_ring_alpha)
+        canvas.blit(self.power_ring,(self.x,self.y+22))
 
     def update(self,canvas,player,delta):
         self.delta=delta
