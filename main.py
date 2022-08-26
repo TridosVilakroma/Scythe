@@ -203,6 +203,8 @@ class GameElements():
 
     def player_menu(self):
         if not self.player_menu_loaded:
+            self.scroll=pygame.Surface((0,0))
+            self.scroll_offset=0
             self.player_menu_tween_size=25
             self.player_menu_loaded=True
             self.reset_joystick_needed=False
@@ -319,7 +321,16 @@ class GameElements():
 
                     if self.button_action=='relic':
                         player_menu_label.set_text(f'Aquired {len(scyman.relics)}/8 Relics',27)
-                        player_menu_details.set_text('Will show relic info here',27)
+                        relic_list=[]
+                        for i in scyman.relics:
+                            relic_list.append(('blue','header',f'{i.name[:-6]}',30))
+                            relic_list.append(('blue','body','test',28))
+                        self.scroll=gui.ScrollY(
+                            player_menu_details.rect.topleft,
+                            player_menu_details.rect.width,
+                            relic_list
+                        )
+                        player_menu_details.set_image(self.scroll.surface,(0,self.scroll_offset))
                     if self.button_action=='armor':
                         player_menu_label.set_text(f'Total Aquired Armor: {len(scyman.armor)}',27)
                         player_menu_details.set_text('Will show armor info here',27)
@@ -363,6 +374,15 @@ class GameElements():
                                 self.button_focus=len(self.player_menu_button_order)-1
                 elif comfunc.dead_zone(P1,single_axis=1,tolerance=.85):
                     self.reset_joystick_needed=False
+        axis_val=P1.get_axis(4)
+        if abs(axis_val)>.3:
+            self.scroll_offset+=axis_val*Time.delta()*350
+            if self.scroll_offset<-self.scroll.surface.get_height()+((player_menu_details.rect.height/4)*3):
+                self.scroll_offset=-self.scroll.surface.get_height()+((player_menu_details.rect.height/4)*3)
+            if self.scroll_offset>player_menu_details.rect.height/4:
+                self.scroll_offset=player_menu_details.rect.height/4
+            player_menu_details.set_image(self.scroll.surface,(0,self.scroll_offset))
+
 
     def main_menu(self):
         global P1,scyman
