@@ -203,7 +203,7 @@ class GameElements():
 
     def player_menu(self):
         if not self.player_menu_loaded:
-            self.scroll=pygame.Surface((0,0))
+            self.scroll=gui.ScrollY((0,0),0,[('brown','body')])  #pygame.Surface((0,0))
             self.scroll_offset=0
             self.player_menu_tween_size=25
             self.player_menu_loaded=True
@@ -322,15 +322,18 @@ class GameElements():
                     if self.button_action=='relic':
                         player_menu_label.set_text(f'Aquired {len(scyman.relics)}/8 Relics',27)
                         relic_list=[]
-                        for i in scyman.relics:
-                            relic_list.append(('blue','header',f'{i.name[:-6]}',30))
-                            relic_list.append(('blue','body','test',28))
+                        color=['blue','beige','brown','grey']
+                        for index,i in enumerate(scyman.relics):
+                            while index>=len(color):
+                                index-=len(color)
+                            relic_list.append((color[index],'header',f'{i.name[:-6]}',30,(i.image,(5,6))))
+                            relic_list.append((color[index],'body','test',28))
                         self.scroll=gui.ScrollY(
                             player_menu_details.rect.topleft,
                             player_menu_details.rect.width,
-                            relic_list
-                        )
-                        player_menu_details.set_image(self.scroll.surface,(0,self.scroll_offset))
+                            relic_list)
+                        player_menu_details.set_clipping_image(self.scroll.surface,(0,self.scroll_offset),
+                            (0,11,player_menu_details.rect.width*.9,player_menu_details.rect.height*.917))
                     if self.button_action=='armor':
                         player_menu_label.set_text(f'Total Aquired Armor: {len(scyman.armor)}',27)
                         player_menu_details.set_text('Will show armor info here',27)
@@ -376,12 +379,13 @@ class GameElements():
                     self.reset_joystick_needed=False
         axis_val=P1.get_axis(4)
         if abs(axis_val)>.3:
-            self.scroll_offset+=axis_val*Time.delta()*350
+            self.scroll_offset+=(axis_val*-1)*Time.delta()*350
             if self.scroll_offset<-self.scroll.surface.get_height()+((player_menu_details.rect.height/4)*3):
                 self.scroll_offset=-self.scroll.surface.get_height()+((player_menu_details.rect.height/4)*3)
             if self.scroll_offset>player_menu_details.rect.height/4:
                 self.scroll_offset=player_menu_details.rect.height/4
-            player_menu_details.set_image(self.scroll.surface,(0,self.scroll_offset))
+            player_menu_details.set_clipping_image(self.scroll.surface,(0,self.scroll_offset),
+                (0,11,player_menu_details.rect.width*.9,player_menu_details.rect.height*.917))
 
 
     def main_menu(self):

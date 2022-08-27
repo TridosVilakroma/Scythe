@@ -48,6 +48,7 @@ class Button(pygame.sprite.Sprite):
                 temp_text=text.TextHandler('media\VecnaBold.ttf',BLACK,'New',20)
                 self.image.blit(temp_text.text_obj,(self.rect[2]/2-temp_text.rect.width/2,self.rect[3]-temp_text.rect.height*1.25))
                 self.clicked_image.blit(temp_text.text_obj,(self.rect[2]/2-temp_text.rect.width/2,self.rect[3]-temp_text.rect.height*1.25))
+
 class Label(pygame.sprite.Sprite):
     def __init__(self,image,pos,text='None',text_size=35):
         super().__init__()
@@ -78,13 +79,23 @@ class Label(pygame.sprite.Sprite):
         self.image=self.original_image.copy()
         self.image.blit(image,pos)
 
+    def add_image(self,image,pos):
+        self.image.blit(image,pos)
+
+    def set_clipping_image(self,image,pos,clip_rect):
+        surf=pygame.Surface((clip_rect[2],clip_rect[3]),pygame.SRCALPHA)
+        offset=pygame.Vector2(pos)-pygame.Vector2((clip_rect[0],clip_rect[1]))
+        surf.blit(image,offset)
+        self.image=self.original_image.copy()
+        self.image.blit(surf,clip_rect)
+
     def draw(self,screen):
         screen.blit(self.image,self.rect.topleft)
 
 class ScrollY(pygame.sprite.Sprite):
     '''content needs to be a list of tuples;
 
-    tuples must contain (color,size,*Label_text,*label_size)
+    tuples must contain (color,size,*Label_text,*label_size,*(image,image_pos))
 
     *optional
 
@@ -107,16 +118,19 @@ class ScrollY(pygame.sprite.Sprite):
         grey_header=pygame.image.load(r'media\gui\main_menu\buttonLong_grey_pressed.png').convert_alpha()
 
         blue_body=pygame.image.load(r'media\gui\main_menu\panelInset_blue.png').convert_alpha()
-        beige_body=pygame.image.load(r'media\gui\main_menu\panel_beige.png').convert_alpha()
-        brown_body=pygame.image.load(r'media\gui\main_menu\panel_brown.png').convert_alpha()
-        grey_body=pygame.image.load(r'media\gui\main_menu\panel_beigeLight.png').convert_alpha()
+        beige_body=pygame.image.load(r'media\gui\main_menu\panelInset_beige.png').convert_alpha()
+        brown_body=pygame.image.load(r'media\gui\main_menu\panelInset_brown.png').convert_alpha()
+        grey_body=pygame.image.load(r'media\gui\main_menu\buttonSquare_grey_pressed.png').convert_alpha()
 
         for index,i in enumerate(self.content):
             text=i[2] if len(i)>2 else 'None'
             text_size=i[3] if len(i)>3 else 35
+            sprite,sprite_pos=(i[4]) if len(i)>4 else (None,None)
             image=eval(f'{i[0]}_{i[1]}')
             image=pygame.transform.scale(image, (int(self.rect.width*.8),image.get_height()))
             content=Label(image,(0,0),text,text_size)
+            if sprite is not None:
+                content.add_image(sprite,sprite_pos)
             self.content[index]=content
 
     def render_content(self):
