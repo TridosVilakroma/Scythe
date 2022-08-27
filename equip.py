@@ -70,6 +70,7 @@ class Skunk(Relic):
         self.last_hit=Time.game_clock()
         self.cloud=False
         self.cloud_start=Time.game_clock()-3
+        self.details='''X: slash attack, 1.75 damage.Life-steal. Every other attack inflicts bleed. B: Release stink cloud, ~4.5 damage per second'''
 
     def attack(self,screen,hits,player,P1):
         time_stamp=Time.game_clock()
@@ -136,6 +137,7 @@ class Fox(Relic):
         self.mine=False
         self.arrows=pygame.sprite.Group()
         self.arrow_delay=Time.game_clock()
+        self.details=''
         
     def attack(self,screen,hits,player,P1):
         time_stamp=Time.game_clock()
@@ -244,6 +246,7 @@ class Eagle(Relic):
         self.ghost_time=Time.game_clock()
         self.ghost_angle=10
         self.ghost_shrink=.9
+        self.details=''
 
     class Feather(Equipment):
             def __init__(self, image,origin,P1):
@@ -399,6 +402,7 @@ class Bear(Relic):
         self.hp_regen=0
         self.rage_mode=False
         self.rage_colors=(RED,RED,RED,RED,RED,DARK_RED,DARK_RED,DEEP_RED,ORANGE)
+        self.details=''
 
     def attack(self,screen,hits,player,P1):
         time_stamp=Time.game_clock()
@@ -466,6 +470,7 @@ class Lion(Relic):
         self.last_hit=Time.game_clock()
         self.chain_timer=Time.game_clock()-3
         self.roar_start=Time.game_clock()-3
+        self.details=''
 
     def attack(self,screen,hits,player,P1):
         time_stamp=Time.game_clock()
@@ -540,6 +545,7 @@ class Turtle(Relic):
         self.blockaded=False
         self.pushback=False
         self.pushback_start=Time.game_clock()
+        self.details=''
 
     def attack(self,screen,hits,player,P1):
         time_stamp=Time.game_clock()
@@ -639,6 +645,7 @@ class Wolf(Relic):
         self.counter_store=False
         self.stored_energy=0
         self.countered=False
+        self.details=''
 
     def attack(self,screen,hits,player,P1):
         time_stamp=Time.game_clock()
@@ -708,6 +715,7 @@ class Lynx(Relic):
         self.blink_hit_counter=0
         self.blinked_lynx_flag=False
         self.last_blink_time=Time.game_clock()
+        self.details=''
 
     def attack(self,screen,hits,player,P1):
         if self.attack_flag==False and P1.get_button(2):

@@ -203,7 +203,7 @@ class GameElements():
 
     def player_menu(self):
         if not self.player_menu_loaded:
-            self.scroll=gui.ScrollY((0,0),0,[('brown','body')])  #pygame.Surface((0,0))
+            self.scroll=gui.ScrollY((0,0),0,[('brown','body')])
             self.scroll_offset=0
             self.player_menu_tween_size=25
             self.player_menu_loaded=True
@@ -327,7 +327,7 @@ class GameElements():
                             while index>=len(color):
                                 index-=len(color)
                             relic_list.append((color[index],'header',f'{i.name[:-6]}',30,(i.image,(5,6))))
-                            relic_list.append((color[index],'body','test',28))
+                            relic_list.append((color[index],'body',f'{i.details}',28))
                         self.scroll=gui.ScrollY(
                             player_menu_details.rect.topleft,
                             player_menu_details.rect.width,

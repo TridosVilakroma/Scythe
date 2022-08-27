@@ -57,6 +57,7 @@ def draw_text(surface, text, color, font, aa=False, bkg=None):
     Returns any text that didn't get blitted
     '''
     rect = surface.get_rect()
+    rect.topleft=(5,5)
     y = rect.top
     lineSpacing = -2
 
