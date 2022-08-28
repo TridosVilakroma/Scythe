@@ -60,6 +60,7 @@ def draw_text(surface, text, color, font, aa=False, bkg=None):
     rect.topleft=(5,5)
     y = rect.top
     lineSpacing = -2
+    new_line=False
 
     # get the height of the font
     fontHeight = font.size("Tg")[1]
@@ -77,7 +78,12 @@ def draw_text(surface, text, color, font, aa=False, bkg=None):
 
         # if we've wrapped the text, then adjust the wrap to the last word      
         if i < len(text): 
-            i = text.rfind(" ", 0, i) + 1
+            nl=text.rfind('\n')
+            if nl == -1:
+                i = text.rfind(" ", 0, i) + 1
+            else:
+                new_line=True
+                i = nl + 1
 
         # render the line and blit it to the surface
         if bkg:

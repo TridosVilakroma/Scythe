@@ -70,7 +70,10 @@ class Skunk(Relic):
         self.last_hit=Time.game_clock()
         self.cloud=False
         self.cloud_start=Time.game_clock()-3
-        self.details='''X: slash attack, 1.75 damage.Life-steal. Every other attack inflicts bleed. B: Release stink cloud, ~4.5 damage per second'''
+        self.details='''X: slash attack, 1.75 damage.
+Life-steal. Inflicts bleed.
+
+B: Stink cloud, ~4.5 damage per second'''
 
     def attack(self,screen,hits,player,P1):
         time_stamp=Time.game_clock()
