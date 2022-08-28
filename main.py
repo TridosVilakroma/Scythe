@@ -189,11 +189,12 @@ class GameElements():
                 comfunc.quit(event)
                 if event.type == JOYBUTTONDOWN:
                     if event.__dict__['button']==6:
-                        game.events.remove(event)
                         self.aux_state.append('player_menu')
                     if event.__dict__['button']==7:
                         game.events.remove(event)
                         comfunc.clean_list(self.aux_state,'player_menu')
+                        self.player_menu_loaded=False
+                        player_menu_label.set_text('')
                         Time.start_clock()
                         delta_ref=time.time()
                         return

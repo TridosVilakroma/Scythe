@@ -70,10 +70,8 @@ class Skunk(Relic):
         self.last_hit=Time.game_clock()
         self.cloud=False
         self.cloud_start=Time.game_clock()-3
-        self.details='''X: slash attack, 1.75 damage.
-Life-steal. Inflicts bleed.
-
-B: Stink cloud, ~4.5 damage per second'''
+        self.details='''X: slash attack, 1.75 damage. Life-steal. Inflicts bleed.
+B: Stink cloud, 4.5 damage per second'''
 
     def attack(self,screen,hits,player,P1):
         time_stamp=Time.game_clock()
@@ -140,8 +138,10 @@ class Fox(Relic):
         self.mine=False
         self.arrows=pygame.sprite.Group()
         self.arrow_delay=Time.game_clock()
-        self.details=''
-        
+        self.details='''X: Trap enemies; Mana-steal.
+B: Lay mine, 8 damage
+R-stick: Arrows'''
+
     def attack(self,screen,hits,player,P1):
         time_stamp=Time.game_clock()
         if time_stamp>self.last_hit+.3:
@@ -249,7 +249,9 @@ class Eagle(Relic):
         self.ghost_time=Time.game_clock()
         self.ghost_angle=10
         self.ghost_shrink=.9
-        self.details=''
+        self.details='''X: Entry portal    
+B: Exit portal
+R-stick: Feathers'''
 
     class Feather(Equipment):
             def __init__(self, image,origin,P1):
@@ -318,9 +320,9 @@ class Eagle(Relic):
                 if pygame.Vector2(player.rect.center).distance_to(i.rect.center)<=150:
                     mana_regen=True
             if mana_regen:
-                player.mp+=.05
+                player.mp+=.1
             else:#if hp_regen:
-                player.hp+=.005
+                player.hp+=.01
 
 
         if self.entry_portal.active:
@@ -405,7 +407,8 @@ class Bear(Relic):
         self.hp_regen=0
         self.rage_mode=False
         self.rage_colors=(RED,RED,RED,RED,RED,DARK_RED,DARK_RED,DEEP_RED,ORANGE)
-        self.details=''
+        self.details='''X: Scythe
+Rage mode: Increased speed, defense, attack'''
 
     def attack(self,screen,hits,player,P1):
         time_stamp=Time.game_clock()
@@ -433,6 +436,7 @@ class Bear(Relic):
         if self.rage_mode and player.active_relic.name=='Ursidae_relic':
             player.speed=220
             player.defense=.6
+            self.scythe_attack=10
             self.rage_particles.x_range=(self.rect.left-4,self.rect.right+4)
             self.rage_particles.y_range=(self.rect.top-2,self.rect.top+20)
             self.rage_particles.update(screen)
@@ -440,9 +444,9 @@ class Bear(Relic):
 
             if self.rage_timer<Time.game_clock():
                 self.rage_mode=False
+                self.scythe_attack=6
                 player.speed=120
                 player.defense=3
-            
 
 
     def walk_right_load(self):
@@ -473,7 +477,8 @@ class Lion(Relic):
         self.last_hit=Time.game_clock()
         self.chain_timer=Time.game_clock()-3
         self.roar_start=Time.game_clock()-3
-        self.details=''
+        self.details='''X: Lightning chain; Consumes 5 MP.
+B: Roar, stuns enemies for 6 seconds; 10MP'''
 
     def attack(self,screen,hits,player,P1):
         time_stamp=Time.game_clock()
@@ -548,7 +553,8 @@ class Turtle(Relic):
         self.blockaded=False
         self.pushback=False
         self.pushback_start=Time.game_clock()
-        self.details=''
+        self.details='''X: Bite; stun 1 second, 20 damage.
+B: Enter shell; consume 5 MP. Reflect damage. Stun on exit.'''
 
     def attack(self,screen,hits,player,P1):
         time_stamp=Time.game_clock()
@@ -648,7 +654,8 @@ class Wolf(Relic):
         self.counter_store=False
         self.stored_energy=0
         self.countered=False
-        self.details=''
+        self.details='''X: Release stored energy.
+B:Absorb incoming damage as energy for, .85 second window'''
 
     def attack(self,screen,hits,player,P1):
         time_stamp=Time.game_clock()
@@ -664,7 +671,7 @@ class Wolf(Relic):
         if Time.game_clock()>self.counter_store_cooldown:
             if player.mp>15:
                 player.mp-=15
-                self.counter_store_cooldown=Time.game_clock()+1
+                self.counter_store_cooldown=Time.game_clock()+.85
                 player.incoming_damage_tracked=True
                 player.shield-=1
                 self.counter_store=True
@@ -718,15 +725,16 @@ class Lynx(Relic):
         self.blink_hit_counter=0
         self.blinked_lynx_flag=False
         self.last_blink_time=Time.game_clock()
-        self.details=''
+        self.details=r'''X: Mana steal after blink-step
+A: Blink-step 150% distance. 15 Damage. Consume 5 MP'''
 
     def attack(self,screen,hits,player,P1):
         if self.attack_flag==False and P1.get_button(2):
             self.attack_flag=True
             for i in hits:
                 i.damage(5)
-                if player.blink_start>Time.game_clock()-.5:
-                    player.mp+=5
+                if player.blink_start>Time.game_clock()-.75:
+                    player.mp+=25
 
 
     def special_attack(self,screen,player):
@@ -759,7 +767,7 @@ class Lynx(Relic):
                 pygame.draw.line(screen,GREY_BLUE,self.ghostpos,player.rect.center,5)
                 for i in scarecrows:
                     if i.rect.clipline(blink_path):
-                        i.damage(10)
+                        i.damage(15)
                 self.blink_hit_counter+=1
                 if self.blink_hit_counter==6:
                     self.blinked_lynx_flag=False

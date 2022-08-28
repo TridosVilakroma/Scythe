@@ -60,13 +60,14 @@ def draw_text(surface, text, color, font, aa=False, bkg=None):
     rect.topleft=(5,5)
     y = rect.top
     lineSpacing = -2
-    new_line=False
 
     # get the height of the font
     fontHeight = font.size("Tg")[1]
 
     while text:
         i = 1
+        new_line=False
+        print(text)
 
         # determine if the row of text will be outside our area
         if y + fontHeight > rect.bottom:
@@ -76,14 +77,14 @@ def draw_text(surface, text, color, font, aa=False, bkg=None):
         while font.size(text[:i])[0] < rect.width and i < len(text):
             i += 1
 
-        # if we've wrapped the text, then adjust the wrap to the last word      
-        if i < len(text): 
-            nl=text.rfind('\n')
+        # if we've wrapped the text, then adjust the wrap to the last word
+        if i < len(text):
+            nl=text.rfind('\n',0,i)
             if nl == -1:
                 i = text.rfind(" ", 0, i) + 1
             else:
                 new_line=True
-                i = nl + 1
+                i = text.rfind("\n", 0, i)
 
         # render the line and blit it to the surface
         if bkg:
@@ -97,5 +98,11 @@ def draw_text(surface, text, color, font, aa=False, bkg=None):
 
         # remove the text we just blitted
         text = text[i:]
+
+        if new_line:
+            image = font.render('', aa, color)
+            surface.blit(image, (rect.left, y))
+            y += fontHeight + lineSpacing
+            text = text[1:]
 
     return text
