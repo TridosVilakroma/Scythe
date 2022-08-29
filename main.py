@@ -269,10 +269,9 @@ class GameElements():
                 for i in self.player_menu_buttons:
                     if i.rect.collidepoint(mouse_pos):
                         if i.depressed:
-                            temp=i.activate()
-                            if temp:
-                                self.focus=temp
-                                self.main_loaded=False
+                            i.image_swap()
+                            i.clicked()
+                            self.button_action=i.activate()
                     if i.depressed:
                         i.depressed=False
                         i.image_swap()
@@ -312,46 +311,7 @@ class GameElements():
                             current_button.clicked()
                             self.button_action=current_button.activate()
 
-                if self.button_action:
-                    player_menu_label.set_text(self.button_action)
-
-                    if self.button_action=='close':
-                        comfunc.clean_list(self.aux_state,'player_menu')
-                        self.player_menu_loaded=False
-                        player_menu_label.set_text('')
-
-                    if self.button_action=='relic':
-                        player_menu_label.set_text(f'Aquired {len(scyman.relics)}/8 Relics',27)
-                        relic_list=[]
-                        color=['blue','beige','brown','grey']
-                        for index,i in enumerate(scyman.relics):
-                            while index>=len(color):
-                                index-=len(color)
-                            relic_list.append((color[index],'header',f'{i.name[:-6]}',30,(i.image,(5,6))))
-                            relic_list.append((color[index],'body',f'{i.details}',28))
-                        self.scroll=gui.ScrollY(
-                            player_menu_details.rect.topleft,
-                            player_menu_details.rect.width,
-                            relic_list)
-                        player_menu_details.set_clipping_image(self.scroll.surface,(0,self.scroll_offset),
-                            (0,11,player_menu_details.rect.width*.9,player_menu_details.rect.height*.917))
-                    if self.button_action=='armor':
-                        player_menu_label.set_text(f'Total Aquired Armor: {len(scyman.armor)}',27)
-                        player_menu_details.set_text('Will show armor info here',27)
-                    if self.button_action=='weapon':
-                        player_menu_label.set_text(f'Current Weapon: Scythe',27)
-                        player_menu_details.set_text('Will show weapon info here',27)
-                    if self.button_action=='tool':
-                        player_menu_label.set_text(f'Aquired {len(scyman.tools)} Tools',27)
-                        player_menu_details.set_text('Will show tool info here',27)
-                    if self.button_action=='status':
-                        player_menu_label.set_text(f'Status',27)
-                        player_menu_details.set_text('Will show status info here',27)
-                    if self.button_action=='save':
-                        self.save_game()
-                        player_menu_label.set_text('Game Saved!')
-                        player_menu_details.set_text(f'')
-                    self.button_action=False
+                
 
             elif event.type == JOYHATMOTION:
                 if event.__dict__['hat']==0:
@@ -378,6 +338,48 @@ class GameElements():
                                 self.button_focus=len(self.player_menu_button_order)-1
                 elif comfunc.dead_zone(P1,single_axis=1,tolerance=.85):
                     self.reset_joystick_needed=False
+
+        if self.button_action:
+            player_menu_label.set_text(self.button_action)
+
+            if self.button_action=='close':
+                comfunc.clean_list(self.aux_state,'player_menu')
+                self.player_menu_loaded=False
+                player_menu_label.set_text('')
+
+            if self.button_action=='relic':
+                player_menu_label.set_text(f'Aquired {len(scyman.relics)}/8 Relics',27)
+                relic_list=[]
+                color=['blue','beige','brown','grey']
+                for index,i in enumerate(scyman.relics):
+                    while index>=len(color):
+                        index-=len(color)
+                    relic_list.append((color[index],'header',f'{i.name[:-6]}',30,(i.image,(5,6))))
+                    relic_list.append((color[index],'body',f'{i.details}',28))
+                self.scroll=gui.ScrollY(
+                    player_menu_details.rect.topleft,
+                    player_menu_details.rect.width,
+                    relic_list)
+                player_menu_details.set_clipping_image(self.scroll.surface,(0,self.scroll_offset),
+                    (0,11,player_menu_details.rect.width*.9,player_menu_details.rect.height*.917))
+            if self.button_action=='armor':
+                player_menu_label.set_text(f'Total Aquired Armor: {len(scyman.armor)}',27)
+                player_menu_details.set_text('Will show armor info here',27)
+            if self.button_action=='weapon':
+                player_menu_label.set_text(f'Current Weapon: Scythe',27)
+                player_menu_details.set_text('Will show weapon info here',27)
+            if self.button_action=='tool':
+                player_menu_label.set_text(f'Aquired {len(scyman.tools)} Tools',27)
+                player_menu_details.set_text('Will show tool info here',27)
+            if self.button_action=='status':
+                player_menu_label.set_text(f'Status',27)
+                player_menu_details.set_text('Will show status info here',27)
+            if self.button_action=='save':
+                self.save_game()
+                player_menu_label.set_text('Game Saved!')
+                player_menu_details.set_text(f'')
+            self.button_action=False
+
         axis_val=P1.get_axis(4)
         if abs(axis_val)>.3:
             self.scroll_offset+=(axis_val*-1)*Time.delta()*350

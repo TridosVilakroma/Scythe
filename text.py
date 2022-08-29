@@ -67,7 +67,6 @@ def draw_text(surface, text, color, font, aa=False, bkg=None):
     while text:
         i = 1
         new_line=False
-        print(text)
 
         # determine if the row of text will be outside our area
         if y + fontHeight > rect.bottom:
