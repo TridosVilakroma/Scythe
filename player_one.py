@@ -177,7 +177,9 @@ class PlayerOne(pygame.sprite.Sprite):
             equip.Mephitidae_relic,
             equip.Ursidae_relic,
             equip.Panthera_relic]
-        self.armor=[]
+        self.armor=[
+            equip.HermesSelect_armor,
+            equip.MailOfPain_armor]
         self.weapons=[]
         self.tools=[]
         self.aux_state=[]
@@ -215,12 +217,18 @@ class PlayerOne(pygame.sprite.Sprite):
             if isinstance(i,equip.Armor):
                 self.armor.append(i)
                 self.picked_up_items.remove(i)
+                self.calulate_armor()
             if isinstance(i,equip.Weapon):
                 self.weapons.append(i)
                 self.picked_up_items.remove(i)
             if isinstance(i,equip.Tool):
                 self.tools.append(i)
                 self.picked_up_items.remove(i)
+
+    def calculate_armor(self):
+        self.defense=0
+        for i in self.armor:
+            self.defense+=i.defense
 
     def collide(self):
         collision_tolerence=10

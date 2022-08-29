@@ -23,8 +23,8 @@ class Relic(Equipment):
         self.mana_drain=mana_drain
 
 class Armor(Equipment):
-    def __init__(self,defense):
-        super().__init__()
+    def __init__(self,image,defense):
+        super().__init__(image)
         self.defense=defense
 
 class Weapon(Equipment):
@@ -805,8 +805,33 @@ relics={
 
 ###############ARMOR###############
 
-armor={
+class HermesSelect(Armor):
+    def __init__(self):
+        self.image=pygame.image.load(r'media\player_equip\armor\hermes_select.png').convert_alpha()
+        self.io_name='Hermes Select'
+        self.name='HermesSelect_armor'
+        self.defense=1
+        super().__init__(self.image,self.defense)
+        self.details=r'''Defense: 1
+Increases movement speed'''
 
+HermesSelect_armor=HermesSelect()
+
+class MailOfPain(Armor):
+    def __init__(self):
+        self.image=pygame.image.load(r'media\player_equip\armor\mail_of_pain.png').convert_alpha()
+        self.io_name='Mail Of Pain'
+        self.name='MailOfPain_armor'
+        self.defense=1
+        super().__init__(self.image,self.defense)
+        self.details=r'''Defense: 5
+'Damage illuminates this armor'''
+
+MailOfPain_armor=MailOfPain()
+
+armor={
+    1:HermesSelect_armor,
+    2:MailOfPain_armor
 }
 ###############WEAPONS###############
 

@@ -348,6 +348,7 @@ class GameElements():
                 player_menu_label.set_text('')
 
             if self.button_action=='relic':
+                self.scroll_offset=0
                 player_menu_label.set_text(f'Aquired {len(scyman.relics)}/8 Relics',27)
                 relic_list=[]
                 color=['blue','beige','brown','grey']
@@ -362,22 +363,57 @@ class GameElements():
                     relic_list)
                 player_menu_details.set_clipping_image(self.scroll.surface,(0,self.scroll_offset),
                     (0,11,player_menu_details.rect.width*.9,player_menu_details.rect.height*.917))
+
             if self.button_action=='armor':
+                self.scroll_offset=0
                 player_menu_label.set_text(f'Total Aquired Armor: {len(scyman.armor)}',27)
-                player_menu_details.set_text('Will show armor info here',27)
+                armor_list=[]
+                color=['blue','beige','brown','grey']
+                for index,i in enumerate(scyman.armor):
+                    while index>=len(color):
+                        index-=len(color)
+                    armor_list.append((color[index],'header',f'{i.name[:-6]}',30,(i.image,(5,6))))
+                    armor_list.append((color[index],'body',f'{i.details}',28))
+                self.scroll=gui.ScrollY(
+                    player_menu_details.rect.topleft,
+                    player_menu_details.rect.width,
+                    armor_list)
+                player_menu_details.set_clipping_image(self.scroll.surface,(0,self.scroll_offset),
+                    (0,11,player_menu_details.rect.width*.9,player_menu_details.rect.height*.917))
+
             if self.button_action=='weapon':
+                self.scroll_offset=0
                 player_menu_label.set_text(f'Current Weapon: Scythe',27)
                 player_menu_details.set_text('Will show weapon info here',27)
+
             if self.button_action=='tool':
+                self.scroll_offset=0
                 player_menu_label.set_text(f'Aquired {len(scyman.tools)} Tools',27)
-                player_menu_details.set_text('Will show tool info here',27)
+                tool_list=[]
+                color=['blue','beige','brown','grey']
+                if scyman.tools:
+                    for index,i in enumerate(scyman.tool):
+                        while index>=len(color):
+                            index-=len(color)
+                        tool_list.append((color[index],'header',f'{i.name[:-6]}',30,(i.image,(5,6))))
+                        tool_list.append((color[index],'body',f'{i.details}',28))
+                    self.scroll=gui.ScrollY(
+                        player_menu_details.rect.topleft,
+                        player_menu_details.rect.width,
+                        tool_list)
+                    player_menu_details.set_clipping_image(self.scroll.surface,(0,self.scroll_offset),
+                        (0,11,player_menu_details.rect.width*.9,player_menu_details.rect.height*.917))
+
             if self.button_action=='status':
+                self.scroll_offset=0
                 player_menu_label.set_text(f'Status',27)
                 player_menu_details.set_text('Will show status info here',27)
+
             if self.button_action=='save':
                 self.save_game()
                 player_menu_label.set_text('Game Saved!')
                 player_menu_details.set_text(f'')
+
             self.button_action=False
 
         axis_val=P1.get_axis(4)
