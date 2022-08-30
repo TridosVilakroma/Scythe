@@ -808,7 +808,7 @@ relics={
 class HermesSelect(Armor):
     def __init__(self):
         self.image=pygame.image.load(r'media\player_equip\armor\hermes_select.png').convert_alpha()
-        self.io_name='Hermes Select'
+        self.io_name='HermesSelect'
         self.name='HermesSelect_armor'
         self.defense=1
         super().__init__(self.image,self.defense)
@@ -820,7 +820,7 @@ HermesSelect_armor=HermesSelect()
 class MailOfPain(Armor):
     def __init__(self):
         self.image=pygame.image.load(r'media\player_equip\armor\mail_of_pain.png').convert_alpha()
-        self.io_name='Mail Of Pain'
+        self.io_name='MailOfPain'
         self.name='MailOfPain_armor'
         self.defense=1
         super().__init__(self.image,self.defense)
