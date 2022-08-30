@@ -24,7 +24,15 @@ class Period:
     def __init__(self) -> None:
         self.origin=game_clock()
 
-    def age(self):
+    def age(self,minimum=0):
+        '''age() returns the time the current Period
+        has been alive in game time.
+
+        If a minimum age is specified, a bool will be returned instead.
+        if age>minimum:True
+        if age<minimum:False'''
+        if minimum>0:
+            return True if (game_clock()-self.origin)>minimum else False
         return game_clock()-self.origin
 
     def frame(self,start,end=None):
