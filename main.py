@@ -124,6 +124,7 @@ class GameElements():
         self.main_loaded=False
         self.save_select_loaded=False
         self.player_menu_loaded=False
+        self.game_over_loaded=False
         self.save_slot=0
         self.game_over_blur=0
         self.alpha=255
@@ -736,6 +737,13 @@ class GameElements():
         return self.canvas_pos
 
     def game_over(self):
+        if not self.game_over_loaded:
+            self.game_over_loaded=True
+            self.game_over_buttons_reset=False
+            self.game_over_time=Time.Period()
+            self.alpha=255
+            self.game_over_blur=0
+
         comfunc.clean_list(self.aux_state,'player_menu')
         screen.blit(back_ground,(0,0))
         if self.alpha>0:
@@ -751,13 +759,25 @@ class GameElements():
         for event in game.events:
             comfunc.quit(event)
             if event.type==JOYBUTTONDOWN:
-                self.reset()
+                if self.game_over_buttons_reset==False:
+                    self.game_over_buttons_reset=True
+                else:
+                    self.reset()
+            if event.type==JOYBUTTONUP:
+                if self.game_over_buttons_reset==False:
+                    self.game_over_buttons_reset=True
+                else:
+                    self.reset()
             if event.type==MOUSEBUTTONDOWN:
                 self.reset()
         self.blur.set_alpha(self.alpha)
         screen.blit(self.blur,(0,0))
         self.alpha-=self.game_over_blur*.75
         screen.blit(game_over_text.text_obj,((screen_width/2 -game_over_text.text_obj.get_width()/2,screen_height/4 -game_over_text.text_obj.get_height()/2)))
+        if self.game_over_time.age(3.75):
+            screen.blit(press_start_text.text_obj,(screen_width/2 -press_start_text.
+            text_obj.get_width()/2,screen_height/2 -press_start_text.text_obj.get_height()/2))
+            press_start_text.shrink_pop(100)
 
     def reset(self):
         global scyman
@@ -765,8 +785,7 @@ class GameElements():
         enemies.player=scyman
         self.level_loaded=False
         self.focus='main'
-        self.alpha=255
-        self.game_over_blur=0
+        self.game_over_loaded=False
 
     def save_game(self):
         player_data={
