@@ -5,6 +5,7 @@ from text import draw_text
 class Button(pygame.sprite.Sprite):
     def __init__(self,image,clicked_image,pos,text='None',purpose=None,sl_text=False):
         super().__init__()
+        self.data=False
         self.pos=pos
         self.x=pos[0]
         self.y=pos[1]
@@ -41,10 +42,12 @@ class Button(pygame.sprite.Sprite):
     def save_load_text(self,sl_text):
         if sl_text:
             if os.path.exists(rf'save_data\file{int(self.text[5])}_data'):
+                self.data=True
                 temp_text=text.TextHandler('media\VecnaBold.ttf',BLACK,'Load',20)
                 self.image.blit(temp_text.text_obj,(self.rect[2]/2-temp_text.rect.width/2,self.rect[3]-temp_text.rect.height*1.25))
                 self.clicked_image.blit(temp_text.text_obj,(self.rect[2]/2-temp_text.rect.width/2,self.rect[3]-temp_text.rect.height*1.25))
             else:
+                self.data=False
                 temp_text=text.TextHandler('media\VecnaBold.ttf',BLACK,'New',20)
                 self.image.blit(temp_text.text_obj,(self.rect[2]/2-temp_text.rect.width/2,self.rect[3]-temp_text.rect.height*1.25))
                 self.clicked_image.blit(temp_text.text_obj,(self.rect[2]/2-temp_text.rect.width/2,self.rect[3]-temp_text.rect.height*1.25))

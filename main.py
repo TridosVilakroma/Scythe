@@ -1,4 +1,4 @@
-import Time,pygame
+import Time,pygame,os
 Time.init()
 pygame.init()
 screen_width = 1000
@@ -47,14 +47,19 @@ settings_button=gui.Button(pygame.image.load(r'media\gui\main_menu\buttonLong_be
     pygame.image.load(r'media\gui\main_menu\buttonLong_beige_pressed.png').convert_alpha(),(720,260),'Settings')
 credits_button=gui.Button(pygame.image.load(r'media\gui\main_menu\buttonLong_beige.png').convert_alpha(),
     pygame.image.load(r'media\gui\main_menu\buttonLong_beige_pressed.png').convert_alpha(),(720,340),'Credits')
-save_button_1=gui.Button(pygame.image.load(r'media\gui\main_menu\panel_beige.png').convert_alpha(),
-    pygame.image.load(r'media\gui\main_menu\panelInset_beige.png').convert_alpha(),(300,250),'File 1','map_loader',True)
-save_button_2=gui.Button(pygame.image.load(r'media\gui\main_menu\panel_beige.png').convert_alpha(),
-    pygame.image.load(r'media\gui\main_menu\panelInset_beige.png').convert_alpha(),(500,250),'File 2','map_loader',True)
-save_button_3=gui.Button(pygame.image.load(r'media\gui\main_menu\panel_beige.png').convert_alpha(),
-    pygame.image.load(r'media\gui\main_menu\panelInset_beige.png').convert_alpha(),(700,250),'File 3','map_loader',True)
+def setup_save_buttons():
+    global save_button_1,save_button_2,save_button_3
+    save_button_1=gui.Button(pygame.image.load(r'media\gui\main_menu\panel_beige.png').convert_alpha(),
+        pygame.image.load(r'media\gui\main_menu\panelInset_beige.png').convert_alpha(),(300,250),'File 1','map_loader',True)
+    save_button_2=gui.Button(pygame.image.load(r'media\gui\main_menu\panel_beige.png').convert_alpha(),
+        pygame.image.load(r'media\gui\main_menu\panelInset_beige.png').convert_alpha(),(500,250),'File 2','map_loader',True)
+    save_button_3=gui.Button(pygame.image.load(r'media\gui\main_menu\panel_beige.png').convert_alpha(),
+        pygame.image.load(r'media\gui\main_menu\panelInset_beige.png').convert_alpha(),(700,250),'File 3','map_loader',True)
+setup_save_buttons()
 back_button=gui.Button(pygame.image.load(r'media\gui\main_menu\buttonLong_beige.png').convert_alpha(),
-    pygame.image.load(r'media\gui\main_menu\buttonLong_beige_pressed.png').convert_alpha(),(350,350),'Back','main')
+    pygame.image.load(r'media\gui\main_menu\buttonLong_beige_pressed.png').convert_alpha(),(375,350),'Back','main')
+del_button=gui.Button(pygame.image.load(r'media\gui\main_menu\buttonLong_beige.png').convert_alpha(),
+    pygame.image.load(r'media\gui\main_menu\buttonLong_beige_pressed.png').convert_alpha(),(625,350),'Delete Save','delete_save')
 #gui loading
 player_menu_bg=pygame.transform.scale(pygame.image.load(r'media\gui\main_menu\panel_beige.png').convert_alpha(),(int(screen_width*.6),int(screen_height*.75)))
 player_menu_details=gui.Label(pygame.transform.scale(pygame.image.load(r'media\gui\main_menu\panel_beigeLight.png').convert_alpha(),(310,250)),(587,330),'')
@@ -110,6 +115,8 @@ settings_text=text.TextHandler(standad_font,BLACK,'Settings',35)
 credits_text=text.TextHandler(standad_font,BLACK,'Credits',35)
 button_select_left=text.TextHandler(standad_font,LIGHT_LEATHER,'->',50)
 button_select_right=text.TextHandler(standad_font,LIGHT_LEATHER,'<-',50)
+select_save_delete=text.TextHandler(standad_font,LIGHT_LEATHER,'Select file to delete',75)
+no_select_save_delete=text.TextHandler(standad_font,LIGHT_LEATHER,'No data to delete',75)
 
 class GameElements():
     def __init__(self,canvas):
@@ -554,7 +561,7 @@ class GameElements():
                 elif comfunc.dead_zone(P1,single_axis=1,tolerance=.85):
                     self.reset_joystick_needed=False
 
-    def save_select(self):
+    def save_select(self,delete=False):
         global P1,scyman
         if not self.save_select_loaded:
             self.save_select_loaded=True
@@ -563,13 +570,18 @@ class GameElements():
                 save_button_1,
                 save_button_2,
                 save_button_3,
-                back_button)
+                back_button,
+                del_button)
 
             self.button_order=[
                 save_button_1,
                 save_button_2,
                 save_button_3]
-            self.button_order_subset=[back_button,]
+
+            self.button_order_subset=[
+                back_button,
+                del_button]
+
             self.current_button_order=self.button_order
             self.button_focus=0
             self.reset_joystick_needed=False
@@ -577,6 +589,15 @@ class GameElements():
                 if i.depressed:
                     i.image_swap()
                     i.clicked()
+            if delete:
+                del_button.kill()
+                self.button_order_subset.remove(del_button)
+                back_button.rect.x=400
+                self.current_button_order=self.button_order_subset
+                for i in self.button_order:
+                    if not  i.data:
+                        i.kill()
+                self.button_order=[i for i in self.button_order if i.data]
 
         screen.fill((0, 95, 65))
         screen.blit(relic,(randx,randy))
@@ -590,6 +611,15 @@ class GameElements():
         screen.blit(title_text.text_obj,((screen_width/2 -title_text.
             text_obj.get_width()/2,screen_height -title_text.text_obj.get_height())))
         self.buttons.draw(screen)
+        if delete:
+            if self.button_order:
+                screen.blit(select_save_delete.text_obj,((screen_width/2 -select_save_delete.
+                text_obj.get_width()/2,screen_height/4 -select_save_delete.text_obj.get_height())))
+            else:
+                screen.blit(no_select_save_delete.text_obj,((screen_width/2 -no_select_save_delete.
+                text_obj.get_width()/2,screen_height/4 -no_select_save_delete.text_obj.get_height())))
+                self.current_button_order=self.button_order_subset
+
 
         mouse_pos=pygame.mouse.get_pos()
         for i in self.buttons:
@@ -635,9 +665,18 @@ class GameElements():
                             if temp:
                                 if self.current_button_order==self.button_order:
                                     self.save_slot=int(i.text[5])
-                                    self.load_game()
-                                    self.focus=temp
-                                    self.save_select_loaded=False
+                                    if not delete:
+                                        self.load_game()
+                                        self.focus=temp
+                                        self.save_select_loaded=False
+                                    else:
+                                        if os.path.exists(rf'save_data\file{self.save_slot}_data'):
+                                            self.save_select_loaded=False
+                                            self.focus='main'
+                                            os.remove(rf'save_data\file{self.save_slot}_data')
+                                            self.current_button_order[self.button_focus].kill()
+                                            self.current_button_order.remove(self.current_button_order[self.button_focus])
+                                            setup_save_buttons()
                                 else:
                                     self.focus=temp
                                     self.save_select_loaded=False
@@ -659,17 +698,25 @@ class GameElements():
                         temp=self.current_button_order[self.button_focus].activate()
                         if temp:
                             if self.current_button_order==self.button_order:
-                                    self.save_slot=int(self.current_button_order[self.button_focus].text[5])
+                                self.save_slot=int(self.current_button_order[self.button_focus].text[5])
+                                if not delete:
                                     self.load_game()
                                     self.focus=temp
                                     self.save_select_loaded=False
+                                else:
+                                    if os.path.exists(rf'save_data\file{self.save_slot}_data'):
+                                        self.save_select_loaded=False
+                                        self.focus='main'
+                                        os.remove(rf'save_data\file{self.save_slot}_data')
+                                        self.current_button_order[self.button_focus].kill()
+                                        self.current_button_order.remove(self.current_button_order[self.button_focus])
+                                        setup_save_buttons()
                             else:
                                 self.focus=temp
                                 self.save_select_loaded=False
                 if event.__dict__['button']==1:
                     self.focus='main'
-                if  self.focus=='main':
-                    self.save_select_loaded=False
+        
 
             elif event.type == JOYHATMOTION:
                 if event.__dict__['hat']==0:
@@ -706,6 +753,12 @@ class GameElements():
                                 self.button_focus=len(self.button_order)-1
                 elif comfunc.dead_zone(P1,single_axis=0,tolerance=.85):
                     self.reset_joystick_needed=False
+
+        if  self.focus=='main':
+            self.save_select_loaded=False
+            if delete:
+                self.focus='save_select'
+                back_button.rect.x=280
 
     def game_play(self):
         screen.fill((0, 95, 65))
@@ -900,6 +953,8 @@ class GameElements():
     def focus_switch(self):
         if self.focus == 'start':
             self.start_screen()
+        elif self.focus == 'delete_save':
+            self.save_select(delete=True)
         elif self.focus == 'main':
             self.main_menu()
         elif self.focus == 'save_select':
