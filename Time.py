@@ -70,6 +70,10 @@ def init():
     TimeVariables.delta=now
     TimeVariables.delta_ref=now
     TimeVariables._game_clock_running=True
+
+    TimeVariables.abs_delta=now
+    TimeVariables.abs_delta_ref=now
+
 def update():
     '''handles basic updating functions on a per-frame basis
     independent of processor speed.
@@ -78,15 +82,13 @@ def update():
     '''
     game_clock_update()
     delta_update()
+    abs_delta_update()
 
 def start_clock():
     TimeVariables._game_clock_running=True
 
 def stop_clock():
     TimeVariables._game_clock_running=False
-
-def run_time():
-    return time.time()-TimeVariables.game_start
 
 def game_clock(*args):
     return TimeVariables.game_time
@@ -107,3 +109,17 @@ def delta_update():
     else:
         TimeVariables.delta_ref+=time.time()-TimeVariables.delta_ref
 
+'''absolute time functions.
+
+game independant time functions, often abreviated as abs_ infront of 
+game_time function calls.'''
+
+def run_time():
+    return time.time()-TimeVariables.game_start
+
+def abs_delta():
+    return TimeVariables.abs_delta
+
+def abs_delta_update():
+        TimeVariables.abs_delta=time.time()-TimeVariables.abs_delta_ref
+        TimeVariables.abs_delta_ref=time.time()
