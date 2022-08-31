@@ -53,6 +53,8 @@ save_button_2=gui.Button(pygame.image.load(r'media\gui\main_menu\panel_beige.png
     pygame.image.load(r'media\gui\main_menu\panelInset_beige.png').convert_alpha(),(500,250),'File 2','map_loader',True)
 save_button_3=gui.Button(pygame.image.load(r'media\gui\main_menu\panel_beige.png').convert_alpha(),
     pygame.image.load(r'media\gui\main_menu\panelInset_beige.png').convert_alpha(),(700,250),'File 3','map_loader',True)
+back_button=gui.Button(pygame.image.load(r'media\gui\main_menu\buttonLong_beige.png').convert_alpha(),
+    pygame.image.load(r'media\gui\main_menu\buttonLong_beige_pressed.png').convert_alpha(),(350,350),'Back','main')
 #gui loading
 player_menu_bg=pygame.transform.scale(pygame.image.load(r'media\gui\main_menu\panel_beige.png').convert_alpha(),(int(screen_width*.6),int(screen_height*.75)))
 player_menu_details=gui.Label(pygame.transform.scale(pygame.image.load(r'media\gui\main_menu\panel_beigeLight.png').convert_alpha(),(310,250)),(587,330),'')
@@ -515,17 +517,13 @@ class GameElements():
 
             elif event.type == JOYBUTTONUP:
                 if event.__dict__['button']==0 or event.__dict__['button']==7:
-                    if not self.button_0_reset or not self.button_7_reset:
-                        self.button_0_reset=True
-                        self.button_7_reset=True
-                    else:
-                        if current_button.depressed:
-                            current_button.image_swap()
-                            current_button.clicked()
-                            temp=self.button_order[self.button_focus].activate()
-                            if temp:
-                                self.focus=temp
-                                self.main_loaded=False
+                    if current_button.depressed:
+                        current_button.image_swap()
+                        current_button.clicked()
+                        temp=self.button_order[self.button_focus].activate()
+                        if temp:
+                            self.focus=temp
+                            self.main_loaded=False
                 if event.__dict__['button']==1:
 
                     self.focus='start'
@@ -561,13 +559,18 @@ class GameElements():
         if not self.save_select_loaded:
             self.save_select_loaded=True
             self.buttons=pygame.sprite.Group()
-            self.buttons.add(save_button_1)
-            self.buttons.add(save_button_2)
-            self.buttons.add(save_button_3)
+            self.buttons.add(
+                save_button_1,
+                save_button_2,
+                save_button_3,
+                back_button)
+
             self.button_order=[
                 save_button_1,
                 save_button_2,
                 save_button_3]
+            self.button_order_subset=[back_button,]
+            self.current_button_order=self.button_order
             self.button_focus=0
             self.reset_joystick_needed=False
             for i in self.buttons:
@@ -590,21 +593,31 @@ class GameElements():
 
         mouse_pos=pygame.mouse.get_pos()
         for i in self.buttons:
-            if not self.button_focus==self.button_order.index(i):
-                if i.depressed:
-                    i.image_swap()
-                    i.clicked()
-            if i.rect.collidepoint(mouse_pos):
-                self.button_focus=self.button_order.index(i)
+            if i in self.button_order:
+                if not self.button_focus==self.button_order.index(i):
+                    if i.depressed:
+                        i.image_swap()
+                        i.clicked()
+                if i.rect.collidepoint(mouse_pos):
+                    self.button_focus=self.button_order.index(i)
+                    self.current_button_order=self.button_order
+            if i in self.button_order_subset:
+                if not self.button_focus==self.button_order_subset.index(i):
+                    if i.depressed:
+                        i.image_swap()
+                        i.clicked()
+                if i.rect.collidepoint(mouse_pos):
+                    self.button_focus=self.button_order_subset.index(i)
+                    self.current_button_order=self.button_order_subset
         screen.blit(
             button_select_left.text_obj,
-            (self.button_order[self.button_focus].rect.left-button_select_left.width,
-            self.button_order[self.button_focus].rect.centery-button_select_left.height/2))
+            (self.current_button_order[self.button_focus].rect.left-button_select_left.width,
+            self.current_button_order[self.button_focus].rect.centery-button_select_left.height/2))
         screen.blit(
             button_select_right.text_obj,
-            (self.button_order[self.button_focus].rect.right,
-            self.button_order[self.button_focus].rect.centery-button_select_right.height/2))
-        current_button=self.button_order[self.button_focus]
+            (self.current_button_order[self.button_focus].rect.right,
+            self.current_button_order[self.button_focus].rect.centery-button_select_right.height/2))
+        current_button=self.current_button_order[self.button_focus]
         for event in game.events:
             comfunc.quit(event)
 
@@ -620,10 +633,18 @@ class GameElements():
                         if i.depressed:
                             temp=i.activate()
                             if temp:
-                                self.save_slot=int(i.text[5])
-                                self.load_game()
-                                self.focus=temp
-                                self.save_select_loaded=False
+                                if self.current_button_order==self.button_order:
+                                    self.save_slot=int(i.text[5])
+                                    self.load_game()
+                                    self.focus=temp
+                                    self.save_select_loaded=False
+                                else:
+                                    self.focus=temp
+                                    self.save_select_loaded=False
+                    elif i.depressed:
+                        i.image_swap()
+                        i.clicked()
+
 
             elif event.type == JOYBUTTONDOWN:
                 if event.__dict__['button']==0 or event.__dict__['button']==7:
@@ -635,26 +656,40 @@ class GameElements():
                     if current_button.depressed:
                         current_button.image_swap()
                         current_button.clicked()
-                        temp=self.button_order[self.button_focus].activate()
+                        temp=self.current_button_order[self.button_focus].activate()
                         if temp:
-                            self.save_slot=int(current_button.text[5])
-                            self.load_game()
-                            self.focus=temp
-                            self.save_select_loaded=False
+                            if self.current_button_order==self.button_order:
+                                    self.save_slot=int(self.current_button_order[self.button_focus].text[5])
+                                    self.load_game()
+                                    self.focus=temp
+                                    self.save_select_loaded=False
+                            else:
+                                self.focus=temp
+                                self.save_select_loaded=False
                 if event.__dict__['button']==1:
                     self.focus='main'
+                if  self.focus=='main':
                     self.save_select_loaded=False
 
             elif event.type == JOYHATMOTION:
                 if event.__dict__['hat']==0:
                     if event.__dict__['value'][0]==1:
                         self.button_focus+=1
-                        if self.button_focus>len(self.button_order)-1:
+                        if self.button_focus>len(self.current_button_order)-1:
                             self.button_focus=0
                     if event.__dict__['value'][0]==-1:
                         self.button_focus-=1
                         if self.button_focus<0:
-                            self.button_focus=len(self.button_order)-1
+                            self.button_focus=len(self.current_button_order)-1
+                    if event.__dict__['value'][1]==1:
+                        self.current_button_order=self.button_order
+                        if self.button_focus>=len(self.current_button_order):
+                            self.button_focus=len(self.current_button_order)-1
+                    if event.__dict__['value'][1]==-1:
+                        self.current_button_order=self.button_order_subset
+                        if self.button_focus>=len(self.current_button_order):
+                            self.button_focus=len(self.current_button_order)-1
+
 
             elif event.type == JOYAXISMOTION:
                 if not self.reset_joystick_needed and not comfunc.dead_zone(P1,single_axis=0):
