@@ -64,7 +64,7 @@ class Label(pygame.sprite.Sprite):
         self.text=text
         self.text_size=text_size
         self.wrapping=wrapping
-        self.font=pygame.font.Font('media\VecnaBold.ttf',18)
+        self.font=pygame.font.Font('media\VecnaBold.ttf',self.text_size)
         self.render_mode()
 
     def render_mode(self):

@@ -358,7 +358,10 @@ class GameElements():
                     while index>=len(color):
                         index-=len(color)
                     relic_list.append((color[index],'header',f'{i.name[:-6]}',30,(i.image,(5,6))))
-                    relic_list.append((color[index],'body',f'{i.details}',28))
+                    relic_list.append((color[index],'body',f'{i.details}',18))
+                if not scyman.relics:
+                    relic_list.append(('grey','header',f'Relics Empty',30))
+                    relic_list.append(('grey','body',f'Defeat bosses \nto find powerful relics!',24))
                 self.scroll=gui.ScrollY(
                     player_menu_details.rect.topleft,
                     player_menu_details.rect.width,
@@ -368,14 +371,17 @@ class GameElements():
 
             if self.button_action=='armor':
                 self.scroll_offset=0
-                player_menu_label.set_text(f'Total Aquired Armor: {len(scyman.armor)}',27)
+                player_menu_label.set_text(f'Total Armor: {scyman.calculate_armor(total=True)}',27)
                 armor_list=[]
                 color=['blue','beige','brown','grey']
                 for index,i in enumerate(scyman.armor):
                     while index>=len(color):
                         index-=len(color)
                     armor_list.append((color[index],'header',f'{i.name[:-6]}',30,(i.image,(5,6))))
-                    armor_list.append((color[index],'body',f'{i.details}',28))
+                    armor_list.append((color[index],'body',f'{i.details}',18))
+                if not scyman.armor:
+                    armor_list.append(('grey','header',f'No Armor',30))
+                    armor_list.append(('grey','body',f'Defeat enemies \nto find unique armor!',24))
                 self.scroll=gui.ScrollY(
                     player_menu_details.rect.topleft,
                     player_menu_details.rect.width,
@@ -393,12 +399,14 @@ class GameElements():
                 player_menu_label.set_text(f'Aquired {len(scyman.tools)} Tools',27)
                 tool_list=[]
                 color=['blue','beige','brown','grey']
-                if scyman.tools:
-                    for index,i in enumerate(scyman.tool):
-                        while index>=len(color):
-                            index-=len(color)
-                        tool_list.append((color[index],'header',f'{i.name[:-6]}',30,(i.image,(5,6))))
-                        tool_list.append((color[index],'body',f'{i.details}',28))
+                for index,i in enumerate(scyman.tools):
+                    while index>=len(color):
+                        index-=len(color)
+                    tool_list.append((color[index],'header',f'{i.name[:-6]}',30,(i.image,(5,6))))
+                    tool_list.append((color[index],'body',f'{i.details}',28))
+                if not scyman.tools:
+                    tool_list.append(('grey','header',f'No Tools',30))
+                    tool_list.append(('grey','body',f'Explore the world \nto find useful tools!',24))
                     self.scroll=gui.ScrollY(
                         player_menu_details.rect.topleft,
                         player_menu_details.rect.width,
@@ -834,6 +842,7 @@ class GameElements():
             for i in player_data[2]:
                 armor=eval(f'equip.{i}()')
                 scyman.armor.append(armor)
+                scyman.calculate_armor()
             for i in player_data[3]:
                 weapon=eval(f'equip.{i}()')
                 scyman.weapons.append(weapon)
