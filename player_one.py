@@ -217,7 +217,7 @@ class PlayerOne(pygame.sprite.Sprite):
             if isinstance(i,equip.Armor):
                 self.armor.append(i)
                 self.picked_up_items.remove(i)
-                self.calulate_armor()
+                self.calculate_armor()
             if isinstance(i,equip.Weapon):
                 self.weapons.append(i)
                 self.picked_up_items.remove(i)
@@ -225,7 +225,12 @@ class PlayerOne(pygame.sprite.Sprite):
                 self.tools.append(i)
                 self.picked_up_items.remove(i)
 
-    def calculate_armor(self):
+    def calculate_armor(self,total=False):
+        if total:
+            defense=0
+            for i in self.armor:
+                defense+=i.defense
+            return defense
         self.defense=0
         for i in self.armor:
             self.defense+=i.defense
