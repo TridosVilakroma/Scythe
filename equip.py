@@ -822,7 +822,7 @@ class MailOfPain(Armor):
         self.image=pygame.image.load(r'media\player_equip\armor\mail_of_pain.png').convert_alpha()
         self.io_name='MailOfPain'
         self.name='MailOfPain_armor'
-        self.defense=1
+        self.defense=5
         super().__init__(self.image,self.defense)
         self.details=r'''Defense: 5
 'Damage illuminates this armor'''
