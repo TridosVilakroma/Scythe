@@ -1,6 +1,7 @@
 from color_palette import *
 import pygame,time,math,equip,particles
 from random import randint
+import random
 import common_functions as comfunc
 import Time
 
@@ -320,7 +321,8 @@ class Omnivine(pygame.sprite.Sprite):
         self.image = pygame.image.load('media\enemies\omnivine_walk\sprite_0.png').convert_alpha()
         self.mask=pygame.mask.from_surface(self.image)
         self.rect=pygame.Rect(x,y,self.image.get_width(),self.image.get_height())
-        self.pos=pygame.math.Vector2((self.rect.center))
+        self.pos=pygame.Vector2((self.rect.center))
+        self.demo_dest=pygame.Vector2((self.rect.center))
         self.hp = randint(10,25)+50
         self.hp_ratio=self.rect.width/self.hp
         self.defense = randint(0,3)
@@ -333,7 +335,7 @@ class Omnivine(pygame.sprite.Sprite):
         self.current_sprite=0
         self.animate_speed=.09
         self.chance_to_shoot=1,750 #chance is one in the second int
-        self.dest=pygame.math.Vector2(x,y)
+        self.dest=pygame.Vector2((self.rect.center))
         self.vector=pygame.math.Vector2(0,0)
         self.speed=40
         self.bullets=pygame.sprite.Group()
@@ -600,33 +602,18 @@ class Omnivine(pygame.sprite.Sprite):
             self.current_sprite=0
         self.image=self.traverse_sprites[int(self.current_sprite)]
         self.image=pygame.transform.smoothscale(self.image,(25,25))
+
         chance=randint(1,175)
         if chance==1:
-            randint_a=randint(50,950)
-            randint_b=randint(50,450)
-            self.dest=pygame.math.Vector2(randint_a,randint_b)
-        if self.dest!= (0,0):
-            if self.dest[1]==self.y:
-                if self.dest[0]>self.x:
-                    self.x+=.25
-                elif self.dest[0]<self.x:
-                    self.x-=.25
-            if self.dest[1]!=self.y:
-                if self.dest[0]>self.x:
-                    self.x+=.1875
-                elif self.dest[0]<self.x:
-                    self.x-=.1875
-            if self.dest[0]==self.x:
-                if self.dest[1]>self.y:
-                    self.y+=.25
-                elif self.dest[1]<self.y:
-                    self.y-=.25
-            if self.dest[0]!=self.x:
-                if self.dest[1]>self.y:
-                    self.y+=.1875
-                elif self.dest[1]<self.y:
-                    self.y-=.1875
-            self.rect=pygame.Rect(self.x,self.y,self.image.get_width(),self.image.get_height())
+            self.demo_dest=pygame.Vector2(
+                random.randrange(max(50,self.x-50),min(950,self.x+50)),
+                random.randrange(max(50,self.y-50),min(450,self.y+50)))
+
+        v=comfunc.vector_from_coords(self.rect.center,self.demo_dest)
+        if v.length_squared()>0:
+            v.scale_to_length((self.speed*.7)*Time.abs_delta())
+        self.dest+=v
+        self.rect.center=self.dest
 
     def traverse(self):
         self_vector=pygame.Vector2(self.rect.center)
