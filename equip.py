@@ -954,3 +954,10 @@ def standard_table():
     loot=equip_matrix[5][choice]
     return loot()
 
+def relic_table():
+    try:
+        random_loot=random.choice(list(equip_matrix[1].keys()))
+        print(random_loot)
+        return equip_matrix[1].pop(random_loot)
+    except KeyError:
+        return None
