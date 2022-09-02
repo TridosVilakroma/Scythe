@@ -805,6 +805,8 @@ class GameElements():
         for i in scarecrows:
             i.update(self.canvas,scyman,Time.delta())
         structures.draw(self.canvas)
+        enemies.damage_text.update()
+        enemies.damage_text.draw(self.canvas)
         screen.blit(self.canvas,(self.canvas_movement()))
         scyman.update_gui(screen,self)
         for event in game.events:
