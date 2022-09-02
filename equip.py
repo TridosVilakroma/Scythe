@@ -1,4 +1,4 @@
-import pygame,time,particles,math
+import pygame,time,particles,math,random
 import common_functions as comfunc
 import controller as con
 from pygame.sprite import collide_mask, collide_rect, spritecollide
@@ -37,6 +37,17 @@ class Tool(Equipment):
     def __init__(self,function_unlock):
         super().__init__()
         self.function_unlock=function_unlock
+
+class Consumable(Equipment):
+    def __init__(self,image,hp=0,mp=0,speed=0,defense=0,shield=0,hp_regen=0,mp_regen=0):
+        super().__init__(image)
+        self.heal=hp
+        self.mana=mp
+        self.speed=speed
+        self.defense=defense
+        self.sheild=shield
+        self.hp_regen=hp_regen
+        self.mp_regen=mp_regen
 
 """
 Unique equipment is further subclassed from 
@@ -322,7 +333,7 @@ R-stick: Feathers'''
             if mana_regen:
                 player.mp+=.1
             else:#if hp_regen:
-                player.hp+=.01
+                player.hp+=.1
 
 
         if self.entry_portal.active:
@@ -847,14 +858,83 @@ weapons={
 tools={
 
 }
+###############CONSUMABLES###############
+sm_item_scale=(24,24)
+class SmallHealth(Consumable):
+    def __init__(self, hp=5, hp_regen=1):
+        self.image=pygame.image.load(r'media\consumables\sm_health.png').convert_alpha()
+        self.image=pygame.transform.scale(self.image,sm_item_scale)
+        super().__init__(self.image, hp, hp_regen)
+        self.duration=3
 
+class LargeHealth(Consumable):
+    def __init__(self, hp=20, hp_regen=2):
+        self.image=pygame.image.load(r'media\consumables\lg_health.png').convert_alpha()
+        self.image=pygame.transform.scale(self.image,sm_item_scale)
+        super().__init__(self.image, hp, hp_regen)
+        self.duration=5
+
+class SmallMana(Consumable):
+    def __init__(self, mp=5, mp_regen=1):
+        self.image=pygame.image.load(r'media\consumables\sm_mana.png').convert_alpha()
+        self.image=pygame.transform.scale(self.image,sm_item_scale)
+        super().__init__(self.image, mp, mp_regen)
+        self.duration=3
+
+class LargeMana(Consumable):
+    def __init__(self, mp=20, mp_regen=2):
+        self.image=pygame.image.load(r'media\consumables\lg_mana.png').convert_alpha()
+        self.image=pygame.transform.scale(self.image,sm_item_scale)
+        super().__init__(self.image, mp, mp_regen)
+        self.duration=5
+
+class Defense(Consumable):
+    def __init__(self, defense=5):
+        self.image=pygame.image.load(r'media\consumables\defense.png').convert_alpha()
+        self.image=pygame.transform.scale(self.image,sm_item_scale)
+        super().__init__(self.image, defense)
+        self.duration=5
+
+class Shield(Consumable):
+    def __init__(self, shield=.25):
+        self.image=pygame.image.load(r'media\consumables\shield.png').convert_alpha()
+        self.image=pygame.transform.scale(self.image,sm_item_scale)
+        super().__init__(self.image, shield)
+        self.duration=5
+
+class Speed(Consumable):
+    def __init__(self, speed=45):
+        self.image=pygame.image.load(r'media\consumables\speed.png').convert_alpha()
+        self.image=pygame.transform.scale(self.image,sm_item_scale)
+        super().__init__(self.image, speed)
+        self.duration=5
+
+class Regen(Consumable):
+    def __init__(self, hp_regen=2,mp_regen=2):
+        self.image=pygame.image.load(r'media\consumables\speed.png').convert_alpha()
+        self.image=pygame.transform.scale(self.image,sm_item_scale)
+        super().__init__(self.image, hp_regen,mp_regen)
+        self.duration=10
+
+consumables={
+    1:SmallHealth,
+    2:LargeHealth,
+    3:SmallMana,
+    4:LargeMana,
+    5:Defense,
+    6:Shield,
+    7:Speed,
+    8:Regen
+
+}
 
 ##################################
 equip_matrix={
     1:relics,
     2:armor,
     3:weapons,
-    4:tools
+    4:tools,
+    5:consumables
 }
 
 #Adding all equip into a sprite group
@@ -865,3 +945,12 @@ for equip_types in equip_matrix.values():
             equip.append(equipment)
         except:
             print(Exception)
+
+
+'''Loot tables'''
+
+def standard_table():
+    choice=random.choices(list(equip_matrix[5].keys()),cum_weights=[15,20,35,40,45,50,55,60])[0]
+    loot=equip_matrix[5][choice]
+    return loot()
+
