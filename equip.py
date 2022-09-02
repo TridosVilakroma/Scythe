@@ -952,7 +952,7 @@ for equip_types in equip_matrix.values():
 def standard_table():
     choice=random.choices(list(equip_matrix[5].keys()),cum_weights=[15,20,35,40,45,50,55,60])[0]
     loot=equip_matrix[5][choice]
-    return loot()
+    return random.choice((loot(),None,None))
 
 def relic_table():
     try:

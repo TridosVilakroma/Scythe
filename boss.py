@@ -109,6 +109,8 @@ class ScareBoss(pygame.sprite.Sprite):
 
     def loot_dropper(self):
         loot=equip.relic_table()
+        if loot is None:
+            return
         loot.rect.topleft=self.rect.topleft
         spawned_loot.add(loot)
 
