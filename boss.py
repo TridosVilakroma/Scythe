@@ -40,6 +40,7 @@ class ScareBoss(pygame.sprite.Sprite):
         self.power_ring_current_sprite=0
         self.power_ring_alpha=0
         self.dust_ring_radius=100
+        self.hover_text=pygame.sprite.Group()
 
     @property
     def x(self):
@@ -127,6 +128,8 @@ class ScareBoss(pygame.sprite.Sprite):
             self.hpbar_ref_timer=Time.game_clock()+3
             self.hit_flash=Time.game_clock()+.1
             self.health_bar()
+            rand_pos=randint(self.x,self.rect.right),randint(self.y,self.rect.bottom)
+            self.hover_text.add(particles.HoverText(rand_pos,damage,'rise',outline_size=1,outline_color=BLACK))
 
     def trap(self,duration):
         if 'trap' not in self.aux_state:
@@ -404,6 +407,8 @@ class ScareBoss(pygame.sprite.Sprite):
     def blit(self):
         self.image=self.norm_image if self.hit_flash<Time.game_clock() else self.white
         canvas.blit(self.image,(self.x,self.y))
+        self.hover_text.update()
+        self.hover_text.draw(canvas)
 
     def early_blit(self):
         self.power_ring=self.power_ring_images[int(self.power_ring_current_sprite)]
