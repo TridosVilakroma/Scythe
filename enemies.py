@@ -454,16 +454,19 @@ class Omnivine(pygame.sprite.Sprite):
         self.shoot2_white=pygame.image.load(r'media\enemies\omnivine_white\sprite_6.png').convert_alpha()
 
     def loot_dropper(self):
-        random_loot=randint(1,7)
-        try:
-            equip.equip_matrix[1][random_loot].rect[0]=self.x
-            equip.equip_matrix[1][random_loot].rect[1]=self.y
-            spawned_loot.add(equip.equip_matrix[1][random_loot])
-            popped=equip.equip_matrix[1].pop(random_loot)
-            print(popped)
-        except KeyError:
-            print('loot_dropper_error')
-            pass
+        loot=equip.standard_table()
+        loot.rect.topleft=self.rect.topleft
+        spawned_loot.add(loot)
+        # random_loot=randint(1,7)
+        # try:
+        #     equip.equip_matrix[1][random_loot].rect[0]=self.x
+        #     equip.equip_matrix[1][random_loot].rect[1]=self.y
+        #     spawned_loot.add(equip.equip_matrix[1][random_loot])
+        #     popped=equip.equip_matrix[1].pop(random_loot)
+        #     print(popped)
+        # except KeyError:
+        #     print('loot_dropper_error')
+        #     pass
 
     def collision_check(self):
         pass
