@@ -355,3 +355,57 @@ class ParticleEmitter():
             self.draw_all_particles_square(canvas)
         else:
             self.draw_all_particles(canvas)
+
+class HoverText(pygame.sprite.Sprite):
+    def __init__(self,pos,text,*motion_styles,color=WHITE,size=12,speed=1,duration=.5,outline_size=0,outline_color=BLACK) -> None:
+        super().__init__()
+        self.font=pygame.font.Font('media\VecnaBold.ttf',size)
+        self.image = self.font.render(str(text), True, color) if outline_size<=0 else self.outline(text,color,size,outline_size,outline_color)
+        self.rect = self.image.get_rect()
+        self.rect.center = (pos)
+        self.motion_styles=[i for i in motion_styles]
+        self.speed=speed
+        self.duration=duration
+        self.life_time=Time.Period()
+
+    @property
+    def x(self):
+        return self.rect.x
+    @x.setter
+    def x(self,value):
+        self.rect.x=value
+    @property
+    def y(self):
+        return self.rect.y
+    @y.setter
+    def y(self,value):
+        self.rect.y=value
+
+    def outline(self,text,color=WHITE,size=12,outline_size=0,outline_color=BLACK):
+        padding=5
+        inner_text=self.font.render(str(text), True, color)
+        outline=self.font.render(str(text), True, outline_color)
+        surf=pygame.Surface((outline.get_width()+padding,outline.get_height()+padding),pygame.SRCALPHA)
+        surf.blit(outline,(-outline_size,-outline_size))
+        surf.blit(outline,(0,-outline_size))
+        surf.blit(outline,(+outline_size,-outline_size))
+        surf.blit(outline,(+outline_size,0))
+        surf.blit(outline,(+outline_size,+outline_size))
+        surf.blit(outline,(0,+outline_size))
+        surf.blit(outline,(-outline_size,+outline_size))
+        surf.blit(outline,(-outline_size,0))
+        surf.blit(inner_text,(0,0))
+        return surf
+
+    def rise(self):
+        self.y-=self.speed*Time.delta()*50
+
+    def behavior(self):
+        if 'rise' in self.motion_styles:
+            self.rise()
+
+    def update(self):
+        if self.life_time.age(self.duration):
+            self.kill()
+        else:
+            self.behavior()
