@@ -357,10 +357,14 @@ class ParticleEmitter():
             self.draw_all_particles(canvas)
 
 class HoverText(pygame.sprite.Sprite):
-    def __init__(self,pos,text,*motion_styles,color=WHITE,size=12,speed=1,duration=.5,outline_size=0,outline_color=BLACK) -> None:
+    def __init__(self,pos,text,*motion_styles,color=WHITE,size=16,speed=1,duration=.5,outline_size=0,outline_color=BLACK) -> None:
         super().__init__()
         self.font=pygame.font.Font('media\VecnaBold.ttf',size)
-        self.image = self.font.render(str(text), True, color) if outline_size<=0 else self.outline(text,color,size,outline_size,outline_color)
+        self.text=str(text)
+        self.text=self.text.replace('.',' . ')
+        if self.text.find('0') is 0:
+            self.text=self.text.replace('0','',1)
+        self.image = self.font.render(str(self.text), True, color) if outline_size<=0 else self.outline(self.text,color,size,outline_size,outline_color)
         self.rect = self.image.get_rect()
         self.rect.center = (pos)
         self.motion_styles=[i for i in motion_styles]

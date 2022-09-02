@@ -1,5 +1,5 @@
 from pygame.constants import JOYBUTTONDOWN,JOYBUTTONUP
-import pygame,time,math
+import pygame,time,math,random
 from pygame.sprite import collide_mask
 import common_functions as comfunc
 import enemies,equip,particles,boss
@@ -469,10 +469,21 @@ class PlayerOne(pygame.sprite.Sprite):
                     self.incoming_damage.append(i[0])
                 self.hp_before_damage=self.hp
                 _damage=i[0]-self.defense-self.consumed_defense #reduced by armor
-                self.hp-=max(0,((_damage)-(_damage*(self.shield+self.consumed_shield))))#reduced by shield
+                _damage=_damage-(_damage*(self.shield+self.consumed_shield))#reduced by shield
+                self.hp-=max(0,_damage)
                 self.hp_lost=abs(self.hp_before_damage-self.hp)
                 self.recieved_damage=True
                 self.hp=self.hp if self.hp>0 else 0
+
+                color=RED if self.shield+self.consumed_shield<=0 else SKY_BLUE
+                color=color if self.defense+self.consumed_defense<=0 else BRIGHT_YELLOW
+                outline_color=BLACK if self.shield+self.consumed_shield<=0 else BLUE
+
+                self.hover_text.add(particles.HoverText(
+                    (random.randint(self.x,self.rect.right),random.randint(self.y,self.rect.bottom)),
+                    str(_damage),'rise',color=color,
+                    outline_size=1,outline_color=outline_color))
+
             comfunc.clean_list(attacks,i)
 
     def death_animation(self,screen,game):
