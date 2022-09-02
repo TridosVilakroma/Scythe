@@ -13,6 +13,7 @@ player1pos=None
 player=None
 attacks=[]
 spawned_loot=pygame.sprite.Group()
+damage_text=pygame.sprite.Group()
 
 class Scarecrow(pygame.sprite.Sprite):
     def __init__(self,x,y):
@@ -95,14 +96,17 @@ class Scarecrow(pygame.sprite.Sprite):
         self.straw_stalk=pygame.image.load(r'media\deco\straw_stalk.png').convert_alpha()
 
     def loot_dropper(self):
-        random_loot=randint(1,7)
-        try:
-            equip.equip_matrix[1][random_loot].rect[0]=self.x
-            equip.equip_matrix[1][random_loot].rect[1]=self.y
-            spawned_loot.add(equip.equip_matrix[1][random_loot])
-            popped=equip.equip_matrix[1].pop(random_loot)
-        except KeyError:
-            pass
+        loot=equip.standard_table()
+        loot.rect.topleft=self.rect.topleft
+        spawned_loot.add(loot)
+        # random_loot=randint(1,7)
+        # try:
+        #     equip.equip_matrix[1][random_loot].rect[0]=self.x
+        #     equip.equip_matrix[1][random_loot].rect[1]=self.y
+        #     spawned_loot.add(equip.equip_matrix[1][random_loot])
+        #     popped=equip.equip_matrix[1].pop(random_loot)
+        # except KeyError:
+        #     pass
 
     def collision_check(self):
         pass
@@ -117,6 +121,8 @@ class Scarecrow(pygame.sprite.Sprite):
             self.hpbar_ref_timer=Time.game_clock()+3
             self.hit_flash=Time.game_clock()+.1
             self.health_bar()
+            rand_pos=randint(self.x,self.rect.right),randint(self.y,self.rect.bottom)
+            damage_text.add(particles.HoverText(rand_pos,damage,'rise',outline_size=1,outline_color=BLACK))
 
     def trap(self,duration):
         if 'trap' not in self.aux_state:
@@ -472,6 +478,8 @@ class Omnivine(pygame.sprite.Sprite):
             self.hpbar_ref_timer=Time.game_clock()+3
             self.hit_flash=Time.game_clock()+.1
             self.health_bar()
+            rand_pos=randint(self.x,self.rect.right),randint(self.y,self.rect.bottom)
+            damage_text.add(particles.HoverText(rand_pos,damage,'rise',outline_size=1,outline_color=BLACK))
 
     def trap(self,duration):
         if 'trap' not in self.aux_state:
