@@ -6,6 +6,7 @@ screen_height = 500
 canvas_width = 3000
 canvas_height = 1500
 clock = pygame.time.Clock()
+pygame.display.set_icon(pygame.image.load('media\player_equip\wooden_scythe.png'))
 screen = pygame.display.set_mode((screen_width,screen_height))
 canvas = pygame.Surface((canvas_width,canvas_height))
 pygame.display.set_caption('Scythe')
@@ -966,7 +967,10 @@ class GameElements():
         elif self.focus=='gameover':
             self.game_over()
         elif self.focus=='map_loader':
-            self.map_loader()
+            if pygame.key.get_focused():
+                self.map_loader()
+            else:
+                self.pause()
         elif self.focus=='pause':
             self.pause()
         else:
