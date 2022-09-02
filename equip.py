@@ -45,7 +45,7 @@ class Consumable(Equipment):
         self.mana=mp
         self.speed=speed
         self.defense=defense
-        self.sheild=shield
+        self.shield=shield
         self.hp_regen=hp_regen
         self.mp_regen=mp_regen
 
@@ -864,56 +864,56 @@ class SmallHealth(Consumable):
     def __init__(self, hp=5, hp_regen=1):
         self.image=pygame.image.load(r'media\consumables\sm_health.png').convert_alpha()
         self.image=pygame.transform.scale(self.image,sm_item_scale)
-        super().__init__(self.image, hp, hp_regen)
+        super().__init__(self.image, hp=hp, hp_regen=hp_regen)
         self.duration=3
 
 class LargeHealth(Consumable):
-    def __init__(self, hp=20, hp_regen=2):
+    def __init__(self, hp=10, hp_regen=1):
         self.image=pygame.image.load(r'media\consumables\lg_health.png').convert_alpha()
         self.image=pygame.transform.scale(self.image,sm_item_scale)
-        super().__init__(self.image, hp, hp_regen)
+        super().__init__(self.image, hp=hp, hp_regen=hp_regen)
         self.duration=5
 
 class SmallMana(Consumable):
     def __init__(self, mp=5, mp_regen=1):
         self.image=pygame.image.load(r'media\consumables\sm_mana.png').convert_alpha()
         self.image=pygame.transform.scale(self.image,sm_item_scale)
-        super().__init__(self.image, mp, mp_regen)
+        super().__init__(self.image, mp=mp, mp_regen=mp_regen)
         self.duration=3
 
 class LargeMana(Consumable):
-    def __init__(self, mp=20, mp_regen=2):
+    def __init__(self, mp=10, mp_regen=1):
         self.image=pygame.image.load(r'media\consumables\lg_mana.png').convert_alpha()
         self.image=pygame.transform.scale(self.image,sm_item_scale)
-        super().__init__(self.image, mp, mp_regen)
+        super().__init__(self.image, mp=mp, mp_regen=mp_regen)
         self.duration=5
 
 class Defense(Consumable):
     def __init__(self, defense=5):
         self.image=pygame.image.load(r'media\consumables\defense.png').convert_alpha()
         self.image=pygame.transform.scale(self.image,sm_item_scale)
-        super().__init__(self.image, defense)
-        self.duration=5
+        super().__init__(self.image, defense=defense)
+        self.duration=15
 
 class Shield(Consumable):
     def __init__(self, shield=.25):
         self.image=pygame.image.load(r'media\consumables\shield.png').convert_alpha()
         self.image=pygame.transform.scale(self.image,sm_item_scale)
-        super().__init__(self.image, shield)
-        self.duration=5
+        super().__init__(self.image, shield=shield)
+        self.duration=15
 
 class Speed(Consumable):
     def __init__(self, speed=45):
         self.image=pygame.image.load(r'media\consumables\speed.png').convert_alpha()
         self.image=pygame.transform.scale(self.image,sm_item_scale)
-        super().__init__(self.image, speed)
-        self.duration=5
+        super().__init__(self.image, speed=speed)
+        self.duration=15
 
 class Regen(Consumable):
     def __init__(self, hp_regen=2,mp_regen=2):
-        self.image=pygame.image.load(r'media\consumables\speed.png').convert_alpha()
+        self.image=pygame.image.load(r'media\consumables\regen.png').convert_alpha()
         self.image=pygame.transform.scale(self.image,sm_item_scale)
-        super().__init__(self.image, hp_regen,mp_regen)
+        super().__init__(self.image, hp_regen=hp_regen,mp_regen=mp_regen)
         self.duration=10
 
 consumables={
