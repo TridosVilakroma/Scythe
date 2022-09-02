@@ -25,6 +25,7 @@ class PlayerOne(pygame.sprite.Sprite):
         self.hp_ratio=960/self.hp
         self.mini_hp_ratio=32/self.hp
         self.hp_regen=0
+        self.mp_regen=.1
         self.hp_drain_length=100
         self.drain_ratio=960/self.hp_drain_length
         self.recieved_damage=False
@@ -34,7 +35,7 @@ class PlayerOne(pygame.sprite.Sprite):
         self.mp=100
         self.mp_ratio=960/self.mp
         self.defense=0
-        self.shield=1  #percent of damage allowed through   1==100%
+        self.shield=0  #percent of damage absorbed   1==100%
         self.incoming_damage_tracked=False
         self.incoming_damage=[]
         self.focus = 'traverse'
@@ -68,6 +69,14 @@ class PlayerOne(pygame.sprite.Sprite):
         self.y_precise=self.y
         self.rect_ratio=pygame.sprite.collide_rect_ratio(.65)
         self.lb_up=False
+        self.consumed_items=[]
+        self.hover_text=pygame.sprite.Group()
+        self.consumed_speed=0
+        self.consumed_defense=0
+        self.consumed_shield=0
+        self.consumed_hp_regen=0
+        self.consumed_mp_regen=0
+        self.life_time=Time.Period()
 
     @property
     def x(self):
@@ -224,6 +233,56 @@ class PlayerOne(pygame.sprite.Sprite):
             if isinstance(i,equip.Tool):
                 self.tools.append(i)
                 self.picked_up_items.remove(i)
+            if isinstance(i,equip.Consumable):
+                self.consume(i)
+                self.picked_up_items.remove(i)
+
+    def consume(self,item):
+        if item.heal>0:
+            self.hover_text.add(particles.HoverText(
+                item.rect.center,str(item.heal),'rise',
+                color=LIGHT_GREEN,outline_size=1,outline_color=FORREST_GREEN))
+            self.hp+=item.heal
+        if item.mana>0:
+            self.hover_text.add(particles.HoverText(
+                item.rect.center,str(item.mana),'rise',
+                color=BABY_BLUE,outline_size=1,outline_color=BLUE))
+            self.mp+=item.mana
+        if item.speed>0:
+            self.hover_text.add(particles.HoverText(
+                item.rect.center,f'Speed+{item.speed}','rise',duration=1,
+                color=BRIGHT_YELLOW,outline_size=1,outline_color=ORANGE))
+        if item.defense>0:
+            self.hover_text.add(particles.HoverText(
+                item.rect.center,f'Defense+{item.defense}','rise',duration=1,
+                color=LIGHT_LEATHER,outline_size=1,outline_color=DARK_LEATHER))
+        if item.shield>0:
+            self.hover_text.add(particles.HoverText(
+                item.rect.center,f'Shield+{item.shield}','rise',duration=1,
+                color=PALE_PINK,outline_size=1,outline_color=PINK_PURPLE))
+        item.life_time=Time.Period()
+        self.consumed_items.append(item)
+
+    def consume_effects(self):
+        speed_total=0
+        defense_total=0
+        shield_total=0
+        hp_regen_total=0
+        mp_regen_total=0
+        for i in self.consumed_items:
+            if i.life_time.age(i.duration):
+                self.consumed_items.remove(i)
+            else:
+                speed_total+=i.speed
+                defense_total+=i.defense
+                shield_total+=i.shield
+                hp_regen_total+=i.hp_regen
+                mp_regen_total+=i.mp_regen
+        self.consumed_speed=speed_total
+        self.consumed_defense=defense_total
+        self.consumed_shield=shield_total
+        self.consumed_hp_regen=hp_regen_total
+        self.consumed_mp_regen=mp_regen_total
 
     def calculate_armor(self,total=False):
         if total:
@@ -349,7 +408,12 @@ class PlayerOne(pygame.sprite.Sprite):
         if self.hp>100:
             self.hp=100
         if self.hp<100:
-            self.hp+=self.hp_regen
+            if self.hp_regen+self.consumed_hp_regen>0:
+                if self.life_time.interval(1.5):
+                    self.hp+=self.hp_regen+self.consumed_hp_regen
+                    self.hover_text.add(particles.HoverText(
+                        self.rect.center,str(self.hp_regen+self.consumed_hp_regen),'rise',
+                        color=LIGHT_GREEN,outline_size=1,outline_color=FORREST_GREEN))
         if self.recieved_damage:
             self.hp_drain_length=self.hp_before_damage
             self.recieved_damage=False
@@ -378,11 +442,16 @@ class PlayerOne(pygame.sprite.Sprite):
             comfunc.clean_list(self.aux_state,'health')
 
     def mana_bar(self):
-        mana_regen=.1
         if self.mp>100:
             self.mp=100
-        if self.mp < 100:
-            self.mp+=mana_regen
+        if self.mp<100:
+            self.mp+=self.mp_regen
+            if self.consumed_mp_regen>0:
+                if self.life_time.interval(1.5):
+                    self.mp+=self.consumed_mp_regen
+                    self.hover_text.add(particles.HoverText(
+                        self.rect.center,str(self.mp_regen+self.consumed_mp_regen),'rise',
+                        color=BABY_BLUE,outline_size=1,outline_color=BLUE))
         outline=pygame.Rect(19,473,962,5)
         mana=pygame.Rect(20,474,self.mp*self.mp_ratio,3)
         missing_mana=pygame.Rect(20,474,960,3)
@@ -399,7 +468,8 @@ class PlayerOne(pygame.sprite.Sprite):
                 if self.incoming_damage_tracked:
                     self.incoming_damage.append(i[0])
                 self.hp_before_damage=self.hp
-                self.hp-=max(0,((i[0]-self.defense)*self.shield))
+                _damage=i[0]-self.defense-self.consumed_defense #reduced by armor
+                self.hp-=max(0,((_damage)-(_damage*(self.shield+self.consumed_shield))))#reduced by shield
                 self.hp_lost=abs(self.hp_before_damage-self.hp)
                 self.recieved_damage=True
                 self.hp=self.hp if self.hp>0 else 0
@@ -468,21 +538,21 @@ class PlayerOne(pygame.sprite.Sprite):
             if not comfunc.dead_zone(P1,single_axis=0):
                 old_x=self.x_precise
                 if motionx>0:
-                    self.x_precise+=(self.speed*delta)*P1.get_axis(0)
+                    self.x_precise+=((self.speed+self.consumed_speed)*delta)*P1.get_axis(0)
                     self.x=self.x_precise
                     self.collision_check('x',old_x)
                 if motionx<0:
-                    self.x_precise+=(self.speed*delta)*P1.get_axis(0)
+                    self.x_precise+=((self.speed+self.consumed_speed)*delta)*P1.get_axis(0)
                     self.x=self.x_precise
                     self.collision_check('x',old_x)
             if not comfunc.dead_zone(P1,single_axis=1):
                 old_y=self.y_precise
                 if motiony<0:
-                    self.y_precise+=(self.speed*delta)*P1.get_axis(1)
+                    self.y_precise+=((self.speed+self.consumed_speed)*delta)*P1.get_axis(1)
                     self.y=self.y_precise
                     self.collision_check('y',old_y)
                 if motiony>0:
-                    self.y_precise+=(self.speed*delta)*P1.get_axis(1)
+                    self.y_precise+=((self.speed+self.consumed_speed)*delta)*P1.get_axis(1)
                     self.y=self.y_precise
                     self.collision_check('y',old_y)
         self.right_blocked,self.left_blocked,self.down_blocked,self.up_blocked=False,False,False,False
@@ -927,6 +997,8 @@ class PlayerOne(pygame.sprite.Sprite):
 
     def draw(self):
         canvas.blit(self.image,(self.x,self.y))
+        self.hover_text.update()
+        self.hover_text.draw(canvas)
 
     def focus_switch(self,P1,delta):
         self.traverse(P1,delta)
@@ -955,6 +1027,7 @@ class PlayerOne(pygame.sprite.Sprite):
         self.draw()
         if 'dpad' in self.aux_state:
             self.relic_select(P1)
+        self.consume_effects()
         self.collide()
         self.traverse_animate()
 
