@@ -901,7 +901,7 @@ class GameElements():
         # for i in scyman.tools:
         #     player_data[4].append(i.io_name)
         equipment_data={
-            1:[i.io_name for i in equip.equip]
+            1:[i.io_name for i in equip.equip if hasattr(i,'io_name')]
         }
         # for i in equip.equip:
         #     equipment_data[1].append(i.io_name)
