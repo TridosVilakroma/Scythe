@@ -99,14 +99,6 @@ class Scarecrow(pygame.sprite.Sprite):
         loot=equip.standard_table()
         loot.rect.topleft=self.rect.topleft
         spawned_loot.add(loot)
-        # random_loot=randint(1,7)
-        # try:
-        #     equip.equip_matrix[1][random_loot].rect[0]=self.x
-        #     equip.equip_matrix[1][random_loot].rect[1]=self.y
-        #     spawned_loot.add(equip.equip_matrix[1][random_loot])
-        #     popped=equip.equip_matrix[1].pop(random_loot)
-        # except KeyError:
-        #     pass
 
     def collision_check(self):
         pass
@@ -178,7 +170,9 @@ class Scarecrow(pygame.sprite.Sprite):
             comfunc.clean_list(self.aux_state,'health')
 
     def timer_wheel(self):
-        if 'dust' not in self.aux_state:
+        if 'dust' in self.aux_state:
+            comfunc.clean_list(self.aux_state,'timerwheel')
+        else:
             if int(self.timer_wheel_step)<=len(self.timer_wheel_img)-1:
                 canvas.blit(self.timer_wheel_img[self.timer_wheel_step],self.rect.center)
                 self.timer_wheel_step+=1
@@ -457,16 +451,6 @@ class Omnivine(pygame.sprite.Sprite):
         loot=equip.standard_table()
         loot.rect.topleft=self.rect.topleft
         spawned_loot.add(loot)
-        # random_loot=randint(1,7)
-        # try:
-        #     equip.equip_matrix[1][random_loot].rect[0]=self.x
-        #     equip.equip_matrix[1][random_loot].rect[1]=self.y
-        #     spawned_loot.add(equip.equip_matrix[1][random_loot])
-        #     popped=equip.equip_matrix[1].pop(random_loot)
-        #     print(popped)
-        # except KeyError:
-        #     print('loot_dropper_error')
-        #     pass
 
     def collision_check(self):
         pass
@@ -570,14 +554,17 @@ class Omnivine(pygame.sprite.Sprite):
             comfunc.clean_list(self.aux_state,'health')
 
     def timer_wheel(self):
-        if int(self.timer_wheel_step)<=len(self.timer_wheel_img)-1:
-            canvas.blit(self.timer_wheel_img[self.timer_wheel_step],self.rect.center)
-            self.timer_wheel_step+=1
-        else:
-            self.aux_state.append('shoot')
-            self.shoot_start=Time.game_clock()
-            self.timer_wheel_step=0
+        if 'shoot' in self.aux_state:
             comfunc.clean_list(self.aux_state,'timerwheel')
+        else:
+            if int(self.timer_wheel_step)<=len(self.timer_wheel_img)-1:
+                canvas.blit(self.timer_wheel_img[self.timer_wheel_step],self.rect.center)
+                self.timer_wheel_step+=1
+            else:
+                self.aux_state.append('shoot')
+                self.shoot_start=Time.game_clock()
+                self.timer_wheel_step=0
+                comfunc.clean_list(self.aux_state,'timerwheel')
 
     def shoot(self):
         if self.shoot_start>=Time.game_clock()-.2:
