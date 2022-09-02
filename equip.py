@@ -859,7 +859,7 @@ tools={
 
 }
 ###############CONSUMABLES###############
-sm_item_scale=(24,24)
+sm_item_scale=(28,28)
 class SmallHealth(Consumable):
     def __init__(self, hp=5, hp_regen=1):
         self.image=pygame.image.load(r'media\consumables\sm_health.png').convert_alpha()
