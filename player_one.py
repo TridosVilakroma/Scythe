@@ -681,8 +681,9 @@ class PlayerOne(pygame.sprite.Sprite):
         time_stamp=Time.game_clock()
 
         if time_stamp<self.scythe_time_ref+.2:
+            self.angle=con.joy_angle(P1,(0,1))
             scythe,position=comfunc.pivot(self.scythe.original_image,self.rect.center,
-            (16,42),con.joy_angle(P1,(0,1)))
+            (16,42),self.angle)
             self.scythe.image=scythe
             self.scythe.rect=position
             self.scythe.mask=pygame.mask.from_surface(scythe)
@@ -701,7 +702,7 @@ class PlayerOne(pygame.sprite.Sprite):
                 self.scythe_radius=0
             self.scythe_radius+=20
             scythe,position=comfunc.pivot(self.scythe.original_image,self.rect.center,
-            (16,42),con.joy_angle(P1,(0,1))-self.scythe_radius)
+            (16,42),self.angle-self.scythe_radius)
             self.scythe.image=scythe
             self.scythe.rect=position
             self.scythe.mask=pygame.mask.from_surface(scythe)
