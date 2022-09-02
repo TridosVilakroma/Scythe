@@ -452,12 +452,22 @@ class PlayerOne(pygame.sprite.Sprite):
                     self.hover_text.add(particles.HoverText(
                         self.rect.center,str(self.mp_regen+self.consumed_mp_regen),'rise',
                         color=BABY_BLUE,outline_size=1,outline_color=BLUE))
+
+        mana_pulse=pygame.Rect(0,0,self.mp*self.mp_ratio,3)
+        missing_mana_pulse=pygame.Rect(0,0,960,3)
         outline=pygame.Rect(19,473,962,5)
         mana=pygame.Rect(20,474,self.mp*self.mp_ratio,3)
         missing_mana=pygame.Rect(20,474,960,3)
         pygame.draw.rect(screen,WHITE,outline,0,1)
         pygame.draw.rect(screen,PURPLE,missing_mana,0,1)
         pygame.draw.rect(screen,BABY_BLUE,mana,0,1)
+        if self.mp<=25:
+            pulse_surf=pygame.Surface((960,3),pygame.SRCALPHA)
+            pygame.draw.rect(pulse_surf,PINK,missing_mana_pulse,0,1)
+            pygame.draw.rect(pulse_surf,WHITE,mana_pulse,0,1)
+            pulse_surf.set_alpha(comfunc.cosine_pulse(2,1,0)*255)
+            screen.blit(pulse_surf,(20,474))
+
 
     def damage(self):
         for i in attacks:
