@@ -108,14 +108,17 @@ class ScareBoss(pygame.sprite.Sprite):
         self.power_ring_images.append(pygame.image.load(r'media\boss\scareboss\power_ring\power_ring-3.png').convert_alpha())
 
     def loot_dropper(self):
-        random_loot=randint(1,7)
-        try:
-            equip.equip_matrix[1][random_loot].rect[0]=self.x
-            equip.equip_matrix[1][random_loot].rect[1]=self.y
-            spawned_loot.add(equip.equip_matrix[1][random_loot])
-            popped=equip.equip_matrix[1].pop(random_loot)
-        except KeyError:
-            pass
+        loot=equip.relic_table()
+        loot.rect.topleft=self.rect.topleft
+        spawned_loot.add(loot)
+        # random_loot=randint(1,7)
+        # try:
+        #     equip.equip_matrix[1][random_loot].rect[0]=self.x
+        #     equip.equip_matrix[1][random_loot].rect[1]=self.y
+        #     spawned_loot.add(equip.equip_matrix[1][random_loot])
+        #     popped=equip.equip_matrix[1].pop(random_loot)
+        # except KeyError:
+        #     pass
 
     def collision_check(self):
         pass
