@@ -485,14 +485,15 @@ class PlayerOne(pygame.sprite.Sprite):
                 self.recieved_damage=True
                 self.hp=self.hp if self.hp>0 else 0
 
-                color=RED if self.shield+self.consumed_shield<=0 else SKY_BLUE
-                color=color if self.defense+self.consumed_defense<=0 else BRIGHT_YELLOW
-                outline_color=BLACK if self.shield+self.consumed_shield<=0 else BLUE
+                if _damage>0:
+                    color=RED if self.shield+self.consumed_shield<=0 else SKY_BLUE
+                    color=color if self.defense+self.consumed_defense<=0 else BRIGHT_YELLOW
+                    outline_color=BLACK if self.shield+self.consumed_shield<=0 else BLUE
 
-                self.hover_text.add(particles.HoverText(
-                    (random.randint(self.x,self.rect.right),random.randint(self.y,self.rect.bottom)),
-                    str(_damage),'rise',color=color,
-                    outline_size=1,outline_color=outline_color))
+                    self.hover_text.add(particles.HoverText(
+                        (random.randint(self.x,self.rect.right),random.randint(self.y,self.rect.bottom)),
+                        _damage,'rise',color=color,
+                        outline_size=1,outline_color=outline_color))
 
             comfunc.clean_list(attacks,i)
 

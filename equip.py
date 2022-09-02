@@ -112,7 +112,7 @@ B: Stink cloud, 4.5 damage per second'''
             pygame.draw.circle(screen,PURPLE,self.cloud_pos,85,1)
             for i in scarecrows:
                 if i.pos.distance_to(self.cloud_pos)<85:
-                    i.hp-=.075
+                    i.damage(.075)
                     i.health_bar_pop_up()
         else:
             self.cloud_cooldown=False
@@ -195,7 +195,7 @@ R-stick: Arrows'''
                 self.nuked=False
                 for i in scarecrows:
                         if i.pos.distance_to(self.mine_pos)<45:
-                            i.hp-=8
+                            i.damage(25)
                             i.health_bar_pop_up()
         else:
             self.mine_cooldown=False
@@ -206,7 +206,7 @@ R-stick: Arrows'''
         if self.arrows:
             hit_list=pygame.sprite.groupcollide(scarecrows,self.arrows,False,True,collide_mask)
             for i in hit_list:
-                i.damage(2.75)
+                i.damage(4.75)
             for i in self.arrows:
                 screen.blit(i.rotated_image,(i.rect.topleft))
                 i.rect.x+=i.velocity_x
