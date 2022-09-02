@@ -771,7 +771,7 @@ A: Blink-step 150% distance. 15 Damage. Consume 5 MP'''
             if self.last_blink_time<Time.game_clock()-.25:
                 if P1.get_button(0) and player.mp>player.blink_mp_cost:
                     self.blinked_lynx_flag=True
-                    self.ghostpos=(player.x,player.y)
+                    self.ghostpos=(player.rect.center)
                     self.last_blink_time=Time.game_clock()
             if self.blinked_lynx_flag:
                 blink_path=(self.ghostpos,player.rect.center)
