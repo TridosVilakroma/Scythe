@@ -48,7 +48,7 @@ class Period:
         self.age-=value
 
     def interval(self,frequency,precision=.02):
-        '''return boolean on call;True at given interval(seconds)
+        '''return boolean on call;True at given frequency(seconds)
 
         only returns true within the precision range; due to the clock being 
         slightly unprecise it may miss an interval if the precision is too small.
