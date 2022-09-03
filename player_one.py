@@ -206,6 +206,11 @@ class PlayerOne(pygame.sprite.Sprite):
         self.blinkdownsprites=[]
         self.blinkupsprites=[]
 
+    def world_info(self):
+        for i in enemies.spawned_loot:
+            if i.vecpos.distance_to((self.rect.center))<100:
+                i.info(canvas)
+
     def interact(self):
         for event in game.events:
             if event.type == JOYBUTTONDOWN:
@@ -467,7 +472,6 @@ class PlayerOne(pygame.sprite.Sprite):
             pygame.draw.rect(pulse_surf,WHITE,mana_pulse,0,1)
             pulse_surf.set_alpha(comfunc.cosine_pulse(2,1,0)*255)
             screen.blit(pulse_surf,(20,474))
-
 
     def damage(self):
         for i in attacks:
@@ -1053,6 +1057,7 @@ class PlayerOne(pygame.sprite.Sprite):
         self.consume_effects()
         self.collide()
         self.traverse_animate()
+        self.world_info()
 
     def update_gui(self,screen,game):
         if self.hp<=0:
