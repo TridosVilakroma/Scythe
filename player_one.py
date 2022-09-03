@@ -49,6 +49,7 @@ class PlayerOne(pygame.sprite.Sprite):
         self.rect=pygame.Rect(pos_x,pos_y,self.image.get_width(),self.image.get_height())
         self.animate_speed=.09
         self.speed=180
+        self.slowdowns=[]
         self.blink_distance=90
         self.blink_step_cooldown=.5
         self.blink_mp_cost=0
@@ -97,6 +98,15 @@ class PlayerOne(pygame.sprite.Sprite):
     def precise_rect(self,value):
         self.x_precise=value[0]
         self.y_precise=value[1]
+    @property
+    def slowdown(self):
+        total=0
+        for i in set(self.slowdowns):
+            total+=i.slowdown
+        self.slowdowns=[]
+        total=max(0.1,(1-total))
+        print(total)
+        return total
 
     class Scythe(equip.Equipment):
         def __init__(self, image,origin):
@@ -561,24 +571,25 @@ class PlayerOne(pygame.sprite.Sprite):
         if not comfunc.dead_zone(P1,(0,1)):
             self.animate_switch()
             #self.traverse_animate()
+            slowdown=self.slowdown
             if not comfunc.dead_zone(P1,single_axis=0):
                 old_x=self.x_precise
                 if motionx>0:
-                    self.x_precise+=((self.speed+self.consumed_speed)*delta)*P1.get_axis(0)
+                    self.x_precise+=((self.speed+self.consumed_speed)*delta)*P1.get_axis(0)*slowdown
                     self.x=self.x_precise
                     self.collision_check('x',old_x)
                 if motionx<0:
-                    self.x_precise+=((self.speed+self.consumed_speed)*delta)*P1.get_axis(0)
+                    self.x_precise+=((self.speed+self.consumed_speed)*delta)*P1.get_axis(0)*slowdown
                     self.x=self.x_precise
                     self.collision_check('x',old_x)
             if not comfunc.dead_zone(P1,single_axis=1):
                 old_y=self.y_precise
                 if motiony<0:
-                    self.y_precise+=((self.speed+self.consumed_speed)*delta)*P1.get_axis(1)
+                    self.y_precise+=((self.speed+self.consumed_speed)*delta)*P1.get_axis(1)*slowdown
                     self.y=self.y_precise
                     self.collision_check('y',old_y)
                 if motiony>0:
-                    self.y_precise+=((self.speed+self.consumed_speed)*delta)*P1.get_axis(1)
+                    self.y_precise+=((self.speed+self.consumed_speed)*delta)*P1.get_axis(1)*slowdown
                     self.y=self.y_precise
                     self.collision_check('y',old_y)
         self.right_blocked,self.left_blocked,self.down_blocked,self.up_blocked=False,False,False,False
