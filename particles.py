@@ -93,6 +93,8 @@ class ParticleEmitter():
             self.slow_emit()
         if 'ascend' in self.motion_styles:
             self.ascend()
+        if 'go_right' in self.motion_styles:
+            self.go_right()
         if 'fast_shrink' in self.motion_styles:
             self.fast_shrink()
         if 'random_growth' in self.motion_styles:
@@ -227,6 +229,10 @@ class ParticleEmitter():
     def ascend(self):
         for i in self.particles:
             i.pos[1] -=.5
+
+    def go_right(self):
+        for i in self.particles:
+            i.pos[0] +=.5
 
     def fire_fly(self):
         for i in self.particles:
