@@ -413,7 +413,7 @@ class HoverText(pygame.sprite.Sprite):
             self.rise()
 
     def update(self):
-        if self.life_time.age(self.duration):
+        if self.duration!=-1 and self.life_time.age(self.duration):
             self.kill()
         else:
             self.behavior()
