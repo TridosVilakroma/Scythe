@@ -446,7 +446,6 @@ class GameElements():
             player_menu_details.set_clipping_image(self.scroll.surface,(0,self.scroll_offset),
                 (0,11,player_menu_details.rect.width*.9,player_menu_details.rect.height*.917))
 
-
     def main_menu(self):
         global P1,scyman
         if not self.main_loaded:

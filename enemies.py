@@ -96,7 +96,7 @@ class Scarecrow(pygame.sprite.Sprite):
         self.straw_stalk=pygame.image.load(r'media\deco\straw_stalk.png').convert_alpha()
 
     def loot_dropper(self):
-        loot=equip.standard_table()
+        loot=equip.test_table()
         if loot is None:
             return
         loot.rect.topleft=self.rect.topleft
