@@ -28,6 +28,7 @@ scyman=pygame.image.load(r'media\scyman_walk\down_walk\walkdown0.png')
 #enemies
 scarecrow = pygame.image.load(r'media\deco\scarecrow.png')
 omnivine = pygame.image.load(r'media\enemies\ominvine.png')
+nid = pygame.image.load(r'media\enemies\nid\idle\nid_idle1.png')
 #Bosses
 scareboss=pygame.image.load(r'media\boss\scareboss\scareboss.png')
 #tiles
@@ -255,6 +256,10 @@ class world_edit():
                         #omnivine
                         img = pygame.transform.scale(omnivine, (tile_size, tile_size))
                         screen.blit(img, (col * tile_size, row * tile_size))
+                    if game_data[row][col] == 202:
+                        #nid
+                        img = pygame.transform.scale(nid, (tile_size, tile_size))
+                        screen.blit(img, (col * tile_size, row * tile_size))
                 #####bosses
                     if game_data[row][col] == 800:
                         #scareboss
@@ -340,7 +345,7 @@ class world_edit():
                     #enemy placement
                     self.data_set=game_data
                     self.tileset_first=200
-                    self.tileset_last=202
+                    self.tileset_last=203
                     print('Enemies selected')
                 if event.key == pygame.K_0:
                     #boss placement

@@ -197,6 +197,9 @@ def create_canvas(world_data,game_data):
                 if game_data[row][col] == 201:
                     #omnivine
                     spawn('Omnivine',row,col)
+                if game_data[row][col] == 202:
+                    #nid
+                    spawn('Nid',row,col)
         ########structure
                 if game_data[row][col] == 300:
                     img = pygame.transform.scale(block, (tile_size, tile_size))
