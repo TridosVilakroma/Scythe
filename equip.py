@@ -6,41 +6,76 @@ from color_palette import *
 import Time
 
 scarecrows=None#variable overwritten in main to add enemy access here
-
+y_button=pygame.image.load(r'media\gui\input_prompts\tile_0007.png').convert_alpha()
+y_button_down=pygame.image.load(r'media\gui\input_prompts\tile_0011.png').convert_alpha()
 #Base equipment class
 class Equipment(pygame.sprite.Sprite):
     def __init__(self,image):
         super().__init__()
         self.mask=pygame.mask.from_surface(image)
         self.rect=image.get_rect()
+        self.hover_text=pygame.sprite.Group()
+        self.info_inited=False
     @property
     def vecpos(self):
-        return pygame.Vector2(self.rect.topleft)
+        return pygame.Vector2(self.rect.center)
+
+    def info_init(self):
+        self.info_inited=True
+        self.life_time=Time.Period()
+        self.name_hover=particles.HoverText(
+            (self.rect.right+35,self.rect.top-15),self.name[:-6],size=12,duration=-1,
+            outline_size=1,outline_color=BLACK)
+        self.hover_text.add(self.name_hover)
+        self.hover_text.add(particles.HoverText(
+            (self.rect.right+45,self.rect.top+10),self.use,size=12,duration=-1,
+            outline_size=1,outline_color=BLACK))
+
+    def info(self,canvas):
+        if not self.info_inited:
+            self.info_init()
+        self.hover_text.update()
+        self.hover_text.draw(canvas)
+        point_a=(self.rect.right,self.rect.top+self.rect.height/3)
+        point_b=(self.rect.right+10,self.rect.top-5)
+        point_c=(self.rect.right+45,self.rect.top-5)
+        pygame.draw.line(canvas,WHITE,point_a,point_b)
+        pygame.draw.line(canvas,WHITE,point_b,point_c)
+        if self.life_time.interval(2,.5):
+            canvas.blit(y_button_down,(self.name_hover.rect.right,self.rect.top-25))
+        else:
+            canvas.blit(y_button,(self.name_hover.rect.right,self.rect.top-25))
+
 
 class Relic(Equipment):
     def __init__(self,mana_drain,image):
         super().__init__(image)
+        self.use='Relic'
         self.mana_drain=mana_drain
 
 class Armor(Equipment):
     def __init__(self,image,defense):
+        self.use='Armor'
         super().__init__(image)
         self.defense=defense
 
 class Weapon(Equipment):
     def __init__(self,damage,cooldown):
+        self.use='Weapon'
         super().__init__()
         self.damage=damage
         self.cooldown=cooldown
 
 class Tool(Equipment):
     def __init__(self,function_unlock):
+        self.use='Tool'
         super().__init__()
         self.function_unlock=function_unlock
 
 class Consumable(Equipment):
     def __init__(self,image,hp=0,mp=0,speed=0,defense=0,shield=0,hp_regen=0,mp_regen=0):
         super().__init__(image)
+        self.use='Consumable'
         self.heal=hp
         self.mana=mp
         self.speed=speed
@@ -632,7 +667,7 @@ B: Enter shell; consume 5 MP. Reflect damage. Stun on exit.'''
                         i.damage(sum(player.incoming_damage)*2)
                         player.incoming_damage=[]
                 player.incoming_damage=[]
-            
+
 
 
     def walk_right_load(self):
@@ -862,6 +897,7 @@ tools={
 sm_item_scale=(28,28)
 class SmallHealth(Consumable):
     def __init__(self, hp=5, hp_regen=1):
+        self.name='Sm Health_cnsmb'
         self.image=pygame.image.load(r'media\consumables\sm_health.png').convert_alpha()
         self.image=pygame.transform.scale(self.image,sm_item_scale)
         super().__init__(self.image, hp=hp, hp_regen=hp_regen)
@@ -869,6 +905,7 @@ class SmallHealth(Consumable):
 
 class LargeHealth(Consumable):
     def __init__(self, hp=10, hp_regen=1):
+        self.name='Lg Health_cnsmb'
         self.image=pygame.image.load(r'media\consumables\lg_health.png').convert_alpha()
         self.image=pygame.transform.scale(self.image,sm_item_scale)
         super().__init__(self.image, hp=hp, hp_regen=hp_regen)
@@ -876,6 +913,7 @@ class LargeHealth(Consumable):
 
 class SmallMana(Consumable):
     def __init__(self, mp=5, mp_regen=1):
+        self.name='Sm Mana_cnsmb'
         self.image=pygame.image.load(r'media\consumables\sm_mana.png').convert_alpha()
         self.image=pygame.transform.scale(self.image,sm_item_scale)
         super().__init__(self.image, mp=mp, mp_regen=mp_regen)
@@ -883,6 +921,7 @@ class SmallMana(Consumable):
 
 class LargeMana(Consumable):
     def __init__(self, mp=10, mp_regen=1):
+        self.name='Lg Mana_cnsmb'
         self.image=pygame.image.load(r'media\consumables\lg_mana.png').convert_alpha()
         self.image=pygame.transform.scale(self.image,sm_item_scale)
         super().__init__(self.image, mp=mp, mp_regen=mp_regen)
@@ -890,6 +929,7 @@ class LargeMana(Consumable):
 
 class Defense(Consumable):
     def __init__(self, defense=5):
+        self.name='Defense Pomade_cnsmb'
         self.image=pygame.image.load(r'media\consumables\defense.png').convert_alpha()
         self.image=pygame.transform.scale(self.image,sm_item_scale)
         super().__init__(self.image, defense=defense)
@@ -897,6 +937,7 @@ class Defense(Consumable):
 
 class Shield(Consumable):
     def __init__(self, shield=.25):
+        self.name='Shield Juice_cnsmb'
         self.image=pygame.image.load(r'media\consumables\shield.png').convert_alpha()
         self.image=pygame.transform.scale(self.image,sm_item_scale)
         super().__init__(self.image, shield=shield)
@@ -904,6 +945,7 @@ class Shield(Consumable):
 
 class Speed(Consumable):
     def __init__(self, speed=45):
+        self.name='Speed Tonic_cnsmb'
         self.image=pygame.image.load(r'media\consumables\speed.png').convert_alpha()
         self.image=pygame.transform.scale(self.image,sm_item_scale)
         super().__init__(self.image, speed=speed)
@@ -911,6 +953,7 @@ class Speed(Consumable):
 
 class Regen(Consumable):
     def __init__(self, hp_regen=2,mp_regen=2):
+        self.name='Regen X_cnsmb'
         self.image=pygame.image.load(r'media\consumables\regen.png').convert_alpha()
         self.image=pygame.transform.scale(self.image,sm_item_scale)
         super().__init__(self.image, hp_regen=hp_regen,mp_regen=mp_regen)
@@ -949,6 +992,12 @@ for equip_types in equip_matrix.values():
 
 '''Loot tables'''
 
+def test_table():
+    loot=random.choice(equip)
+    if type(loot)is type(Consumable):
+        loot=loot()
+    return loot
+
 def standard_table():
     choice=random.choices(list(equip_matrix[5].keys()),cum_weights=[15,20,35,40,45,50,55,60])[0]
     loot=equip_matrix[5][choice]
@@ -957,7 +1006,6 @@ def standard_table():
 def relic_table():
     try:
         random_loot=random.choice(list(equip_matrix[1].keys()))
-        print(random_loot)
         return equip_matrix[1].pop(random_loot)
     except KeyError:
         return None
