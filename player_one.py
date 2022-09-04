@@ -19,6 +19,7 @@ class PlayerOne(pygame.sprite.Sprite):
     def __init__(self,pos_x, pos_y):
         super().__init__()
         self.list_init()
+        self.P1='controller'
         self.hp=100
         self.dead=False
         self.dying=False
@@ -483,6 +484,7 @@ class PlayerOne(pygame.sprite.Sprite):
     def damage(self):
         for i in attacks:
             if i[1].colliderect(self.rect):
+                self.P1.rumble(1,1,200)
                 self.hit_flash=Time.game_clock()+.1
                 self.aux_state.append('health')
                 self.hpbar_ref_timer=Time.game_clock()+3
@@ -931,7 +933,7 @@ class PlayerOne(pygame.sprite.Sprite):
         if P1.get_button(1):
             relic.special_attack(canvas,self)
 
-        if not comfunc.dead_zone(P1,(3,4)):
+        if not comfunc.dead_zone(P1,(2,3)):
             relic.right_stick(delta,self,P1)
 
         if self.mp<-5:

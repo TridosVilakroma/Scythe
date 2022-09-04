@@ -4,6 +4,7 @@ from random import randint
 import random
 import common_functions as comfunc
 import Time
+from controller import ControllerReferences as refcon
 
 screen=None
 canvas=None
@@ -106,6 +107,10 @@ class Scarecrow(pygame.sprite.Sprite):
         pass
 
     def damage(self,damage):
+        if damage>5:
+            smrumble=damage*.1
+            lgrumble=damage*.025
+            refcon.P1.rumble(lgrumble,smrumble,100)
         self.hp-=max(0,damage-self.defense)
         if self.hp<0:
             self.hp=0
@@ -459,6 +464,10 @@ class Omnivine(pygame.sprite.Sprite):
         pass
 
     def damage(self,damage):
+        if damage>5:
+            smrumble=damage*.1
+            lgrumble=damage*.025
+            refcon.P1.rumble(lgrumble,smrumble,100)
         self.hp-=max(0,damage-self.defense)
         if self.hp<0:
             self.hp=0
@@ -774,7 +783,6 @@ class Nid(pygame.sprite.Sprite):
     @property
     def hit_box(self):
         bound_rect=self.image.get_bounding_rect()
-        print(bound_rect)
         if self.jump_time.frame(1.5,2.4):
             #no collision mid_air
             return bound_rect
@@ -884,6 +892,10 @@ class Nid(pygame.sprite.Sprite):
 
     def damage(self,damage):
         if not self.jump_time.frame(1.5,2.4):
+            if damage>5:
+                smrumble=damage*.1
+                lgrumble=damage*.025
+                refcon.P1.rumble(lgrumble,smrumble,100)
             self.hp-=max(0,damage-self.defense)
             if self.hp<0:
                 self.hp=0
