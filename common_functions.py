@@ -47,6 +47,13 @@ def move(rect_center,speed,angle):
     y = rect_center[1] + (speed*math.sin(math.radians(angle)))
     return x,y
 
+def get_angle(pos1,pos2):
+    v1=pygame.Vector2(pos1)
+    v2=pygame.Vector2(pos2)
+    radius, angle = (v2-v1).as_polar()
+    adjusted_angle = (angle+90) % 360
+    return adjusted_angle
+
 def attack_collide(attack,sprite2):
     if attack.self.rect.colliderect(sprite2.rect):
         sprite2.hp-=attack.power-sprite2.defense
