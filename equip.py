@@ -210,8 +210,8 @@ R-stick: Arrows'''
         origin=pygame.math.Vector2(player.rect.center)
         arrow=self.Arrow(self.fox_arrow,origin,P1)
         arrow.rect.center=origin
-        arrow.velocity_x,arrow.velocity_y=pygame.math.Vector2((arrow.speed*delta)*(P1.get_axis(3)*8),
-        (arrow.speed*delta)*(P1.get_axis(4)*8))
+        arrow.velocity_x,arrow.velocity_y=pygame.math.Vector2((arrow.speed*delta)*(P1.get_axis(2)*8),
+        (arrow.speed*delta)*(P1.get_axis(3)*8))
         if len(self.arrows)<30 and self.arrow_delay<Time.game_clock():
             self.arrows.add(arrow)
             self.arrow_delay=Time.game_clock()+.2
@@ -254,7 +254,7 @@ R-stick: Arrows'''
                 self.origin=origin
                 self.image=image
                 self.life_time=Time.game_clock()+2
-                self.rotated_image=pygame.transform.rotozoom(self.image,con.joy_angle(P1,(3,4))*-1,1)
+                self.rotated_image=pygame.transform.rotozoom(self.image,con.joy_angle(P1,(2,3))*-1,1)
                 self.velocity_x=0
                 self.velocity_y=0
 
@@ -306,7 +306,7 @@ R-stick: Feathers'''
                 self.origin=origin
                 self.image=image
                 self.life_time=Time.game_clock()+.5
-                self.rotated_image=pygame.transform.rotozoom(self.image,con.joy_angle(P1,(3,4))*-1,1)
+                self.rotated_image=pygame.transform.rotozoom(self.image,con.joy_angle(P1,(2,3))*-1,1)
                 self.velocity_x=0
                 self.velocity_y=0
                 
@@ -344,12 +344,12 @@ R-stick: Feathers'''
         origin=pygame.math.Vector2(player.rect.center)
         feather=self.Feather(self.eagle_feather,origin,P1)
         feather.rect.center=origin
-        feather.velocity_x,feather.velocity_y=pygame.math.Vector2((feather.speed*delta)*(P1.get_axis(3)*3),
-        (feather.speed*delta)*(P1.get_axis(4)*3))
+        feather.velocity_x,feather.velocity_y=pygame.math.Vector2((feather.speed*delta)*(P1.get_axis(2)*3),
+        (feather.speed*delta)*(P1.get_axis(3)*3))
         if len(self.feathers)<30 and self.feather_delay<Time.game_clock():
             if player.hp<=50:
-                feather.velocity_x,feather.velocity_y=pygame.math.Vector2((feather.speed*delta)*(P1.get_axis(3)*4),
-                (feather.speed*delta)*(P1.get_axis(4)*4))
+                feather.velocity_x,feather.velocity_y=pygame.math.Vector2((feather.speed*delta)*(P1.get_axis(2)*4),
+                (feather.speed*delta)*(P1.get_axis(3)*4))
                 feather.life_time+=.5
                 self.feathers.add(feather)
                 self.feather_delay=Time.game_clock()+.3
