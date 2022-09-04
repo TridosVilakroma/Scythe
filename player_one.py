@@ -41,8 +41,6 @@ class PlayerOne(pygame.sprite.Sprite):
         self.focus = 'traverse'
         self.animating=False
         self.direction='right'
-        self.right_blocked,self.left_blocked=False,False
-        self.down_blocked,self.up_blocked=False,False
         self.image_loader()
         self.current_sprite=0
         self.image=self.walkrightsprites[self.current_sprite]
@@ -105,7 +103,6 @@ class PlayerOne(pygame.sprite.Sprite):
             total+=i.slowdown
         self.slowdowns=[]
         total=max(0.1,(1-total))
-        print(total)
         return total
 
     class Scythe(equip.Equipment):
@@ -570,7 +567,6 @@ class PlayerOne(pygame.sprite.Sprite):
             self.direction='left'
         if not comfunc.dead_zone(P1,(0,1)):
             self.animate_switch()
-            #self.traverse_animate()
             slowdown=self.slowdown
             if not comfunc.dead_zone(P1,single_axis=0):
                 old_x=self.x_precise
@@ -592,7 +588,6 @@ class PlayerOne(pygame.sprite.Sprite):
                     self.y_precise+=((self.speed+self.consumed_speed)*delta)*P1.get_axis(1)*slowdown
                     self.y=self.y_precise
                     self.collision_check('y',old_y)
-        self.right_blocked,self.left_blocked,self.down_blocked,self.up_blocked=False,False,False,False
 
     def blink_step(self,P1):
         self.blink_startposx=self.x

@@ -774,6 +774,10 @@ class Nid(pygame.sprite.Sprite):
     @property
     def hit_box(self):
         bound_rect=self.image.get_bounding_rect()
+        print(bound_rect)
+        if self.jump_time.frame(1.5,2.4):
+            #no collision mid_air
+            return bound_rect
         bound_rect[0]=bound_rect[0]+self.x
         bound_rect[1]=bound_rect[1]+self.y
         return (bound_rect)
@@ -998,7 +1002,11 @@ class Nid(pygame.sprite.Sprite):
             self.current_sprite=1#squash pre-jump
             if self.jump_time.frame(1.4,1.5):
                 self.webs.add(self.Web((random.randint(self.x,self.rect.right),random.randint(self.y,self.rect.bottom))))
-            self.jump_v=comfunc.vector(self,player)
+            jump_angle=comfunc.get_angle(player.rect.center,self.rect.center)
+            jump_angle+=random.uniform(-60.0,60.0)
+            self.jump_v=comfunc.vector_from_coords(
+                self.rect.center,
+                comfunc.move(player.rect.center,randint(100,250),jump_angle))
         elif self.jump_time.age(max=2.4):
             self.current_sprite=2#stretch in-air jump
             if 'trap' not in self.aux_state:
@@ -1019,8 +1027,6 @@ class Nid(pygame.sprite.Sprite):
                         [WHITE,LIGHT_GREY],
                         1,
                         'move_to_dest_fast','explode','fast_decay'))
-            # elif self.jump_time.age(max=3):
-            #     self.jump_particles=[]
             if 'trap' not in self.aux_state:
                 if self.jump_v.length_squared()>0:
                     self.jump_v.scale_to_length(self.speed*self.delta*.2)
