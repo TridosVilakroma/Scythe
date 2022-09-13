@@ -829,6 +829,9 @@ class Nid(pygame.sprite.Sprite):
         self.idle_white=[]
         self.jump_sprites=[]
         self.jump_white=[]
+        self.jump_shadow=pygame.image.load(r'media\enemies\nid\jump\jump_shadow.png').convert_alpha()
+        self.jump_shadow2=pygame.image.load(r'media\enemies\nid\jump\jump_shadow2.png').convert_alpha()
+        self.jump_shadow3=pygame.image.load(r'media\enemies\nid\jump\jump_shadow3.png').convert_alpha()
         self.timer_wheel_img.append(pygame.image.load(r'media\twirl\twirl00.png').convert_alpha())
         self.timer_wheel_img.append(pygame.image.load(r'media\twirl\twirl01.png').convert_alpha())
         self.timer_wheel_img.append(pygame.image.load(r'media\twirl\twirl02.png').convert_alpha())
@@ -1026,6 +1029,17 @@ class Nid(pygame.sprite.Sprite):
                     self.jump_v.scale_to_length(self.speed*self.delta)
                 self.dest+=self.jump_v
                 self.rect.center=self.dest
+                #jump shadow animation
+                if self.jump_time.age(max=1.54):
+                    canvas.blit(self.jump_shadow,self.rect.bottomleft)
+                elif self.jump_time.age(max=1.58):
+                    canvas.blit(self.jump_shadow2,self.rect.bottomleft)
+                elif self.jump_time.age(max=2.30):
+                    canvas.blit(self.jump_shadow3,self.rect.bottomleft)
+                elif self.jump_time.age(max=2.34):
+                    canvas.blit(self.jump_shadow2,self.rect.bottomleft)
+                elif self.jump_time.age(max=2.4):
+                    canvas.blit(self.jump_shadow,self.rect.bottomleft)
         elif self.jump_time.age(max=3.15):
             self.current_sprite=3#squash post-jump
             if self.jump_time.frame(2.4,2.45):
@@ -1138,10 +1152,10 @@ class Nid(pygame.sprite.Sprite):
     def update(self,canvas,player,delta):
         self.delta=delta
         self.pos=pygame.Vector2((self.rect.center))
+        for i in self.webs:
+            i.update(canvas)
         self.blit()
         if self.hp<=0:
             self.death_animation()
         else:
             self.auxillary(canvas,player)
-        for i in self.webs:
-            i.update(canvas)
