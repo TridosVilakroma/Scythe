@@ -5,6 +5,7 @@ import common_functions as comfunc
 import enemies,equip,particles,boss
 from color_palette import *
 import controller as con
+from controller import ControllerReferences as refcon
 import Time
 
 game=None#variable overwritten in main to allow blit access from this module
@@ -19,7 +20,6 @@ class PlayerOne(pygame.sprite.Sprite):
     def __init__(self,pos_x, pos_y):
         super().__init__()
         self.list_init()
-        self.P1='controller'
         self.hp=100
         self.dead=False
         self.dying=False
@@ -484,7 +484,7 @@ class PlayerOne(pygame.sprite.Sprite):
     def damage(self):
         for i in attacks:
             if i[1].colliderect(self.rect):
-                self.P1.rumble(1,1,200)
+                refcon.P1.rumble(1,1,200)
                 self.hit_flash=Time.game_clock()+.1
                 self.aux_state.append('health')
                 self.hpbar_ref_timer=Time.game_clock()+3
