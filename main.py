@@ -436,7 +436,7 @@ class GameElements():
 
             self.button_action=False
 
-        axis_val=P1.get_axis(4)
+        axis_val=P1.get_axis(3)
         if abs(axis_val)>.3:
             self.scroll_offset+=(axis_val*-1)*Time.delta()*350
             if self.scroll_offset<-self.scroll.surface.get_height()+((player_menu_details.rect.height/4)*3):
