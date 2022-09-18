@@ -110,7 +110,7 @@ class Scarecrow(pygame.sprite.Sprite):
         if damage>5:
             smrumble=damage*.1
             lgrumble=damage*.025
-            refcon.P1.rumble(lgrumble,smrumble,100)
+            refcon.rumble(refcon.P1,lgrumble,smrumble,100)
         self.hp-=max(0,damage-self.defense)
         if self.hp<0:
             self.hp=0
@@ -467,7 +467,7 @@ class Omnivine(pygame.sprite.Sprite):
         if damage>5:
             smrumble=damage*.1
             lgrumble=damage*.025
-            refcon.P1.rumble(lgrumble,smrumble,100)
+            refcon.rumble(refcon.P1,lgrumble,smrumble,100)
         self.hp-=max(0,damage-self.defense)
         if self.hp<0:
             self.hp=0
@@ -898,7 +898,7 @@ class Nid(pygame.sprite.Sprite):
             if damage>5:
                 smrumble=damage*.1
                 lgrumble=damage*.025
-                refcon.P1.rumble(lgrumble,smrumble,100)
+                refcon.rumble(refcon.P1,lgrumble,smrumble,100)
             self.hp-=max(0,damage-self.defense)
             if self.hp<0:
                 self.hp=0

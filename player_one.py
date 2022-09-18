@@ -484,7 +484,7 @@ class PlayerOne(pygame.sprite.Sprite):
     def damage(self):
         for i in attacks:
             if i[1].colliderect(self.rect):
-                refcon.P1.rumble(1,1,200)
+                refcon.rumble(refcon.P1,1,1,200)
                 self.hit_flash=Time.game_clock()+.1
                 self.aux_state.append('health')
                 self.hpbar_ref_timer=Time.game_clock()+3
