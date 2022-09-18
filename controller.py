@@ -1,10 +1,13 @@
 import pygame
 
 pygame.joystick.init()
-
+game=None#variable overwritten in main
 class ControllerReferences:
     P1=None
     P2=None
+    def rumble(controller,low_frequency, high_frequency, duration):
+        if game.settings_data['rumble']:
+            controller.rumble(low_frequency, high_frequency, duration)
 
 def joy_init():
     joysticks = (pygame.joystick.get_count())
