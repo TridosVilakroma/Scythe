@@ -2,15 +2,19 @@ import pygame,text,Time
 from color_palette import BLACK
 import os.path
 from text import draw_text
+
 class Button(pygame.sprite.Sprite):
-    def __init__(self,image,clicked_image,pos,text='None',purpose=None,sl_text=False):
+    def __init__(self,image,clicked_image,pos,text='None',purpose=None,sl_text=False,text_size=35):
         super().__init__()
+        self.text_size=text_size
         self.data=False
         self.pos=pos
         self.x=pos[0]
         self.y=pos[1]
         self.image=image
+        self.original_image=image.copy()
         self.rect=image.get_rect()
+        self.clicked_original_image=clicked_image.copy()
         self.clicked_image=clicked_image
         self.rect.center=pos
         self.rect.y=self.pos[1]-self.image.get_height()
@@ -35,7 +39,7 @@ class Button(pygame.sprite.Sprite):
             return self.purpose
 
     def render_text(self):
-        temp_text=text.TextHandler('media\VecnaBold.ttf',BLACK,self.text,35)
+        temp_text=text.TextHandler('media\VecnaBold.ttf',BLACK,self.text,self.text_size)
         self.image.blit(temp_text.text_obj,(self.rect[2]/2-temp_text.rect.width/2,self.rect[3]/2-temp_text.rect.height/2))
         self.clicked_image.blit(temp_text.text_obj,(self.rect[2]/2-temp_text.rect.width/2,self.rect[3]/2-temp_text.rect.height/2))
 
@@ -51,6 +55,29 @@ class Button(pygame.sprite.Sprite):
                 temp_text=text.TextHandler('media\VecnaBold.ttf',BLACK,'New',20)
                 self.image.blit(temp_text.text_obj,(self.rect[2]/2-temp_text.rect.width/2,self.rect[3]-temp_text.rect.height*1.25))
                 self.clicked_image.blit(temp_text.text_obj,(self.rect[2]/2-temp_text.rect.width/2,self.rect[3]-temp_text.rect.height*1.25))
+
+class BoolButton(Button):
+    def __init__(self, pos, purpose=None, sl_text=False,state=True):
+        image=pygame.image.load(r'media\gui\main_menu\buttonSquare_beige.png').convert_alpha()
+        clicked_image=pygame.image.load(r'media\gui\main_menu\buttonSquare_beige_pressed.png').convert_alpha()
+        self.state=state
+        if self.state:
+            text='Yes'
+        else:
+            text='No'
+        super().__init__(image, clicked_image, pos, text, purpose, sl_text,text_size=28)
+
+    def state_change(self):
+        if self.text=='Yes':
+            self.text='No'
+            self.state=False
+        elif self.text=='No':
+            self.text='Yes'
+            self.state=True
+        self.clicked_image=self.original_image.copy()
+        self.image=self.clicked_original_image.copy()
+        self.render_text()
+
 
 class Label(pygame.sprite.Sprite):
     def __init__(self,image,pos,text='None',text_size=35,wrapping=False):
