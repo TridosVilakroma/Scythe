@@ -40,11 +40,15 @@ grass_clump=pygame.image.load('media\deco\grass_clump.png').convert_alpha()
 relic=equip.equip_matrix[1][randint(1,3)].image
 randx=randint(0,1000)
 randy=randint(0,500)
+no_selection=pygame.image.load(r"media\multiplayer_icons\no_selection.png").convert_alpha()
+helper_preview_frame=pygame.image.load(r"media\multiplayer_icons\icon_frame.png").convert_alpha()
+select_frame=pygame.image.load(r"media\multiplayer_icons\select_frame.png").convert_alpha()
+mami_icon=pygame.image.load(r"media\multiplayer_icons\mami.png").convert_alpha()
 #button loading
 start_button=gui.Button(pygame.image.load(r'media\gui\main_menu\buttonLong_beige.png').convert_alpha(),
     pygame.image.load(r'media\gui\main_menu\buttonLong_beige_pressed.png').convert_alpha(),(720,100),'->Play<-','save_select')
 multiplayer_button=gui.Button(pygame.image.load(r'media\gui\main_menu\buttonLong_beige.png').convert_alpha(),
-    pygame.image.load(r'media\gui\main_menu\buttonLong_beige_pressed.png').convert_alpha(),(720,180),'Multiplayer')
+    pygame.image.load(r'media\gui\main_menu\buttonLong_beige_pressed.png').convert_alpha(),(720,180),'Multiplayer','multiplayer')
 settings_button=gui.Button(pygame.image.load(r'media\gui\main_menu\buttonLong_beige.png').convert_alpha(),
     pygame.image.load(r'media\gui\main_menu\buttonLong_beige_pressed.png').convert_alpha(),(720,260),'Settings','settings')
 credits_button=gui.Button(pygame.image.load(r'media\gui\main_menu\buttonLong_beige.png').convert_alpha(),
@@ -84,6 +88,8 @@ player_menu_save=gui.Button(pygame.image.load(r'media\gui\main_menu\buttonLong_b
 settings_info=gui.Label(pygame.transform.scale(pygame.image.load(r'media\gui\main_menu\parchment_alpha.png').convert_alpha(),(750,300)),
                         (500,300),"")
 credits_info=gui.Label(pygame.transform.scale(pygame.image.load(r'media\gui\main_menu\parchment_alpha.png').convert_alpha(),(750,300)),
+                        (500,300),"")
+multiplayer_info=gui.Label(pygame.transform.scale(pygame.image.load(r'media\gui\main_menu\parchment_alpha.png').convert_alpha(),(750,300)),
                         (500,300),"")
 #structure group
 structures=pygame.sprite.Group()
@@ -145,6 +151,7 @@ class GameElements():
         self.game_over_loaded=False
         self.credits_loaded=False
         self.settings_loaded=False
+        self.multiplayer_loaded=False
         self.save_slot=0
         self.game_over_blur=0
         self.alpha=255
@@ -640,7 +647,7 @@ class GameElements():
         mouse_pos=pygame.mouse.get_pos()
         for i in self.buttons:
             if i in self.button_order:
-                if not self.button_focus==self.button_order.index(i):
+                if not self.button_focus==self.button_order.index(i) or self.current_button_order!=self.button_order:
                     if i.depressed:
                         i.image_swap()
                         i.clicked()
@@ -648,7 +655,7 @@ class GameElements():
                     self.button_focus=self.button_order.index(i)
                     self.current_button_order=self.button_order
             if i in self.button_order_subset:
-                if not self.button_focus==self.button_order_subset.index(i):
+                if not self.button_focus==self.button_order_subset.index(i) or self.current_button_order!=self.button_order_subset:
                     if i.depressed:
                         i.image_swap()
                         i.clicked()
@@ -824,7 +831,7 @@ class GameElements():
         mouse_pos=pygame.mouse.get_pos()
         for i in self.buttons:
             if i in self.button_order:
-                if not self.button_focus==self.button_order.index(i):
+                if not self.button_focus==self.button_order.index(i) or self.current_button_order!=self.button_order:
                     if i.depressed:
                         i.image_swap()
                         i.clicked()
@@ -832,7 +839,7 @@ class GameElements():
                     self.button_focus=self.button_order.index(i)
                     self.current_button_order=self.button_order
             if i in self.settings_buttons:
-                if not self.button_focus==self.settings_buttons.index(i):
+                if not self.button_focus==self.settings_buttons.index(i) or self.current_button_order!=self.settings_buttons:
                     if i.depressed:
                         i.image_swap()
                         i.clicked()
@@ -876,7 +883,7 @@ class GameElements():
                     current_button.clicked()
 
             elif event.type == JOYBUTTONUP:
-                if event.__dict__['button']==0 or event.__dict__['button']==7:
+                if event.__dict__['button']==0:
                     if current_button.depressed:
                         current_button.image_swap()
                         current_button.clicked()
@@ -887,19 +894,27 @@ class GameElements():
                             self.focus=temp
                             self.main_loaded=False
                 if event.__dict__['button']==1:
-
-                    self.focus='start'
+                    self.focus='main'
                     self.main_loaded=False
+
             elif event.type == JOYHATMOTION:
                 if event.__dict__['hat']==0:
-                    if event.__dict__['value'][1]==-1:
+                    if event.__dict__['value'][0]==1:
                         self.button_focus+=1
-                        if self.button_focus>len(self.button_order)-1:
+                        if self.button_focus>len(self.current_button_order)-1:
                             self.button_focus=0
-                    if event.__dict__['value'][1]==1:
+                    if event.__dict__['value'][0]==-1:
                         self.button_focus-=1
                         if self.button_focus<0:
-                            self.button_focus=len(self.button_order)-1
+                            self.button_focus=len(self.current_button_order)-1
+                    if event.__dict__['value'][1]==1:
+                        self.current_button_order=self.settings_buttons
+                        if self.button_focus>=len(self.current_button_order):
+                            self.button_focus=len(self.current_button_order)-1
+                    if event.__dict__['value'][1]==-1:
+                        self.current_button_order=self.button_order
+                        if self.button_focus>=len(self.current_button_order):
+                            self.button_focus=len(self.current_button_order)-1
             elif event.type == JOYAXISMOTION:
                 if not self.reset_joystick_needed and not comfunc.dead_zone(P1,single_axis=1):
                     if event.__dict__['axis']==1:
@@ -924,6 +939,175 @@ class GameElements():
                 self.settings_loaded=False
                 back_button.rect.x=280
 
+    def multiplayer_menu(self):
+        global P1
+        if not self.multiplayer_loaded:
+            self.selected_helper=no_selection
+            mami_button=gui.Button(mami_icon,mami_icon,(450,150),'')
+            header=text.TextHandler(standad_font,BLACK,'Multiplayer',50)
+            multiplayer_info.add_image(helper_preview_frame,
+                (750/2 -helper_preview_frame.get_width()/2,
+                300/2 -helper_preview_frame.get_height()/2))
+            # multiplayer_info.add_image(no_selection,
+            #     (750/2 -helper_preview_frame.get_width()/2+4,
+            #     300/2 -helper_preview_frame.get_height()/2+4))
+            multiplayer_info.add_image(header.text_obj,(290,5))
+            self.button_0_reset=False
+            self.button_7_reset=False
+            self.multiplayer_loaded=True
+            self.buttons=pygame.sprite.Group()
+            back_button.rect.x=400
+            self.buttons.add(back_button)
+            self.buttons.add(mami_button)
+            self.button_order=[
+                back_button]
+            self.helper_buttons=[
+                mami_button
+            ]
+            self.current_button_order=self.button_order
+            self.button_focus=0
+            self.reset_joystick_needed=False
+            for i in self.buttons:
+                if i.depressed:
+                    i.image_swap()
+                    i.clicked()
+
+        if hasattr(self.selected_helper,'image'):
+            multiplayer_info.add_image(self.selected_helper.image,
+                    (750/2 -helper_preview_frame.get_width()/2+4,
+                    300/2 -helper_preview_frame.get_height()/2+4))
+        else:
+            multiplayer_info.add_image(self.selected_helper,
+                    (750/2 -helper_preview_frame.get_width()/2+4,
+                    300/2 -helper_preview_frame.get_height()/2+4))
+
+        screen.fill((0, 95, 65))
+        screen.blit(relic,(randx,randy))
+        for i in demo_enemies:
+            i.demo()
+        demo_enemies.draw(screen)
+        screen.blit(windy_cloud.image,windy_cloud.position,windy_cloud.frame)
+        windy_cloud.update()
+        screen.blit(corner_flair,(0,467))
+        screen.blit(botright_corner_bush,(967,467))
+        screen.blit(title_text.text_obj,((screen_width/2 -title_text.
+            text_obj.get_width()/2,screen_height -title_text.text_obj.get_height())))
+        multiplayer_info.draw(screen)
+        self.buttons.draw(screen)
+
+        mouse_pos=pygame.mouse.get_pos()
+        for i in self.buttons:
+            if i in self.button_order:
+                if not self.button_focus==self.button_order.index(i) or self.current_button_order!=self.button_order:
+                    if i.depressed:
+                        i.image_swap()
+                        i.clicked()
+                if i.rect.collidepoint(mouse_pos):
+                    self.button_focus=self.button_order.index(i)
+                    self.current_button_order=self.button_order
+            if i in self.helper_buttons:
+                if not self.button_focus==self.helper_buttons.index(i) or self.current_button_order!=self.helper_buttons:
+                    if i.depressed:
+                        i.image_swap()
+                        i.clicked()
+                if i.rect.collidepoint(mouse_pos):
+                    self.button_focus=self.helper_buttons.index(i)
+                    self.current_button_order=self.helper_buttons
+        if self.current_button_order[self.button_focus] in self.button_order:
+            screen.blit(
+                button_select_left.text_obj,
+                (self.current_button_order[self.button_focus].rect.left-button_select_left.width,
+                self.current_button_order[self.button_focus].rect.centery-button_select_left.height/2))
+            screen.blit(
+                button_select_right.text_obj,
+                (self.current_button_order[self.button_focus].rect.right,
+                self.current_button_order[self.button_focus].rect.centery-button_select_right.height/2))
+        if self.current_button_order[self.button_focus] in self.helper_buttons:
+            screen.blit(
+                select_frame,(self.current_button_order[self.button_focus].rect.left-4,
+                self.current_button_order[self.button_focus].rect.y-4))
+        current_button=self.current_button_order[self.button_focus]
+
+        for event in game.events:
+            comfunc.quit(event)
+            if event.type == MOUSEBUTTONDOWN:
+                for i in self.buttons:
+                    if i.rect.collidepoint(mouse_pos):
+                        i.image_swap()
+                        i.clicked()
+            if event.type==MOUSEBUTTONUP:
+                for i in self.buttons:
+                    if i.rect.collidepoint(mouse_pos):
+                        if self.current_button_order[self.button_focus] in self.helper_buttons:
+                            self.selected_helper=i
+                        if i.depressed:
+                            temp=i.activate()
+                            if hasattr(i,'state_change'):
+                                i.state_change()
+                            if temp:
+                                self.focus=temp
+                                self.main_loaded=False
+                    if i.depressed:
+                        i.depressed=False
+                        i.image_swap()
+            elif event.type == JOYBUTTONDOWN:
+                if event.__dict__['button']==0 or event.__dict__['button']==7:
+                    current_button.image_swap()
+                    current_button.clicked()
+
+            elif event.type == JOYBUTTONUP:
+                if event.__dict__['button']==0:
+                    if current_button.depressed:
+                        current_button.image_swap()
+                        current_button.clicked()
+                        if hasattr(current_button,'state_change'):
+                                current_button.state_change()
+                        temp=self.button_order[self.button_focus].activate()
+                        if temp:
+                            self.focus=temp
+                            self.main_loaded=False
+                if event.__dict__['button']==1:
+                    self.focus='main'
+                    self.main_loaded=False
+
+            elif event.type == JOYHATMOTION:
+                if event.__dict__['hat']==0:
+                    if event.__dict__['value'][0]==1:
+                        self.button_focus+=1
+                        if self.button_focus>len(self.current_button_order)-1:
+                            self.button_focus=0
+                    if event.__dict__['value'][0]==-1:
+                        self.button_focus-=1
+                        if self.button_focus<0:
+                            self.button_focus=len(self.current_button_order)-1
+                    if event.__dict__['value'][1]==1:
+                        self.current_button_order=self.helper_buttons
+                        if self.button_focus>=len(self.current_button_order):
+                            self.button_focus=len(self.current_button_order)-1
+                    if event.__dict__['value'][1]==-1:
+                        self.current_button_order=self.button_order
+                        if self.button_focus>=len(self.current_button_order):
+                            self.button_focus=len(self.current_button_order)-1
+            elif event.type == JOYAXISMOTION:
+                if not self.reset_joystick_needed and not comfunc.dead_zone(P1,single_axis=1):
+                    if event.__dict__['axis']==1:
+                        if event.__dict__['value']>.95:
+                            self.reset_joystick_needed=True
+                            self.button_focus+=1
+                            if self.button_focus>len(self.button_order)-1:
+                                self.button_focus=0
+                        if event.__dict__['value']<-.95:
+                            self.reset_joystick_needed=True
+                            self.button_focus-=1
+                            if self.button_focus<0:
+                                self.button_focus=len(self.button_order)-1
+                elif comfunc.dead_zone(P1,single_axis=1,tolerance=.85):
+                    self.reset_joystick_needed=False
+
+            if  self.focus=='main':
+                self.multiplayer_loaded=False
+                back_button.rect.x=280
+
     def credits(self):
         global P1
         if not self.credits_loaded:
@@ -931,7 +1115,7 @@ class GameElements():
             body1=text.TextHandler(standad_font,BLACK,'pygame 2.1.2 (SDL 2.0.18, Python 3.9.2) : 2022',25)
             body2=text.TextHandler(standad_font,BLACK,'Many assets from www.kenney.nl',25)
             body3=text.TextHandler(standad_font,BLACK,'Email me at calebstock91@gmail.com',25)
-            body4=text.TextHandler(standad_font,BLACK,'To my wife who usually put up with me  ',25)
+            body4=text.TextHandler(standad_font,BLACK,'To my wife who mostly put up with me  ',25)
             body5=text.TextHandler(standad_font,BLACK,'and let me play, thank you.',25)
             body6=text.TextHandler(standad_font,BLACK,'Caleb S.',25)
             credits_info.add_image(header.text_obj,(290,5))
@@ -1255,6 +1439,8 @@ class GameElements():
             self.save_select(delete=True)
         elif self.focus == 'main':
             self.main_menu()
+        elif self.focus == 'multiplayer':
+            self.multiplayer_menu()
         elif self.focus == 'settings':
             self.settings()
         elif self.focus == 'credits':
