@@ -4,9 +4,11 @@ import os.path
 from text import draw_text
 
 class Button(pygame.sprite.Sprite):
-    def __init__(self,image,clicked_image,pos,text='None',purpose=None,sl_text=False,text_size=35):
+    def __init__(self,image,clicked_image,pos,text='None',purpose=None,sl_text=False,text_size=35,name=None):
         super().__init__()
+        self.name=name
         self.text_size=text_size
+        self.name_label=self.render_name() if name else None
         self.data=False
         self.pos=pos
         self.x=pos[0]
@@ -42,6 +44,11 @@ class Button(pygame.sprite.Sprite):
         temp_text=text.TextHandler('media\VecnaBold.ttf',BLACK,self.text,self.text_size)
         self.image.blit(temp_text.text_obj,(self.rect[2]/2-temp_text.rect.width/2,self.rect[3]/2-temp_text.rect.height/2))
         self.clicked_image.blit(temp_text.text_obj,(self.rect[2]/2-temp_text.rect.width/2,self.rect[3]/2-temp_text.rect.height/2))
+
+    def render_name(self):
+        temp_text=text.TextHandler('media\VecnaBold.ttf',BLACK,self.name,self.text_size)
+        return temp_text.text_obj
+
 
     def save_load_text(self,sl_text):
         if sl_text:
@@ -130,6 +137,9 @@ class Label(pygame.sprite.Sprite):
         surf.blit(image,offset)
         self.image=self.original_image.copy()
         self.image.blit(surf,clip_rect)
+
+    def clear(self):
+        self.image=self.original_image.copy()
 
     def draw(self,screen):
         screen.blit(self.image,self.rect.topleft)

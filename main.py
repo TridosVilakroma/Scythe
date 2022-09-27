@@ -43,7 +43,9 @@ randy=randint(0,500)
 no_selection=pygame.image.load(r"media\multiplayer_icons\no_selection.png").convert_alpha()
 helper_preview_frame=pygame.image.load(r"media\multiplayer_icons\icon_frame.png").convert_alpha()
 select_frame=pygame.image.load(r"media\multiplayer_icons\select_frame.png").convert_alpha()
+locked_icon=pygame.image.load(r"media\multiplayer_icons\locked.png").convert_alpha()
 mami_icon=pygame.image.load(r"media\multiplayer_icons\mami.png").convert_alpha()
+shep_icon=pygame.image.load(r"media\multiplayer_icons\shep.png").convert_alpha()
 #button loading
 start_button=gui.Button(pygame.image.load(r'media\gui\main_menu\buttonLong_beige.png').convert_alpha(),
     pygame.image.load(r'media\gui\main_menu\buttonLong_beige_pressed.png').convert_alpha(),(720,100),'->Play<-','save_select')
@@ -67,6 +69,10 @@ back_button=gui.Button(pygame.image.load(r'media\gui\main_menu\buttonLong_beige.
     pygame.image.load(r'media\gui\main_menu\buttonLong_beige_pressed.png').convert_alpha(),(375,350),'Back','main')
 del_button=gui.Button(pygame.image.load(r'media\gui\main_menu\buttonLong_beige.png').convert_alpha(),
     pygame.image.load(r'media\gui\main_menu\buttonLong_beige_pressed.png').convert_alpha(),(625,350),'Delete Save','delete_save')
+multiplayer_back_button=gui.Button(pygame.image.load(r'media\gui\main_menu\buttonLong_beige.png').convert_alpha(),
+    pygame.image.load(r'media\gui\main_menu\buttonLong_beige_pressed.png').convert_alpha(),(375,350),'Back','main')
+multiplayer_start_button=gui.Button(pygame.image.load(r'media\gui\main_menu\buttonLong_beige.png').convert_alpha(),
+    pygame.image.load(r'media\gui\main_menu\buttonLong_beige_pressed.png').convert_alpha(),(625,350),'Play','save_select')
 #gui loading
 player_menu_bg=pygame.transform.scale(pygame.image.load(r'media\gui\main_menu\panel_beige.png').convert_alpha(),(int(screen_width*.6),int(screen_height*.75)))
 player_menu_details=gui.Label(pygame.transform.scale(pygame.image.load(r'media\gui\main_menu\panel_beigeLight.png').convert_alpha(),(310,250)),(587,330),'')
@@ -156,6 +162,8 @@ class GameElements():
         self.game_over_blur=0
         self.alpha=255
         self.button_action=False
+        self.is_multiplayer=False
+        self.companion=None
 
     def settings_setter(self):
         data=self.settings_data
@@ -586,6 +594,7 @@ class GameElements():
 
     def save_select(self,delete=False):
         global P1,scyman
+        companion_text=text.TextHandler(standad_font,BLACK,'Companion:  No',25)
         if not self.save_select_loaded:
             self.save_select_loaded=True
             self.buttons=pygame.sprite.Group()
@@ -642,6 +651,12 @@ class GameElements():
                 screen.blit(no_select_save_delete.text_obj,((screen_width/2 -no_select_save_delete.
                 text_obj.get_width()/2,screen_height/4 -no_select_save_delete.text_obj.get_height())))
                 self.current_button_order=self.button_order_subset
+        else:
+            screen.blit(companion_text.text_obj,(700,25))
+            if hasattr(game,'selected_helper'):
+                if hasattr(self.selected_helper,'image'):
+                    screen.blit(helper_preview_frame,(828,21))
+                    screen.blit(self.selected_helper.image,(832,25))
 
 
         mouse_pos=pygame.mouse.get_pos()
@@ -941,28 +956,45 @@ class GameElements():
 
     def multiplayer_menu(self):
         global P1
+
+        mami_button=gui.Button(mami_icon,mami_icon,(455,150),'',text_size=28,name='Mami')
+        shep_button=gui.Button(shep_icon,shep_icon,(455,185),'',text_size=28,name='Shep')
+        locked_button1=gui.Button(locked_icon,locked_icon,(545,185),'',text_size=28,name='Locked')
+        locked_button2=gui.Button(locked_icon,locked_icon,(545,150),'',text_size=28,name='Locked')
+        locked_button3=gui.Button(locked_icon,locked_icon,(500,122),'',text_size=28,name='Locked')
+        locked_button4=gui.Button(locked_icon,locked_icon,(580,165),'',text_size=28,name='Locked')
+        locked_button5=gui.Button(locked_icon,locked_icon,(420,165),'',text_size=28,name='Locked')
+        locked_button6=gui.Button(locked_icon,locked_icon,(500,211),'',text_size=28,name='Locked')
+        header=text.TextHandler(standad_font,BLACK,'Multiplayer',50)
+        helper_text=text.TextHandler(standad_font,BLACK,'Select Companion',25)
         if not self.multiplayer_loaded:
             self.selected_helper=no_selection
-            mami_button=gui.Button(mami_icon,mami_icon,(450,150),'')
-            header=text.TextHandler(standad_font,BLACK,'Multiplayer',50)
-            multiplayer_info.add_image(helper_preview_frame,
-                (750/2 -helper_preview_frame.get_width()/2,
-                300/2 -helper_preview_frame.get_height()/2))
-            # multiplayer_info.add_image(no_selection,
-            #     (750/2 -helper_preview_frame.get_width()/2+4,
-            #     300/2 -helper_preview_frame.get_height()/2+4))
-            multiplayer_info.add_image(header.text_obj,(290,5))
             self.button_0_reset=False
             self.button_7_reset=False
             self.multiplayer_loaded=True
             self.buttons=pygame.sprite.Group()
-            back_button.rect.x=400
-            self.buttons.add(back_button)
+            self.buttons.add(multiplayer_back_button)
+            self.buttons.add(multiplayer_start_button)
             self.buttons.add(mami_button)
+            self.buttons.add(shep_button)
+            self.buttons.add(locked_button1)
+            self.buttons.add(locked_button2)
+            self.buttons.add(locked_button3)
+            self.buttons.add(locked_button4)
+            self.buttons.add(locked_button5)
+            self.buttons.add(locked_button6)
             self.button_order=[
-                back_button]
+                multiplayer_back_button,
+                multiplayer_start_button]
             self.helper_buttons=[
-                mami_button
+                mami_button,
+                shep_button,
+                locked_button1,
+                locked_button2,
+                locked_button3,
+                locked_button4,
+                locked_button5,
+                locked_button6,
             ]
             self.current_button_order=self.button_order
             self.button_focus=0
@@ -972,10 +1004,21 @@ class GameElements():
                     i.image_swap()
                     i.clicked()
 
+        multiplayer_info.clear()
+        multiplayer_info.add_image(helper_preview_frame,
+            (750/2 -helper_preview_frame.get_width()/2,
+            300/2 -helper_preview_frame.get_height()/2))
+        multiplayer_info.add_image(header.text_obj,(250,5))
+        multiplayer_info.add_image(helper_text.text_obj,(285,50))
+
         if hasattr(self.selected_helper,'image'):
             multiplayer_info.add_image(self.selected_helper.image,
                     (750/2 -helper_preview_frame.get_width()/2+4,
                     300/2 -helper_preview_frame.get_height()/2+4))
+            if self.selected_helper.name_label:
+                multiplayer_info.add_image(self.selected_helper.name_label,
+                        (750/2 -self.selected_helper.name_label.get_width()/2,
+                        300/2 -helper_preview_frame.get_height()/2+100))
         else:
             multiplayer_info.add_image(self.selected_helper,
                     (750/2 -helper_preview_frame.get_width()/2+4,
@@ -1104,9 +1147,8 @@ class GameElements():
                 elif comfunc.dead_zone(P1,single_axis=1,tolerance=.85):
                     self.reset_joystick_needed=False
 
-            if  self.focus=='main':
-                self.multiplayer_loaded=False
-                back_button.rect.x=280
+        if  self.focus!='multiplayer':
+            self.multiplayer_loaded=False
 
     def credits(self):
         global P1
