@@ -983,19 +983,25 @@ class GameElements():
             self.buttons.add(locked_button4)
             self.buttons.add(locked_button5)
             self.buttons.add(locked_button6)
+
             self.button_order=[
                 multiplayer_back_button,
                 multiplayer_start_button]
-            self.helper_buttons=[
-                mami_button,
-                shep_button,
-                locked_button1,
-                locked_button2,
-                locked_button3,
-                locked_button4,
+
+            self.helper_buttons_top=[
                 locked_button5,
+                mami_button,
+                locked_button3,
+                locked_button2,
+                locked_button4]
+
+            self.helper_buttons_bottom=[
+                locked_button5,
+                shep_button,
                 locked_button6,
-            ]
+                locked_button1,
+                locked_button4]
+
             self.current_button_order=self.button_order
             self.button_focus=0
             self.reset_joystick_needed=False
@@ -1048,14 +1054,22 @@ class GameElements():
                 if i.rect.collidepoint(mouse_pos):
                     self.button_focus=self.button_order.index(i)
                     self.current_button_order=self.button_order
-            if i in self.helper_buttons:
-                if not self.button_focus==self.helper_buttons.index(i) or self.current_button_order!=self.helper_buttons:
+            if i in self.helper_buttons_top:
+                if not self.button_focus==self.helper_buttons_top.index(i) or self.current_button_order!=self.helper_buttons_top:
                     if i.depressed:
                         i.image_swap()
                         i.clicked()
                 if i.rect.collidepoint(mouse_pos):
-                    self.button_focus=self.helper_buttons.index(i)
-                    self.current_button_order=self.helper_buttons
+                    self.button_focus=self.helper_buttons_top.index(i)
+                    self.current_button_order=self.helper_buttons_top
+            if i in self.helper_buttons_bottom:
+                if not self.button_focus==self.helper_buttons_bottom.index(i) or self.current_button_order!=self.helper_buttons_bottom:
+                    if i.depressed:
+                        i.image_swap()
+                        i.clicked()
+                if i.rect.collidepoint(mouse_pos):
+                    self.button_focus=self.helper_buttons_bottom.index(i)
+                    self.current_button_order=self.helper_buttons_bottom
         if self.current_button_order[self.button_focus] in self.button_order:
             screen.blit(
                 button_select_left.text_obj,
@@ -1065,7 +1079,7 @@ class GameElements():
                 button_select_right.text_obj,
                 (self.current_button_order[self.button_focus].rect.right,
                 self.current_button_order[self.button_focus].rect.centery-button_select_right.height/2))
-        if self.current_button_order[self.button_focus] in self.helper_buttons:
+        if self.current_button_order[self.button_focus] in self.helper_buttons_top or self.current_button_order[self.button_focus] in self.helper_buttons_bottom:
             screen.blit(
                 select_frame,(self.current_button_order[self.button_focus].rect.left-4,
                 self.current_button_order[self.button_focus].rect.y-4))
@@ -1081,7 +1095,7 @@ class GameElements():
             if event.type==MOUSEBUTTONUP:
                 for i in self.buttons:
                     if i.rect.collidepoint(mouse_pos):
-                        if self.current_button_order[self.button_focus] in self.helper_buttons:
+                        if self.current_button_order[self.button_focus] in self.helper_buttons_top or self.current_button_order[self.button_focus] in self.helper_buttons_bottom:
                             self.selected_helper=i
                         if i.depressed:
                             temp=i.activate()
@@ -1105,10 +1119,15 @@ class GameElements():
                         current_button.clicked()
                         if hasattr(current_button,'state_change'):
                                 current_button.state_change()
-                        temp=self.button_order[self.button_focus].activate()
-                        if temp:
-                            self.focus=temp
-                            self.main_loaded=False
+                        if self.current_button_order[self.button_focus] in self.helper_buttons_top or self.current_button_order[self.button_focus] in self.helper_buttons_bottom:
+                            temp=self.helper_buttons[self.button_focus]
+                            if temp:
+                                self.selected_helper=temp
+                        else:
+                            temp=self.button_order[self.button_focus].activate()
+                            if temp:
+                                self.focus=temp
+                                self.main_loaded=False
                 if event.__dict__['button']==1:
                     self.focus='main'
                     self.main_loaded=False
@@ -1124,11 +1143,41 @@ class GameElements():
                         if self.button_focus<0:
                             self.button_focus=len(self.current_button_order)-1
                     if event.__dict__['value'][1]==1:
-                        self.current_button_order=self.helper_buttons
+                        if self.current_button_order==self.button_order:
+                            self.current_button_order=self.helper_buttons_bottom
+                            self.button_focus=2
+                        elif self.current_button_order==self.helper_buttons_bottom:
+                            self.current_button_order=self.helper_buttons_top
+                            if self.button_focus==0:
+                                self.button_focus+=1
+                            elif self.button_focus==4:
+                                self.button_focus-=1
+                        elif self.current_button_order==self.helper_buttons_top:
+                            if self.button_focus==0 or self.button_focus==1:
+                                self.button_focus+=1
+                            elif self.button_focus==2:
+                                self.current_button_order=self.button_order
+                            elif self.button_focus==3 or self.button_focus==4:
+                                self.button_focus-=1
                         if self.button_focus>=len(self.current_button_order):
                             self.button_focus=len(self.current_button_order)-1
                     if event.__dict__['value'][1]==-1:
-                        self.current_button_order=self.button_order
+                        if self.current_button_order==self.button_order:
+                            self.current_button_order=self.helper_buttons_top
+                            self.button_focus=2
+                        elif self.current_button_order==self.helper_buttons_top:
+                            self.current_button_order=self.helper_buttons_bottom
+                            if self.button_focus==0:
+                                self.button_focus+=1
+                            elif self.button_focus==4:
+                                self.button_focus-=1
+                        elif self.current_button_order==self.helper_buttons_bottom:
+                            if self.button_focus==0 or self.button_focus==1:
+                                self.button_focus+=1
+                            elif self.button_focus==2:
+                                self.current_button_order=self.button_order
+                            elif self.button_focus==3 or self.button_focus==4:
+                                self.button_focus-=1
                         if self.button_focus>=len(self.current_button_order):
                             self.button_focus=len(self.current_button_order)-1
             elif event.type == JOYAXISMOTION:
