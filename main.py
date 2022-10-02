@@ -12,7 +12,7 @@ canvas = pygame.Surface((canvas_width,canvas_height))
 pygame.display.set_caption('Scythe')
 
 
-import time, random, sys,text,enemies,equip,gui,boss
+import time, random, sys,text,enemies,equip,gui,boss,companion
 import configparser
 from sprite_animation import Spritesheet
 from pygame.constants import JOYAXISMOTION, JOYBUTTONDOWN, JOYBUTTONUP, JOYHATMOTION, MOUSEBUTTONDOWN,MOUSEBUTTONUP
@@ -22,12 +22,14 @@ import level_loader as lev
 from color_palette import *
 from random import randint
 import controller as con
+from controller import ControllerReferences as refcon
 from save_data import data_IO as dio
 
 
 player.screen = screen
 enemies.screen=screen
 boss.screen=screen
+companion.screen=screen
 
 
 #image loading
@@ -73,6 +75,8 @@ multiplayer_back_button=gui.Button(pygame.image.load(r'media\gui\main_menu\butto
     pygame.image.load(r'media\gui\main_menu\buttonLong_beige_pressed.png').convert_alpha(),(375,350),'Back','main')
 multiplayer_start_button=gui.Button(pygame.image.load(r'media\gui\main_menu\buttonLong_beige.png').convert_alpha(),
     pygame.image.load(r'media\gui\main_menu\buttonLong_beige_pressed.png').convert_alpha(),(625,350),'Play','save_select')
+controls_back_button=gui.Button(pygame.image.load(r'media\gui\main_menu\buttonLong_beige.png').convert_alpha(),
+    pygame.image.load(r'media\gui\main_menu\buttonLong_beige_pressed.png').convert_alpha(),(495,350),'Back','settings')
 #gui loading
 player_menu_bg=pygame.transform.scale(pygame.image.load(r'media\gui\main_menu\panel_beige.png').convert_alpha(),(int(screen_width*.6),int(screen_height*.75)))
 player_menu_details=gui.Label(pygame.transform.scale(pygame.image.load(r'media\gui\main_menu\panel_beigeLight.png').convert_alpha(),(310,250)),(587,330),'')
@@ -93,6 +97,8 @@ player_menu_save=gui.Button(pygame.image.load(r'media\gui\main_menu\buttonLong_b
     pygame.image.load(r'media\gui\main_menu\buttonLong_beige_pressed.png').convert_alpha(),(320,380),'Save Game','save')
 settings_info=gui.Label(pygame.transform.scale(pygame.image.load(r'media\gui\main_menu\parchment_alpha.png').convert_alpha(),(750,300)),
                         (500,300),"")
+controls_info=gui.Label(pygame.transform.scale(pygame.image.load(r'media\gui\main_menu\parchment_alpha.png').convert_alpha(),(750,300)),
+                        (500,300),"")
 credits_info=gui.Label(pygame.transform.scale(pygame.image.load(r'media\gui\main_menu\parchment_alpha.png').convert_alpha(),(750,300)),
                         (500,300),"")
 multiplayer_info=gui.Label(pygame.transform.scale(pygame.image.load(r'media\gui\main_menu\parchment_alpha.png').convert_alpha(),(750,300)),
@@ -112,12 +118,15 @@ for i in range(4):
 scyman=player.PlayerOne(0,0)
 enemies.player=scyman
 boss.player=scyman
+companion.player=scyman
 scarecrows=pygame.sprite.Group()
 player.scarecrows=scarecrows
 player.structures=structures
+companion.structures=structures
 equip.scarecrows=scarecrows
 enemies.enemies=scarecrows
 boss.enemies=scarecrows
+companion.scarecrows=scarecrows
 
 
 #text loading
@@ -157,13 +166,14 @@ class GameElements():
         self.game_over_loaded=False
         self.credits_loaded=False
         self.settings_loaded=False
+        self.controls_loaded=False
         self.multiplayer_loaded=False
         self.save_slot=0
         self.game_over_blur=0
         self.alpha=255
         self.button_action=False
         self.is_multiplayer=False
-        self.companion=None
+        self.companion=False
 
     def settings_setter(self):
         data=self.settings_data
@@ -173,7 +183,10 @@ class GameElements():
 
     def start_screen(self):
         global P1,scyman
-        P1=con.joy_init()
+        P1=con.joy_init(1)
+        P2=con.joy_init(2)
+        con.ControllerReferences.P1=P1
+        con.ControllerReferences.P2=P2
         if self.loading:
             self.loading=False
         for event in game.events:
@@ -808,6 +821,10 @@ class GameElements():
             settings_info.add_image(header.text_obj,(290,5))
             settings_info.add_image(rumble_text.text_obj,(450,75))
             rumble_toggle=gui.BoolButton((700,110),state=self.set_data.getboolean('rumble','rumble'))
+            controls_button=gui.Button(
+                pygame.image.load(r'media\gui\main_menu\buttonLong_beige.png').convert_alpha(),
+                pygame.image.load(r'media\gui\main_menu\buttonLong_beige_pressed.png').convert_alpha(),
+                (300,110),'Controls','controls')
             self.rumble_toggle=rumble_toggle
             self.button_0_reset=False
             self.button_7_reset=False
@@ -816,10 +833,12 @@ class GameElements():
             back_button.rect.x=400
             self.buttons.add(back_button)
             self.buttons.add(rumble_toggle)
+            self.buttons.add(controls_button)
             self.button_order=[
                 back_button]
             self.settings_buttons=[
-                rumble_toggle
+                rumble_toggle,
+                controls_button
             ]
             self.current_button_order=self.button_order
             self.button_focus=0
@@ -946,13 +965,158 @@ class GameElements():
                 elif comfunc.dead_zone(P1,single_axis=1,tolerance=.85):
                     self.reset_joystick_needed=False
 
-            if  self.focus=='main':
-                self.set_data.set('rumble','rumble',str(self.rumble_toggle.state))
-                with open('settings.ini','w') as configfile:
-                    self.set_data.write(configfile)
-                self.settings_setter()
-                self.settings_loaded=False
-                back_button.rect.x=280
+        if  self.focus!='settings':
+            self.set_data.set('rumble','rumble',str(self.rumble_toggle.state))
+            with open('settings.ini','w') as configfile:
+                self.set_data.write(configfile)
+            self.settings_setter()
+            self.settings_loaded=False
+            back_button.rect.x=280
+
+    def controls(self):
+        global P1
+        if not self.controls_loaded:
+            self.controls_loaded=True
+            self.set_data = configparser.ConfigParser()
+            self.set_data.read('settings.ini')
+            header=text.TextHandler(standad_font,BLACK,'Controller Setup',50)
+            controls_info.add_image(header.text_obj,(180,5))
+            self.button_0_reset=False
+            self.button_7_reset=False
+            self.buttons=pygame.sprite.Group()
+            self.buttons.add(controls_back_button)
+            self.button_order=[
+                controls_back_button]
+            self.settings_buttons=[
+            ]
+            self.current_button_order=self.button_order
+            self.button_focus=0
+            self.reset_joystick_needed=False
+            for i in self.buttons:
+                if i.depressed:
+                    i.image_swap()
+                    i.clicked()
+
+        screen.fill((0, 95, 65))
+        screen.blit(relic,(randx,randy))
+        for i in demo_enemies:
+            i.demo()
+        demo_enemies.draw(screen)
+        screen.blit(windy_cloud.image,windy_cloud.position,windy_cloud.frame)
+        windy_cloud.update()
+        screen.blit(corner_flair,(0,467))
+        screen.blit(botright_corner_bush,(967,467))
+        screen.blit(title_text.text_obj,((screen_width/2 -title_text.
+            text_obj.get_width()/2,screen_height -title_text.text_obj.get_height())))
+        controls_info.draw(screen)
+        self.buttons.draw(screen)
+
+        mouse_pos=pygame.mouse.get_pos()
+        for i in self.buttons:
+            if i in self.button_order:
+                if not self.button_focus==self.button_order.index(i) or self.current_button_order!=self.button_order:
+                    if i.depressed:
+                        i.image_swap()
+                        i.clicked()
+                if i.rect.collidepoint(mouse_pos):
+                    self.button_focus=self.button_order.index(i)
+                    self.current_button_order=self.button_order
+            if i in self.settings_buttons:
+                if not self.button_focus==self.settings_buttons.index(i) or self.current_button_order!=self.settings_buttons:
+                    if i.depressed:
+                        i.image_swap()
+                        i.clicked()
+                if i.rect.collidepoint(mouse_pos):
+                    self.button_focus=self.settings_buttons.index(i)
+                    self.current_button_order=self.settings_buttons
+        if self.current_button_order[self.button_focus] in self.button_order:
+            screen.blit(
+                button_select_left.text_obj,
+                (self.current_button_order[self.button_focus].rect.left-button_select_left.width,
+                self.current_button_order[self.button_focus].rect.centery-button_select_left.height/2))
+        screen.blit(
+            button_select_right.text_obj,
+            (self.current_button_order[self.button_focus].rect.right,
+            self.current_button_order[self.button_focus].rect.centery-button_select_right.height/2))
+        current_button=self.current_button_order[self.button_focus]
+
+        for event in game.events:
+            comfunc.quit(event)
+            if event.type == MOUSEBUTTONDOWN:
+                for i in self.buttons:
+                    if i.rect.collidepoint(mouse_pos):
+                        i.image_swap()
+                        i.clicked()
+            if event.type==MOUSEBUTTONUP:
+                for i in self.buttons:
+                    if i.rect.collidepoint(mouse_pos):
+                        if i.depressed:
+                            temp=i.activate()
+                            if hasattr(i,'state_change'):
+                                i.state_change()
+                            if temp:
+                                self.focus=temp
+                                self.main_loaded=False
+                    if i.depressed:
+                        i.depressed=False
+                        i.image_swap()
+            elif event.type == JOYBUTTONDOWN:
+                if event.__dict__['button']==0 or event.__dict__['button']==7:
+                    current_button.image_swap()
+                    current_button.clicked()
+
+            elif event.type == JOYBUTTONUP:
+                if event.__dict__['button']==0:
+                    if current_button.depressed:
+                        current_button.image_swap()
+                        current_button.clicked()
+                        if hasattr(current_button,'state_change'):
+                                current_button.state_change()
+                        temp=self.button_order[self.button_focus].activate()
+                        if temp:
+                            self.focus=temp
+                            self.main_loaded=False
+                if event.__dict__['button']==1:
+                    self.focus='settings'
+                    self.main_loaded=False
+
+            elif event.type == JOYHATMOTION:
+                if event.__dict__['hat']==0:
+                    if event.__dict__['value'][0]==1:
+                        self.button_focus+=1
+                        if self.button_focus>len(self.current_button_order)-1:
+                            self.button_focus=0
+                    if event.__dict__['value'][0]==-1:
+                        self.button_focus-=1
+                        if self.button_focus<0:
+                            self.button_focus=len(self.current_button_order)-1
+                    if event.__dict__['value'][1]==1:
+                        self.current_button_order=self.settings_buttons
+                        if self.button_focus>=len(self.current_button_order):
+                            self.button_focus=len(self.current_button_order)-1
+                    if event.__dict__['value'][1]==-1:
+                        self.current_button_order=self.button_order
+                        if self.button_focus>=len(self.current_button_order):
+                            self.button_focus=len(self.current_button_order)-1
+            elif event.type == JOYAXISMOTION:
+                if not self.reset_joystick_needed and not comfunc.dead_zone(P1,single_axis=1):
+                    if event.__dict__['axis']==1:
+                        if event.__dict__['value']>.95:
+                            self.reset_joystick_needed=True
+                            self.button_focus+=1
+                            if self.button_focus>len(self.button_order)-1:
+                                self.button_focus=0
+                        if event.__dict__['value']<-.95:
+                            self.reset_joystick_needed=True
+                            self.button_focus-=1
+                            if self.button_focus<0:
+                                self.button_focus=len(self.button_order)-1
+                elif comfunc.dead_zone(P1,single_axis=1,tolerance=.85):
+                    self.reset_joystick_needed=False
+
+            if  self.focus!='controls':
+                self.controls_loaded=False
+                # back_button.rect.x=280
 
     def multiplayer_menu(self):
         global P1
@@ -1198,6 +1362,8 @@ class GameElements():
 
         if  self.focus!='multiplayer':
             self.multiplayer_loaded=False
+            if hasattr(self.selected_helper,'image'):
+                self.companion=eval(f'companion.{self.selected_helper.name}()')
 
     def credits(self):
         global P1
@@ -1297,8 +1463,7 @@ class GameElements():
                             self.focus=temp
                             self.main_loaded=False
                 if event.__dict__['button']==1:
-
-                    self.focus='start'
+                    self.focus='main'
                     self.main_loaded=False
             elif event.type == JOYHATMOTION:
                 if event.__dict__['hat']==0:
@@ -1326,7 +1491,7 @@ class GameElements():
                 elif comfunc.dead_zone(P1,single_axis=1,tolerance=.85):
                     self.reset_joystick_needed=False
 
-            if  self.focus=='main':
+            if  self.focus!='credits':
                 self.credits_loaded=False
                 back_button.rect.x=280
 
@@ -1372,6 +1537,11 @@ class GameElements():
         boss.player1pos=(scyman.x,scyman.y)
         boss.spawned_loot.draw(self.canvas)
         scyman.update(P1,Time.delta())
+        if self.companion:
+            companion.canvas=self.canvas
+            # self.companion.rect.center=scyman.rect.topleft
+            self.companion.update()
+
         for i in scarecrows:
             i.update(self.canvas,scyman,Time.delta())
         structures.draw(self.canvas)
@@ -1534,6 +1704,8 @@ class GameElements():
             self.multiplayer_menu()
         elif self.focus == 'settings':
             self.settings()
+        elif self.focus == 'controls':
+            self.controls()
         elif self.focus == 'credits':
             self.credits()
         elif self.focus == 'save_select':
@@ -1561,9 +1733,11 @@ player.game=game
 enemies.game=game
 con.game=game
 boss.game=game
+companion.game=game
 player.canvas=game.canvas
 enemies.canvas=game.canvas
 boss.canvas=game.canvas
+companion.canvas=game.canvas
 delta_ref=time.time()
 while True:
     game.events=pygame.event.get()
