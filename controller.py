@@ -9,23 +9,12 @@ class ControllerReferences:
         if game.settings_data['rumble']:
             controller.rumble(low_frequency, high_frequency, duration)
 
-def joy_init():
-    joysticks = (pygame.joystick.get_count())
-    if joysticks >0:
-        P1 = pygame.joystick.Joystick(0)
-        if joysticks >1:
-            P2 = pygame.joystick.Joystick(1)
-    try:
-        if joysticks >1:
-            ControllerReferences.P1=P1
-            ControllerReferences.P2=P2
-            return P1,P2
-        else:
-            ControllerReferences.P1=P1
-            return P1
-
-    except UnboundLocalError:
-        return None
+def joy_init(controller_position):
+    if (pygame.joystick.get_count()>=controller_position):
+        con = pygame.joystick.Joystick(controller_position-1)
+        return con
+    else:
+        return False
 
 def joy_angle(controller,stick_num):
     vec=pygame.math.Vector2(controller.get_axis(stick_num[0]),
@@ -33,3 +22,7 @@ def joy_angle(controller,stick_num):
     radius, angle = vec.as_polar()
     adjusted_angle = (angle+90) % 360
     return adjusted_angle
+
+
+class  ControllerTranslator:
+    pass
