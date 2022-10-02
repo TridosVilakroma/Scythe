@@ -616,8 +616,8 @@ class Omnivine(pygame.sprite.Sprite):
         chance=randint(1,175)
         if chance==1:
             self.demo_dest=pygame.Vector2(
-                random.randrange(max(50,self.x-50),min(950,self.x+50)),
-                random.randrange(max(50,self.y-50),min(450,self.y+50)))
+                random.randrange(max(50,self.rect.centerx-50),min(950,self.rect.centerx+50)),
+                random.randrange(max(50,self.rect.centery-50),min(450,self.rect.centery+50)))
 
         v=comfunc.vector_from_coords(self.rect.center,self.demo_dest)
         if v.length_squared()>0:
