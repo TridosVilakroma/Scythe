@@ -766,6 +766,7 @@ class Nid(pygame.sprite.Sprite):
         self.webs=pygame.sprite.Group()
         self.dying=False
         self.jump_time=Time.Period()
+        self.jump_time.grow(2.4)
         self.jump_particles=[]
 
     @property
