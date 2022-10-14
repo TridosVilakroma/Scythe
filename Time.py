@@ -49,10 +49,10 @@ class Period:
             return True if self.age()>=start else False
 
     def grow(self,value):
-        self.age+=value
+        self.origin-=value
 
     def regress(self,value):
-        self.age-=value
+        self.origin+=value
 
     def interval(self,frequency,precision=.02):
         '''return boolean on call;True at given frequency(seconds)
