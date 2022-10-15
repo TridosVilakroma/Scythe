@@ -9,6 +9,7 @@ from controller import ControllerReferences as refcon
 import Time
 
 game=None#variable overwritten in main to allow blit access from this module
+scyman=None#variable overwritten in main to allow blit access from this module
 screen=None#variable overwritten in main to allow blit access from this module
 canvas=None#variable overwritten in main to allow blit access from this module
 scarecrows=None#variable overwritten in main to add enemy access here
@@ -50,7 +51,7 @@ class Companion(pygame.sprite.Sprite):
 
     def collide(self):
         collision_tolerence=10
-        #screen boundaries
+        #canvas boundaries
         if self.x_precise<32:
             self.x_precise=32
         if self.x_precise>2936:
@@ -59,6 +60,39 @@ class Companion(pygame.sprite.Sprite):
             self.y_precise=32
         if self.y_precise>1436:
             self.y_precise=1436
+        #confined to player ones screen
+        #right edge
+        if int(game.canvas_pos[0])<=-2031:
+                if self.x<2032:
+                    self.x=2032
+                    self.x_precise=2032
+        elif self.x<scyman.x-484:
+            self.x=scyman.x-484
+            self.x_precise=scyman.x-484
+        #left side
+        if int(game.canvas_pos[0])>=31:
+                if self.x>936:
+                    self.x=936
+                    self.x_precise=936
+        elif self.x>scyman.x+484:
+                self.x=scyman.x+484
+                self.x_precise=scyman.x+484
+        #top side
+        if int(game.canvas_pos[1])>=31:
+                if self.y>436:
+                    self.y=436
+                    self.y_precise=436
+        elif self.y>scyman.y+234:
+            self.y=scyman.y+234
+            self.y_precise=scyman.y+234
+        #bottom side
+        if int(game.canvas_pos[1])<=-1031:
+                if self.y<1032:
+                    self.y=1032
+                    self.y_precise=1032
+        elif self.y<scyman.y-234:
+            self.y=scyman.y-234
+            self.y_precise=scyman.y-234
 
     def collision_check(self,xy,old_pos):
         for i in structures:
