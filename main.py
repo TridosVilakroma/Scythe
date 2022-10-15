@@ -118,7 +118,7 @@ for i in range(4):
 scyman=player.PlayerOne(0,0)
 enemies.player=scyman
 boss.player=scyman
-companion.player=scyman
+companion.scyman=scyman
 scarecrows=pygame.sprite.Group()
 player.scarecrows=scarecrows
 player.structures=structures
@@ -183,10 +183,12 @@ class GameElements():
 
     def start_screen(self):
         global P1,scyman
+
         P1=con.joy_init(1)
-        P2=con.joy_init(2)
         con.ControllerReferences.P1=P1
-        con.ControllerReferences.P2=P2
+        if pygame.joystick.get_count()>1:
+            P2=con.joy_init(2)
+            con.ControllerReferences.P2=P2
         if self.loading:
             self.loading=False
         for event in game.events:
@@ -197,7 +199,15 @@ class GameElements():
             elif event.type == MOUSEBUTTONDOWN:
                 self.focus='main'
             elif event.type == JOYBUTTONDOWN:
-                if not  event.__dict__['button']==1:
+                player_id=event.__dict__['instance_id']
+                if P1.get_instance_id()==player_id:
+                    pass
+                else:
+                    if P2.get_instance_id()==player_id:
+                        P1,P2=P2,P1
+                        con.ControllerReferences.P1=P1
+                        con.ControllerReferences.P2=P2
+                if not event.__dict__['button']==1:
                     if P1:
                         self.switch = False
                         self.focus='main'

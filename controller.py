@@ -3,8 +3,8 @@ import pygame
 pygame.joystick.init()
 game=None#variable overwritten in main
 class ControllerReferences:
-    P1=None
-    P2=None
+    P1=False
+    P2=False
     def rumble(controller,low_frequency, high_frequency, duration):
         if game.settings_data['rumble']:
             controller.rumble(low_frequency, high_frequency, duration)

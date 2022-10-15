@@ -1,4 +1,4 @@
-from pygame.constants import JOYBUTTONDOWN,JOYBUTTONUP
+from pygame.constants import JOYBUTTONDOWN,JOYBUTTONUP,JOYHATMOTION
 import pygame,time,math,random
 from pygame.sprite import collide_mask
 import common_functions as comfunc
@@ -988,8 +988,12 @@ class PlayerOne(pygame.sprite.Sprite):
                     self.dpad_timestamp=Time.game_clock()+.5
                     self.relic_select(P1)
         for event in game.events:
+            if 'instance_id' in event.__dict__:
+                controller=event.__dict__['instance_id']
+            else:
+                controller=None
             comfunc.quit(event)
-            if event.type == JOYBUTTONDOWN:
+            if event.type == JOYBUTTONDOWN and controller==P1.get_instance_id():
                 if event.__dict__['button']==0:
                     if time_stamp>self.blink_time_ref:
                         if self.mp>=self.blink_mp_cost:
@@ -1007,14 +1011,15 @@ class PlayerOne(pygame.sprite.Sprite):
                         if time_stamp>self.relic_activation_cool_down:
                             self.deactivate_relic()
                             self.relic_cool_down=Time.game_clock()+.5
-                if P1.get_hat(0)[0] or P1.get_hat(0)[1]:
+            if event.type == JOYHATMOTION and controller==P1.get_instance_id():
+                # if event.__dict__['hat']==4:#P1.get_hat(0)[0] or P1.get_hat(0)[1]:
                     if 'relic' in self.aux_state:
                         pass
                     else:
                         if time_stamp>self.relic_cool_down:
                             self.dpad_timestamp=Time.game_clock()+.5
                             self.relic_select(P1)
-            elif event.type == JOYBUTTONUP:
+            elif event.type == JOYBUTTONUP and controller==P1.get_instance_id():
                 if event.__dict__['button']==0:
                     pass
                 if event.__dict__['button']==1:
