@@ -19,6 +19,7 @@ from pygame.constants import JOYAXISMOTION, JOYBUTTONDOWN, JOYBUTTONUP, JOYHATMO
 import common_functions as comfunc
 import player_one as player
 import level_loader as lev
+import levels.level_index as levdex
 from color_palette import *
 from random import randint
 import controller as con
@@ -156,7 +157,10 @@ class GameElements():
         self.switch = False
         self.loading=True
         self.level_loaded=False
-        self.current_level=1
+        self.level_complete=True
+        self.seed=''
+        self.level_increment=0
+        self.current_level=0
         self.canvas=canvas
         self.canvas_pos=pygame.math.Vector2(0,0)
         self.screen_top_left=pygame.math.Vector2(0,0)
@@ -1521,6 +1525,18 @@ class GameElements():
             i.update(screen,scyman,Time.delta())
 
     def map_loader(self):
+        if self.level_complete:
+            if self.level_increment>=4:
+                self.level_increment=0
+            if self.level_increment==0:
+                if len(levdex.run_seed)<=0:
+                    self.focus='start'
+                    return
+                self.seed=levdex.random_seed()
+            self.level_increment+=1
+            self.level_loaded=False
+            self.level_complete=False
+            self.current_level=levdex.random_in_tier(self.seed,self.level_increment)
         if not self.level_loaded:
             structures.empty()
             scarecrows.empty()
@@ -1531,10 +1547,9 @@ class GameElements():
             scarecrows.add(enemy_container)
             scyman.x,scyman.y=player_pos
             scyman.x_precise,scyman.y_precise=player_pos
+        if  not scarecrows:
+            self.level_complete=True
         screen.blit(back_ground,(0,0))
-        if not scarecrows:
-            self.current_level+=1
-            self.level_loaded=False
         self.canvas=self.canvas_original.copy()
         player.canvas=self.canvas
         enemies.canvas=self.canvas

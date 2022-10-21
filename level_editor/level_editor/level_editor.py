@@ -207,11 +207,9 @@ class world_edit():
                         screen.blit(img, (col * tile_size, row * tile_size))
                     #structure
                     if game_data[row][col] == 300:
-                        # img = pygame.transform.scale(grass_img1, (tile_size, tile_size))
-                        # screen.blit(img, (col * tile_size, row * tile_size))
+                        #block
                         img = pygame.transform.scale(block, (tile_size, tile_size))
                         screen.blit(img, (col * tile_size, row * tile_size))
-                        #game_data[row][col]=300
 
                 #####edges
                     if world_data[row][col] == 100:
