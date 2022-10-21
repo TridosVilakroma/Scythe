@@ -112,7 +112,7 @@ class ScareBoss(pygame.sprite.Sprite):
         loot=equip.relic_table()
         if loot is None:
             return
-        loot.rect.topleft=self.rect.topleft
+        loot.rect.topleft=self.rect.center
         spawned_loot.add(loot)
 
     def collision_check(self):

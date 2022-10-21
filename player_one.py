@@ -218,6 +218,9 @@ class PlayerOne(pygame.sprite.Sprite):
         for i in enemies.spawned_loot:
             if i.vecpos.distance_to((self.rect.center))<100:
                 i.info(canvas)
+        for i in boss.spawned_loot:
+            if i.vecpos.distance_to((self.rect.center))<100:
+                i.info(canvas)
 
     def interact(self):
         for event in game.events:
@@ -321,6 +324,8 @@ class PlayerOne(pygame.sprite.Sprite):
         #collision between player and equipment
         self.interactables.clear()
         for i in pygame.sprite.spritecollide(self,enemies.spawned_loot,False):
+            self.interactables.append(i)
+        for i in pygame.sprite.spritecollide(self,boss.spawned_loot,False):
             self.interactables.append(i)
 
     def collision_check(self,xy,old_pos):
