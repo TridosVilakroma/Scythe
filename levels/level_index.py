@@ -10,15 +10,15 @@ run_seed=['scareboss']
 
 #tier 1 level indexes
 
-scareboss_tier_1=[2]
+scareboss_tier_1=[2,5,6]
 
 #tier 2 level indexes
 
-scareboss_tier_2=[3]
+scareboss_tier_2=[3,7,8]
 
 #tier 3 level indexes
 
-scareboss_tier_3=[4]
+scareboss_tier_3=[4,9,11]
 
 #tier 4 level indexes
 
