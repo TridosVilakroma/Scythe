@@ -1298,7 +1298,7 @@ class GameElements():
                         if hasattr(current_button,'state_change'):
                                 current_button.state_change()
                         if self.current_button_order[self.button_focus] in self.helper_buttons_top or self.current_button_order[self.button_focus] in self.helper_buttons_bottom:
-                            temp=self.helper_buttons[self.button_focus]
+                            temp=self.current_button_order[self.button_focus]
                             if temp:
                                 self.selected_helper=temp
                         else:
