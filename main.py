@@ -1311,6 +1311,7 @@ class GameElements():
                 if event.__dict__['button']==1:
                     self.focus='main'
                     self.main_loaded=False
+                    self.selected_helper=no_selection
 
             elif event.type == JOYHATMOTION:
                 if event.__dict__['hat']==0:
