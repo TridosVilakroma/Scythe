@@ -1647,6 +1647,8 @@ class GameElements():
         scyman=player.PlayerOne(0,0)
         enemies.player=scyman
         self.level_loaded=False
+        self.level_increment=0
+        self.level_complete=True
         self.focus='main'
         self.game_over_loaded=False
 
