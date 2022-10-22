@@ -937,10 +937,12 @@ class GameElements():
                         current_button.clicked()
                         if hasattr(current_button,'state_change'):
                                 current_button.state_change()
-                        temp=self.button_order[self.button_focus].activate()
+                        temp=current_button.activate()
                         if temp:
                             self.focus=temp
                             self.main_loaded=False
+                        current_button.depressed=False
+                        current_button.image_swap()
                 if event.__dict__['button']==1:
                     self.focus='main'
                     self.main_loaded=False
