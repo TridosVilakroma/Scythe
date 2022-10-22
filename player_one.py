@@ -193,7 +193,7 @@ class PlayerOne(pygame.sprite.Sprite):
             # equip.aeetus_relic,
             # equip.Mephitidae_relic,
             # equip.Ursidae_relic,
-            # equip.Panthera_relic]
+            # equip.Canidae_relic]
         self.armor=[]
             # equip.HermesSelect_armor,
             # equip.MailOfPain_armor]
