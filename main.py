@@ -1284,6 +1284,8 @@ class GameElements():
                             if temp:
                                 self.focus=temp
                                 self.main_loaded=False
+                                if temp=='main':
+                                    self.selected_helper=no_selection
                     if i.depressed:
                         i.depressed=False
                         i.image_swap()
@@ -1308,6 +1310,8 @@ class GameElements():
                             if temp:
                                 self.focus=temp
                                 self.main_loaded=False
+                                if temp=='main':
+                                    self.selected_helper=no_selection
                 if event.__dict__['button']==1:
                     self.focus='main'
                     self.main_loaded=False
