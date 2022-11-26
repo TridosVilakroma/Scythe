@@ -449,7 +449,7 @@ class Bear(Relic):
         super().__init__(mana_drain, self.image)
         self.defense=3
         self.speed=120
-        self.scythe_attack=6
+        self.scythe_attack=18
         self.hp_regen=0
         self.rage_mode=False
         self.rage_colors=(RED,RED,RED,RED,RED,DARK_RED,DARK_RED,DEEP_RED,ORANGE)

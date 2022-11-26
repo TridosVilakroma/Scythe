@@ -58,7 +58,7 @@ class PlayerOne(pygame.sprite.Sprite):
         self.scythe_time_ref=Time.game_clock()
         self.slash_time_ref=Time.game_clock()
         self.slash_cooldown=.8
-        self.scythe_attack=2
+        self.scythe_attack=6
         self.scythe_attack_flag=[0,0]
         self.mask=pygame.mask.from_surface(self.image)
         self.relic_cool_down=Time.game_clock()
@@ -713,7 +713,7 @@ class PlayerOne(pygame.sprite.Sprite):
             if self.scythe_attack_flag[0]==0:
                 self.scythe_attack_flag[0]=1
                 for i in hit_list:
-                    i.damage(self.scythe_attack)
+                    i.damage(self.scythe_attack*2)
         elif time_stamp<self.scythe_time_ref+.5:
             if 'scythe_twist' not in self.aux_state:
                 self.aux_state.append('scythe_twist')
@@ -733,7 +733,7 @@ class PlayerOne(pygame.sprite.Sprite):
             if self.scythe_attack_flag[1]==0:
                 self.scythe_attack_flag[1]=1
                 for i in hit_list:
-                    i.damage(self.scythe_attack*3)
+                    i.damage(self.scythe_attack)
         else:
                 comfunc.clean_list(self.aux_state,'scythe')
                 comfunc.clean_list(self.aux_state,'scythe_twist')
