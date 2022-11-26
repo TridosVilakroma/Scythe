@@ -654,6 +654,18 @@ class Omnivine(pygame.sprite.Sprite):
                         v.scale_to_length(self.speed*self.delta)
                     self.dest+=v
         self.rect.center=self.dest
+        if self.x<32:
+            self.x=32
+            self.dest[0]=32+self.rect.width/2
+        if self.x>2936:
+            self.x=2936
+            self.dest[0]=2936+self.rect.width/2
+        if self.y<32:
+            self.y=32
+            self.dest[1]=32+self.rect.height/2
+        if self.y>1436:
+            self.y=1436
+            self.dest[1]=1436+self.rect.height/2
 
     def vitality(self):
         if self.hp <= 0:
@@ -1030,6 +1042,18 @@ class Nid(pygame.sprite.Sprite):
                     self.jump_v.scale_to_length(self.speed*self.delta)
                 self.dest+=self.jump_v
                 self.rect.center=self.dest
+                if self.x<32:
+                    self.x=32
+                    self.dest[0]=32+self.rect.width/2
+                if self.x>2936:
+                    self.x=2936
+                    self.dest[0]=2936+self.rect.width/2
+                if self.y<32:
+                    self.y=32
+                    self.dest[1]=32+self.rect.height/2
+                if self.y>1436:
+                    self.y=1436
+                    self.dest[1]=1436+self.rect.height/2
                 #jump shadow animation
                 if self.jump_time.age(max=1.54):
                     canvas.blit(self.jump_shadow,self.rect.bottomleft)
@@ -1059,6 +1083,18 @@ class Nid(pygame.sprite.Sprite):
                     self.jump_v.scale_to_length(self.speed*self.delta*.2)
                 self.dest+=self.jump_v
                 self.rect.center=self.dest
+                if self.x<32:
+                    self.x=32
+                    self.dest[0]=32+self.rect.width/2
+                if self.x>2936:
+                    self.x=2936
+                    self.dest[0]=2936+self.rect.width/2
+                if self.y<32:
+                    self.y=32
+                    self.dest[1]=32+self.rect.height/2
+                if self.y>1436:
+                    self.y=1436
+                    self.dest[1]=1436+self.rect.height/2
         else:
             comfunc.clean_list(self.aux_state,'jump')
         self.image=self.sprite_set[int(self.current_sprite)]
