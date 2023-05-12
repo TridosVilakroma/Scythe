@@ -153,7 +153,7 @@ class GameElements():
         self.settings_setter()
         self.focus= 'start'
         self.aux_state=[]
-        self.events=[]
+        self.events=[]#_list
         self.switch = False
         self.loading=True
         self.level_loaded=False
@@ -178,6 +178,19 @@ class GameElements():
         self.button_action=False
         self.is_multiplayer=False
         self.companion=False
+
+    # @property
+    # def events(self):
+    #     pass
+
+    # @events.setter
+    # def events(self,value):
+    #     self.events_list=value
+
+    # @events.getter
+    # def events(self):
+    #     for i in self.events_list:
+    #         yield i
 
     def settings_setter(self):
         data=self.settings_data
