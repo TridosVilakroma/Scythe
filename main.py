@@ -1,4 +1,4 @@
-import Time,pygame,os
+import Time,pygame,os,math
 Time.init()
 pygame.init()
 screen_width = 1000
@@ -104,6 +104,9 @@ credits_info=gui.Label(pygame.transform.scale(pygame.image.load(r'media\gui\main
                         (500,300),"")
 multiplayer_info=gui.Label(pygame.transform.scale(pygame.image.load(r'media\gui\main_menu\parchment_alpha.png').convert_alpha(),(750,300)),
                         (500,300),"")
+player_menu_rt_stick=gui.Label(pygame.transform.scale(pygame.image.load(r'media\gui\input_prompts\tile_0314.png').convert_alpha(),(40,40)),(756,250),'')
+player_menu_rt_stick_up=gui.Label(pygame.transform.scale(pygame.image.load(r'media\gui\input_prompts\tile_0315.png').convert_alpha(),(40,40)),(756,250),'')
+player_menu_rt_stick_down=gui.Label(pygame.transform.scale(pygame.image.load(r'media\gui\input_prompts\tile_0317.png').convert_alpha(),(40,40)),(756,250),'')
 #structure group
 structures=pygame.sprite.Group()
 #enemy loading
@@ -341,6 +344,13 @@ class GameElements():
                 (self.player_menu_button_order[self.button_focus].rect.right,
                 self.player_menu_button_order[self.button_focus].rect.top))
             current_button=self.player_menu_button_order[self.button_focus]
+            rt_stick_state=math.sin(time.time())
+            if rt_stick_state>=.5:
+                player_menu_rt_stick_up.draw(screen)
+            elif -.5<rt_stick_state<.5:
+                player_menu_rt_stick.draw(screen)
+            elif rt_stick_state<=-.5:
+                player_menu_rt_stick_down.draw(screen)
 
         for event in game.events:
             comfunc.quit(event)
